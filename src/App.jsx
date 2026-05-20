@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Award, CheckCircle2, ChevronRight, ChevronLeft, Home, Users, Target, Lightbulb, Shield, Globe, Mail, Palette, FileText, AlertTriangle, Sparkles, Trophy, X, Check, ArrowRight, RotateCcw, MapPin, TrendingUp, Leaf, Search, BarChart3, MessageSquare, BookMarked, Clock, Layers, Menu, DollarSign, CloudRain, Database, ClipboardCheck, Languages } from 'lucide-react';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp, query, orderBy, limit, onSnapshot, addDoc, writeBatch, increment } from 'firebase/firestore';
 import { auth, googleProvider, ALLOWED_DOMAIN, db } from './firebase';
 
 const YELLOW = '#FFC800';
@@ -2623,6 +2623,20 @@ function computeCompletion(course, p = {}) {
   return Math.round((done / totalSteps) * 100);
 }
 
+function timeAgo(ts) {
+  const date = ts?.toDate?.();
+  if (!date) return '';
+  const s = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (s < 60) return 'just now';
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  if (d < 30) return `${d}d ago`;
+  return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+}
+
 function isAllowedEmail(email) {
   if (!email) return false;
   const trimmed = email.trim().toLowerCase();
@@ -2879,7 +2893,7 @@ export default function App() {
           )}
 
           {view === 'list' && page === 'forum' && (
-            <ForumPage userName={userName} />
+            <ForumPage userName={userName} userUid={userUid} />
           )}
 
           {view === 'course' && activeCourse && (
@@ -3476,14 +3490,38 @@ function CertificatesPage({ userName, courses, courseCompletion, onSelectCourse,
 }
 
 // ===== Forum Page =====
-function ForumPage({ userName }) {
-  const threads = [
-    { id: 1, title: 'How are teams handling EUDR compliance prep?', author: 'Faith W.', country: 'Kenya', replies: 12, category: 'Climate & NRM', time: '2h ago' },
-    { id: 2, title: 'Tips for using Solichain in coffee value chains', author: 'Philemon C.', country: 'Kenya', replies: 8, category: 'Digital', time: '5h ago' },
-    { id: 3, title: 'Best practices for Farmer Field Schools', author: 'Dorothy M.', country: 'Tanzania', replies: 23, category: 'Onboarding', time: '1d ago' },
-    { id: 4, title: 'GALS methodology — what\'s working in Uganda?', author: 'Jackline S.', country: 'Uganda', replies: 15, category: 'Strategy', time: '2d ago' },
-    { id: 5, title: 'Carbon pre-finance: lessons learned', author: 'Jack M.', country: 'Kenya', replies: 7, category: 'Access to Finance', time: '3d ago' },
-  ];
+function ForumPage({ userName, userUid }) {
+  const [threads, setThreads] = useState([]);
+  const [loadingThreads, setLoadingThreads] = useState(true);
+  const [showNew, setShowNew] = useState(false);
+  const [selected, setSelected] = useState(null);
+
+  useEffect(() => {
+    const q = query(collection(db, 'forum'), orderBy('lastReplyAt', 'desc'), limit(50));
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        setThreads(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        setLoadingThreads(false);
+      },
+      (err) => {
+        console.error('forum subscribe failed', err);
+        setLoadingThreads(false);
+      },
+    );
+    return unsub;
+  }, []);
+
+  if (selected) {
+    return (
+      <ThreadDetail
+        thread={selected}
+        userName={userName}
+        userUid={userUid}
+        onBack={() => setSelected(null)}
+      />
+    );
+  }
 
   return (
     <div>
@@ -3491,40 +3529,301 @@ function ForumPage({ userName }) {
       <p className="mt-3 text-gray-600 max-w-2xl">Connect with colleagues across Ethiopia, Kenya, Tanzania, and Uganda. Share experiences, ask questions, and learn from peers.</p>
 
       <div className="mt-6 flex items-center justify-between gap-3">
-        <div className="text-sm text-gray-500">{threads.length} active discussions</div>
-        <button className="px-5 py-2.5 font-extrabold uppercase tracking-wider text-sm rounded flex items-center gap-2" style={{ backgroundColor: YELLOW }}>
+        <div className="text-sm text-gray-500">
+          {loadingThreads ? 'Loading…' : `${threads.length} active discussion${threads.length === 1 ? '' : 's'}`}
+        </div>
+        <button
+          onClick={() => setShowNew(true)}
+          disabled={!userUid}
+          className="px-5 py-2.5 font-extrabold uppercase tracking-wider text-sm rounded flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{ backgroundColor: YELLOW }}
+        >
           <MessageSquare size={16} /> New Discussion
         </button>
       </div>
 
+      {showNew && (
+        <NewThreadModal
+          userName={userName}
+          userUid={userUid}
+          onClose={() => setShowNew(false)}
+        />
+      )}
+
       <div className="mt-6 space-y-3">
+        {!loadingThreads && threads.length === 0 && (
+          <div className="p-8 border-2 border-dashed border-gray-300 text-center rounded">
+            <MessageSquare size={32} className="mx-auto text-gray-400" />
+            <p className="mt-3 text-gray-600">No discussions yet — start the first one.</p>
+          </div>
+        )}
         {threads.map(t => (
-          <div key={t.id} className="bg-white border border-gray-200 rounded-lg p-5 hover:border-black hover:shadow-sm transition-all cursor-pointer">
+          <button
+            key={t.id}
+            onClick={() => setSelected(t)}
+            className="w-full text-left bg-white border border-gray-200 rounded-lg p-5 hover:border-black hover:shadow-sm transition-all cursor-pointer"
+          >
             <div className="flex items-start gap-4">
               <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-black flex-shrink-0" style={{ backgroundColor: YELLOW }}>
-                {t.author.charAt(0)}
+                {(t.authorName || '?').charAt(0).toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs uppercase tracking-widest font-bold px-2 py-0.5 border border-black rounded-full">{t.category}</span>
-                  <span className="text-xs text-gray-500">{t.time}</span>
+                  <span className="text-xs uppercase tracking-widest font-bold px-2 py-0.5 border border-black rounded-full">{t.category || 'General'}</span>
+                  <span className="text-xs text-gray-500">{timeAgo(t.lastReplyAt || t.createdAt)}</span>
                 </div>
                 <h3 className="font-extrabold tracking-tight mt-2 leading-snug">{t.title}</h3>
                 <div className="mt-2 flex items-center gap-3 text-xs text-gray-500">
-                  <span>{t.author} · {t.country}</span>
+                  <span>{t.authorName || 'Anonymous'}{t.country ? ` · ${t.country}` : ''}</span>
                   <span className="inline-flex items-center gap-1">
-                    <MessageSquare size={12} /> {t.replies} replies
+                    <MessageSquare size={12} /> {t.replyCount || 0} {t.replyCount === 1 ? 'reply' : 'replies'}
                   </span>
                 </div>
               </div>
             </div>
-          </div>
+          </button>
         ))}
       </div>
 
       <div className="mt-8 p-5 bg-gray-50 border border-gray-200 rounded-lg">
         <div className="text-xs uppercase tracking-widest font-bold">Forum Guidelines</div>
         <p className="mt-2 text-sm text-gray-700">Be respectful, use UN/Oxford English, share field experiences, and protect confidential information per our Code of Conduct.</p>
+      </div>
+    </div>
+  );
+}
+
+function NewThreadModal({ userName, userUid, onClose }) {
+  const POST_CATEGORIES = CATEGORIES.filter(c => c !== 'All');
+  const [title, setTitle] = useState('');
+  const [body, setBody] = useState('');
+  const [category, setCategory] = useState(POST_CATEGORIES[0]);
+  const [country, setCountry] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  const submit = async () => {
+    setError('');
+    if (!title.trim() || !body.trim()) {
+      setError('Title and body are required.');
+      return;
+    }
+    if (!userUid) {
+      setError('You need to be signed in to post.');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await addDoc(collection(db, 'forum'), {
+        title: title.trim(),
+        body: body.trim(),
+        category,
+        authorUid: userUid,
+        authorName: userName || 'Anonymous',
+        country: country.trim(),
+        createdAt: serverTimestamp(),
+        lastReplyAt: serverTimestamp(),
+        replyCount: 0,
+      });
+      onClose();
+    } catch (e) {
+      console.error('addDoc forum failed', e);
+      setError('Could not post. Please try again.');
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white max-w-xl w-full rounded-lg p-6 max-h-[90vh] overflow-y-auto"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-extrabold tracking-tight uppercase">New Discussion</h2>
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded" aria-label="Close">
+            <X size={20} />
+          </button>
+        </div>
+        <Swoosh w={120} />
+
+        <div className="mt-4 space-y-3">
+          <input
+            type="text"
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            placeholder="Title"
+            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-black"
+            maxLength={140}
+          />
+          <select
+            value={category}
+            onChange={e => setCategory(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-black bg-white"
+          >
+            {POST_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+          </select>
+          <input
+            type="text"
+            value={country}
+            onChange={e => setCountry(e.target.value)}
+            placeholder="Your country (optional)"
+            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-black"
+            maxLength={60}
+          />
+          <textarea
+            value={body}
+            onChange={e => setBody(e.target.value)}
+            placeholder="Share your question, experience, or insight…"
+            rows={6}
+            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-black resize-y"
+            maxLength={4000}
+          />
+          {error && <div className="text-sm text-red-600">{error}</div>}
+        </div>
+
+        <div className="mt-5 flex justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-bold uppercase tracking-wider hover:underline"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={submit}
+            disabled={submitting}
+            className="px-5 py-2.5 font-extrabold uppercase tracking-wider text-sm rounded disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ backgroundColor: YELLOW }}
+          >
+            {submitting ? 'Posting…' : 'Post Discussion'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ThreadDetail({ thread, userName, userUid, onBack }) {
+  const [replies, setReplies] = useState([]);
+  const [loadingReplies, setLoadingReplies] = useState(true);
+  const [body, setBody] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const q = query(collection(db, 'forum', thread.id, 'replies'), orderBy('createdAt', 'asc'));
+    const unsub = onSnapshot(
+      q,
+      (snap) => {
+        setReplies(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        setLoadingReplies(false);
+      },
+      (err) => {
+        console.error('replies subscribe failed', err);
+        setLoadingReplies(false);
+      },
+    );
+    return unsub;
+  }, [thread.id]);
+
+  const post = async () => {
+    setError('');
+    if (!body.trim() || !userUid) return;
+    setSubmitting(true);
+    try {
+      const batch = writeBatch(db);
+      const replyRef = doc(collection(db, 'forum', thread.id, 'replies'));
+      batch.set(replyRef, {
+        body: body.trim(),
+        authorUid: userUid,
+        authorName: userName || 'Anonymous',
+        createdAt: serverTimestamp(),
+      });
+      batch.update(doc(db, 'forum', thread.id), {
+        replyCount: increment(1),
+        lastReplyAt: serverTimestamp(),
+      });
+      await batch.commit();
+      setBody('');
+    } catch (e) {
+      console.error('post reply failed', e);
+      setError('Could not post reply. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div>
+      <button onClick={onBack} className="text-sm font-bold uppercase tracking-wider mb-4 inline-flex items-center gap-1 hover:underline">
+        <ChevronLeft size={16} /> Back to Forum
+      </button>
+
+      <div className="bg-white border border-gray-200 rounded-lg p-6">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs uppercase tracking-widest font-bold px-2 py-0.5 border border-black rounded-full">{thread.category || 'General'}</span>
+          <span className="text-xs text-gray-500">{timeAgo(thread.createdAt)}</span>
+        </div>
+        <h1 className="mt-3 text-2xl md:text-3xl font-extrabold tracking-tight leading-tight">{thread.title}</h1>
+        <div className="mt-2 text-sm text-gray-600">
+          {thread.authorName || 'Anonymous'}{thread.country ? ` · ${thread.country}` : ''}
+        </div>
+        <p className="mt-4 whitespace-pre-wrap text-gray-800">{thread.body}</p>
+      </div>
+
+      <div className="mt-8">
+        <h2 className="text-lg font-extrabold tracking-tight uppercase">
+          Replies ({thread.replyCount || replies.length})
+        </h2>
+        <Swoosh w={80} />
+
+        <div className="mt-4 space-y-3">
+          {loadingReplies && <div className="text-sm text-gray-500">Loading replies…</div>}
+          {!loadingReplies && replies.length === 0 && (
+            <div className="text-sm text-gray-500">No replies yet — be the first.</div>
+          )}
+          {replies.map(r => (
+            <div key={r.id} className="bg-white border border-gray-200 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-black flex-shrink-0 text-sm" style={{ backgroundColor: YELLOW }}>
+                  {(r.authorName || '?').charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs text-gray-500">
+                    <span className="font-bold text-black">{r.authorName || 'Anonymous'}</span> · {timeAgo(r.createdAt)}
+                  </div>
+                  <p className="mt-1 whitespace-pre-wrap text-sm text-gray-800">{r.body}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-6 bg-white border border-gray-200 rounded-lg p-4">
+        <textarea
+          value={body}
+          onChange={e => setBody(e.target.value)}
+          placeholder={userUid ? 'Write a reply…' : 'Sign in to reply.'}
+          rows={3}
+          disabled={!userUid || submitting}
+          className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-black resize-y disabled:bg-gray-50"
+          maxLength={4000}
+        />
+        {error && <div className="mt-2 text-sm text-red-600">{error}</div>}
+        <div className="mt-3 flex justify-end">
+          <button
+            onClick={post}
+            disabled={!userUid || submitting || !body.trim()}
+            className="px-5 py-2.5 font-extrabold uppercase tracking-wider text-sm rounded disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{ backgroundColor: YELLOW }}
+          >
+            {submitting ? 'Posting…' : 'Post Reply'}
+          </button>
+        </div>
       </div>
     </div>
   );

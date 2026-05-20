@@ -42,8 +42,20 @@ service cloud.firestore {
         && request.resource.data.authorUid == request.auth.uid
         && request.resource.data.replyCount == 0;
 
-      allow update: if signedInSolidaridad()
-        && resource.data.authorUid == request.auth.uid;
+      // Author can update any field on their own thread (edit title/body).
+      // Any signed-in user may bump replyCount by exactly +1 and refresh
+      // lastReplyAt — this is what the batched reply-write does so the
+      // thread row in the list shows up-to-date counts. The +1 invariant
+      // means a malicious user can't decrement, zero, or arbitrarily
+      // inflate the counter.
+      allow update: if signedInSolidaridad() && (
+        resource.data.authorUid == request.auth.uid
+        || (
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['replyCount', 'lastReplyAt'])
+          && request.resource.data.replyCount == resource.data.replyCount + 1
+        )
+      );
 
       allow delete: if signedInSolidaridad()
         && resource.data.authorUid == request.auth.uid;

@@ -1,5 +1,10 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+import {
+  initializeFirestore,
+  persistentLocalCache,
+  persistentSingleTabManager,
+} from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyCEkVK21-OSqE857hzbEBmVNOqpYY0Oays',
@@ -19,4 +24,11 @@ export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({
   hd: ALLOWED_DOMAIN,
   prompt: 'select_account',
+});
+
+// IndexedDB cache so progress survives offline use and refreshes (single-tab).
+export const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentSingleTabManager({}),
+  }),
 });

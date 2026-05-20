@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Award, CheckCircle2, ChevronRight, ChevronLeft, Home, Users, Target, Lightbulb, Shield, Globe, Mail, Palette, FileText, AlertTriangle, Sparkles, Trophy, X, Check, ArrowRight, RotateCcw, MapPin, TrendingUp, Leaf, Search, BarChart3, MessageSquare, BookMarked, Clock, Layers, Menu, DollarSign, CloudRain, Database, ClipboardCheck, Languages } from 'lucide-react';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
-import { auth, googleProvider, ALLOWED_DOMAIN } from './firebase';
+import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp } from 'firebase/firestore';
+import { auth, googleProvider, ALLOWED_DOMAIN, db } from './firebase';
 
 const YELLOW = '#FFC800';
 const GREY = '#D9D9C3';
@@ -2528,45 +2529,54 @@ COURSES.push({
   ],
 });
 
-// ===== Storage helpers (localStorage-backed for local/production use) =====
-async function loadProgress() {
+// ===== Storage helpers (Firestore-backed, per-user) =====
+async function loadProgress(uid) {
+  if (!uid) return {};
   try {
-    const raw = localStorage.getItem('learning-progress');
-    return raw ? JSON.parse(raw) : {};
-  } catch {
+    const snap = await getDocs(collection(db, 'users', uid, 'progress'));
+    const out = {};
+    snap.forEach(d => { out[d.id] = d.data(); });
+    return out;
+  } catch (e) {
+    console.error('loadProgress failed', e);
     return {};
   }
 }
 
-async function saveProgress(progress) {
+async function saveCourseProgress(uid, courseId, partial) {
+  if (!uid) return;
   try {
-    localStorage.setItem('learning-progress', JSON.stringify(progress));
+    await setDoc(
+      doc(db, 'users', uid, 'progress', courseId),
+      { ...partial, lastViewedAt: serverTimestamp() },
+      { merge: true },
+    );
   } catch (e) {
-    console.error('Save failed', e);
+    console.error('saveCourseProgress failed', e);
   }
 }
 
-async function loadUserName() {
+async function loadUserName(uid) {
+  if (!uid) return '';
   try {
-    return localStorage.getItem('user-name') || '';
-  } catch {
+    const snap = await getDoc(doc(db, 'users', uid));
+    return snap.exists() ? (snap.data().displayName || '') : '';
+  } catch (e) {
+    console.error('loadUserName failed', e);
     return '';
   }
 }
 
-async function saveUserName(name) {
+async function saveUserName(uid, name) {
+  if (!uid || !name) return;
   try {
-    localStorage.setItem('user-name', name);
+    await setDoc(
+      doc(db, 'users', uid),
+      { displayName: name, updatedAt: serverTimestamp() },
+      { merge: true },
+    );
   } catch (e) {
-    console.error('Save failed', e);
-  }
-}
-
-async function clearSession() {
-  try {
-    localStorage.removeItem('user-name');
-  } catch (e) {
-    console.error('Clear failed', e);
+    console.error('saveUserName failed', e);
   }
 }
 
@@ -2609,6 +2619,7 @@ export default function App() {
   const [progress, setProgress] = useState({});
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
+  const [userUid, setUserUid] = useState('');
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [activeCategory, setActiveCategory] = useState('All');
@@ -2616,30 +2627,34 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    let unsub = () => {};
-    (async () => {
-      const p = await loadProgress();
-      setProgress(p);
-      unsub = onAuthStateChanged(auth, async (user) => {
-        if (user && isAllowedEmail(user.email)) {
-          const email = user.email.toLowerCase();
-          setUserEmail(email);
-          const storedName = await loadUserName();
-          const derived = user.displayName || nameFromEmail(email);
-          if (!storedName && derived) {
-            setUserName(derived);
-            saveUserName(derived);
-          } else {
-            setUserName(storedName);
-            if (!storedName) setShowNamePrompt(true);
-          }
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (user && isAllowedEmail(user.email)) {
+        const email = user.email.toLowerCase();
+        const uid = user.uid;
+        setUserEmail(email);
+        setUserUid(uid);
+        const [p, storedName] = await Promise.all([
+          loadProgress(uid),
+          loadUserName(uid),
+        ]);
+        setProgress(p);
+        const derived = user.displayName || nameFromEmail(email);
+        if (storedName) {
+          setUserName(storedName);
+        } else if (derived) {
+          setUserName(derived);
+          saveUserName(uid, derived);
         } else {
-          setUserEmail('');
-          setUserName('');
+          setShowNamePrompt(true);
         }
-        setLoaded(true);
-      });
-    })();
+      } else {
+        setUserEmail('');
+        setUserUid('');
+        setUserName('');
+        setProgress({});
+      }
+      setLoaded(true);
+    });
     return () => unsub();
   }, []);
 
@@ -2649,21 +2664,18 @@ export default function App() {
     } catch (e) {
       console.error('Sign-out failed', e);
     }
-    await clearSession();
-    setUserEmail('');
-    setUserName('');
-    setProgress({});
     setPage('catalog');
     setView('list');
   };
 
   const updateProgress = (courseId, key, value) => {
+    if (!userUid) return;
     const next = {
       ...progress,
       [courseId]: { ...(progress[courseId] || {}), [key]: value },
     };
     setProgress(next);
-    saveProgress(next);
+    saveCourseProgress(userUid, courseId, { [key]: value });
   };
 
   const courseCompletion = (courseId) => {
@@ -2718,7 +2730,7 @@ export default function App() {
         <NamePrompt
           onSubmit={(name) => {
             setUserName(name);
-            saveUserName(name);
+            saveUserName(userUid, name);
             setShowNamePrompt(false);
           }}
         />

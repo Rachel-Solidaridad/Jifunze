@@ -49,7 +49,8 @@ There is no lint or test script configured yet.
 
 ## Conventions
 
-- **Auth is simulated** — the login page accepts any `@solidaridadnetwork.org` email with any password. Real SSO needs to be wired in before production.
+- **Auth** — Firebase Auth, Google Workspace SSO only (`signInWithPopup`). Provider in `src/firebase.js` sets `hd: solidaridadnetwork.org` + `prompt: select_account`; `LoginPage` does a post-sign-in domain check and shows an access-denied panel if the email doesn't match. Email/password is intentionally not offered.
+- **User data** — per-user progress and display name live in **Firestore** (`users/{uid}` and `users/{uid}/progress/{courseId}`), not `localStorage`. Client uses `persistentLocalCache` for offline survival. Reads/writes happen inside `onAuthStateChanged`, scoped by `auth.currentUser.uid`. Rules in `firestore.rules`; deploy with `npx firebase deploy --only firestore:rules,firestore:indexes`.
 - **Styling** is Tailwind utility classes; icons come from `lucide-react`.
 - **Single-file app** — most UI currently lives in `src/App.jsx`. When it gets unwieldy, split by feature (one folder per course or per screen), not by file type.
 - Keep commits small and focused so the `main` history stays readable.

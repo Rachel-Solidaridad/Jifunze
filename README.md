@@ -43,7 +43,7 @@ npm run dev
 # → opens at http://localhost:5173
 ```
 
-The login page accepts any `@solidaridadnetwork.org` email and any password (auth is simulated for now — wire up real SSO before production).
+Sign in is **Google Workspace SSO only**, restricted to `@solidaridadnetwork.org` accounts (Firebase Auth, `signInWithPopup` with the `hd` parameter). Non-Solidaridad Google accounts are signed out immediately on the client and shown an "access restricted" panel. Firebase Auth `localhost` is trusted by default, so the dev flow works out of the box.
 
 To build for production:
 
@@ -74,9 +74,12 @@ jifunze-learning-hub/
 ├── vite.config.js          # Vite configuration
 ├── tailwind.config.js      # Tailwind theme — Solidaridad brand colours
 ├── postcss.config.js       # PostCSS for Tailwind
-├── firebase.json           # Firebase Hosting config (SPA rewrites, asset caching)
+├── firebase.json           # Firebase Hosting + Firestore config (SPA rewrites, asset caching, rules/indexes paths)
 ├── .firebaserc             # Firebase project alias (default → jifunze-7dbfe)
+├── firestore.rules         # Firestore security rules (users can only read/write their own data)
+├── firestore.indexes.json  # Firestore composite indexes
 ├── .github/workflows/      # GitHub Actions for auto-deploy on merge + PR previews
+├── src/firebase.js         # Firebase Auth + Firestore client init (project config, Google provider, IndexedDB-cached Firestore)
 ├── Dockerfile              # Fallback only — Cloud Run path, not actively maintained
 ├── nginx.conf              # Fallback only — used by the Docker/Cloud Run path
 ├── cloudbuild.yaml         # Fallback only — Cloud Build → Cloud Run pipeline
@@ -91,7 +94,7 @@ The entire app lives in `src/App.jsx` as a single file — about 4,400 lines. It
 3. Custom `JifunzeIcon` logo component
 4. `COURSES` array — all course data (definitions, lessons, interactives, quizzes)
 5. `CATEGORIES` array — filter chips for the catalog
-6. Storage helpers (localStorage-backed)
+6. Storage helpers (Firestore-backed, scoped by `auth.currentUser.uid`)
 7. Login gate
 8. Layout components (sidebar, top bar)
 9. Dashboard, catalog, course detail, lesson view, interactive views, quiz, certificate
@@ -220,13 +223,46 @@ COURSES.push({
 
 Add it to the `CATEGORIES` array (search for `const CATEGORIES =`).
 
-### Wiring up real authentication
+### Authentication
 
-The login gate currently checks the email domain only. To wire up real SSO (Google Workspace, Microsoft Entra, Okta), replace the `LoginPage` component's `onLogin` handler with a real OAuth flow. Recommended: use Firebase Auth or the cloud provider's IAP layer.
+Sign-in is handled by Firebase Auth using Google Workspace SSO only. The `googleProvider` in `src/firebase.js` is configured with:
 
-### Real backend for progress
+- `hd: solidaridadnetwork.org` — Google preselects/filters the account chooser to Solidaridad accounts.
+- `prompt: select_account` — the account chooser is always shown (avoids a wrong-account silent reuse in mixed-account browsers).
 
-Progress is currently stored in `localStorage`. To make it cross-device, replace the `loadProgress` / `saveProgress` functions (in the Storage helpers section) with calls to a backend — Firestore, Supabase, or a custom API.
+The `hd` parameter is a hint, not a hard gate, so `LoginPage` also performs a post-sign-in check: any account whose email doesn't end with `@solidaridadnetwork.org` is signed out via `signOut(auth)` and the user sees an "access restricted" panel naming the rejected email and pointing to `info.secaec@solidaridadnetwork.org` for access requests.
+
+The session is hydrated in `App()` via `onAuthStateChanged` — Firebase persists the auth token in IndexedDB, so refreshes keep the user signed in without any localStorage juggling.
+
+Email/password is intentionally not offered: this is a Workspace-only app and the extra UI was a UX trap (no sign-up flow, no admin provisioning). The Email/Password provider can be disabled in the Firebase Console → Authentication → Sign-in method.
+
+### Cross-device progress (Firestore)
+
+User progress and the display name shown on certificates are stored in **Firestore**, scoped by `auth.currentUser.uid`:
+
+- `users/{uid}` — single doc holding the user's `displayName` and last-updated timestamp.
+- `users/{uid}/progress/{courseId}` — one doc per course, holding the per-step completion flags (`lesson-*`, `interactive`, `quiz`).
+
+Writes are partial (single-field `setDoc` with `merge: true`) to keep us under the ~1 write/sec/document soft limit and the 1 MiB doc size limit as more courses are added. The Firestore client is initialised with `persistentLocalCache` + `persistentSingleTabManager` (in `src/firebase.js`), so:
+
+- Progress writes survive offline use and replay on reconnect — important for field connectivity in ECA.
+- Refreshes hit IndexedDB first, then sync from the server, so the catalog renders instantly.
+
+Security rules live in `firestore.rules`. They enforce two layers:
+
+1. Caller must be signed in **and** their auth-token email must match `@solidaridadnetwork.org` (`signedInSolidaridad()`) — defence-in-depth alongside the client-side domain check.
+2. Per-user data (`users/{uid}` and subcollections) is restricted to the owner (`request.auth.uid == uid`).
+
+The rules also cover two collections that **are not yet wired into the app**:
+
+- `users/{uid}/certificates/{courseId}` — write-once / immutable. Scaffolded for moving certificates from in-memory rendering to a server-of-record audit trail.
+- `forum/{threadId}` and `forum/{threadId}/replies/{replyId}` — shared per-org forum. The forum page exists in the UI but is currently a placeholder; the rules are ready for when it's wired up.
+
+Deploy rules + indexes after changes:
+
+```bash
+npx firebase deploy --only firestore:rules,firestore:indexes
+```
 
 ---
 

@@ -16,4 +16,7 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
 export const googleProvider = new GoogleAuthProvider();
-googleProvider.setCustomParameters({ hd: ALLOWED_DOMAIN });
+googleProvider.setCustomParameters({
+  hd: ALLOWED_DOMAIN,
+  prompt: 'select_account',
+});

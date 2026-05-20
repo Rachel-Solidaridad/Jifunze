@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Award, CheckCircle2, ChevronRight, ChevronLeft, Home, Users, Target, Lightbulb, Shield, Globe, Mail, Palette, FileText, AlertTriangle, Sparkles, Trophy, X, Check, ArrowRight, RotateCcw, MapPin, TrendingUp, Leaf, Search, BarChart3, MessageSquare, BookMarked, Clock, Layers, Menu, DollarSign, CloudRain, Database, ClipboardCheck, Languages } from 'lucide-react';
-import { signInWithPopup, signInWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged } from 'firebase/auth';
+import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { auth, googleProvider, ALLOWED_DOMAIN } from './firebase';
 
 const YELLOW = '#FFC800';
@@ -2581,9 +2581,6 @@ function isAllowedEmail(email) {
 
 function friendlyAuthError(err) {
   const code = err?.code || '';
-  if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found') {
-    return 'Email or password is incorrect. If this is your first time, ask an admin to provision your account or use Google sign-in.';
-  }
   if (code === 'auth/too-many-requests') return 'Too many attempts. Wait a few minutes before trying again.';
   if (code === 'auth/network-request-failed') return 'Network error. Check your connection and try again.';
   if (code === 'auth/popup-blocked') return 'Sign-in popup was blocked. Allow popups for this site and try again.';
@@ -2915,49 +2912,20 @@ function SidebarItem({ icon: Icon, label, active, onClick }) {
 
 // ===== Login Page =====
 function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [blockedAccount, setBlockedAccount] = useState(null);
   const [ssoLoading, setSsoLoading] = useState(false);
-
-  const handleSubmit = async (e) => {
-    if (e) e.preventDefault();
-    setError('');
-
-    const trimmed = email.trim().toLowerCase();
-    if (!trimmed) {
-      setError('Please enter your email address.');
-      return;
-    }
-    if (!password) {
-      setError('Please enter your password.');
-      return;
-    }
-    if (!isAllowedEmail(trimmed)) {
-      setError(`Only @${ALLOWED_DOMAIN} email addresses are permitted. Please use your Solidaridad email.`);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await signInWithEmailAndPassword(auth, trimmed, password);
-    } catch (err) {
-      setError(friendlyAuthError(err));
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleGoogleSSO = async () => {
     setError('');
+    setBlockedAccount(null);
     setSsoLoading(true);
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const signedInEmail = (result.user.email || '').toLowerCase();
       if (!isAllowedEmail(signedInEmail)) {
         await signOut(auth);
-        setError(`Only @${ALLOWED_DOMAIN} Google accounts are permitted.`);
+        setBlockedAccount(signedInEmail || 'this Google account');
       }
     } catch (err) {
       if (err?.code !== 'auth/popup-closed-by-user' && err?.code !== 'auth/cancelled-popup-request') {
@@ -2965,25 +2933,6 @@ function LoginPage() {
       }
     } finally {
       setSsoLoading(false);
-    }
-  };
-
-  const handleForgotPassword = async () => {
-    setError('');
-    const trimmed = email.trim().toLowerCase();
-    if (!trimmed) {
-      setError('Enter your email above first, then click "Forgot?" to receive a reset link.');
-      return;
-    }
-    if (!isAllowedEmail(trimmed)) {
-      setError(`Only @${ALLOWED_DOMAIN} email addresses are permitted.`);
-      return;
-    }
-    try {
-      await sendPasswordResetEmail(auth, trimmed);
-      setError('Password reset email sent. Check your inbox.');
-    } catch (err) {
-      setError(friendlyAuthError(err));
     }
   };
 
@@ -3008,20 +2957,45 @@ function LoginPage() {
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-7 md:p-9">
           <div className="text-center mb-6">
             <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">Welcome back</h1>
-            <p className="mt-2 text-sm text-gray-600">Sign in with your Solidaridad account to continue</p>
+            <p className="mt-2 text-sm text-gray-600">
+              Sign in with your <strong>@{ALLOWED_DOMAIN}</strong> Google Workspace account to continue.
+            </p>
           </div>
+
+          {blockedAccount ? (
+            <div className="mb-5 rounded-lg border-2 p-4" style={{ borderColor: YELLOW, backgroundColor: '#FFFBEA' }}>
+              <div className="flex items-start gap-3">
+                <Shield size={20} className="flex-shrink-0 mt-0.5 text-black" />
+                <div className="flex-1">
+                  <p className="text-sm font-extrabold text-black tracking-tight">Access restricted to Solidaridad staff</p>
+                  <p className="mt-1.5 text-xs text-gray-800 leading-relaxed">
+                    Jifunze is only available to people with an <strong>@{ALLOWED_DOMAIN}</strong> Google Workspace account.
+                  </p>
+                  <p className="mt-2 text-xs text-gray-700 leading-relaxed">
+                    You signed in with <span className="font-mono font-bold break-all">{blockedAccount}</span>, which isn't a Solidaridad account. You have been signed out.
+                  </p>
+                  <p className="mt-3 text-xs text-gray-700 leading-relaxed">
+                    If you have a Solidaridad account, try again and pick it from the Google chooser. If you believe you should have access, contact{' '}
+                    <a href={`mailto:info.secaec@${ALLOWED_DOMAIN}`} className="font-bold underline hover:text-black">
+                      info.secaec@{ALLOWED_DOMAIN}
+                    </a>.
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : null}
 
           <div className="space-y-4">
             <button
               type="button"
               onClick={handleGoogleSSO}
-              disabled={ssoLoading || loading}
+              disabled={ssoLoading}
               className="w-full py-3 font-bold text-sm rounded-lg border-2 border-black hover:bg-gray-50 transition-colors flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {ssoLoading ? (
                 <>
                   <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                  <span>Redirecting to Google…</span>
+                  <span>Opening Google sign-in…</span>
                 </>
               ) : (
                 <>
@@ -3031,58 +3005,10 @@ function LoginPage() {
                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                   </svg>
-                  Continue with Google
+                  {blockedAccount ? 'Try a different Google account' : 'Continue with Google'}
                 </>
               )}
             </button>
-
-            <p className="text-[11px] text-center text-gray-500 leading-relaxed">
-              Sign in with your <strong>@{ALLOWED_DOMAIN}</strong> Google Workspace account
-            </p>
-
-            <div className="relative my-4">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200" />
-              </div>
-              <div className="relative flex justify-center text-[10px] uppercase tracking-widest">
-                <span className="bg-white px-3 text-gray-400 font-bold">or use email</span>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-extrabold uppercase tracking-widest text-gray-700 mb-1.5">Email</label>
-              <div className="relative">
-                <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                <input
-                  type="email"
-                  autoComplete="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
-                  placeholder={`yourname@${ALLOWED_DOMAIN}`}
-                  className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg text-sm focus:outline-none focus:border-black transition-colors"
-                />
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-extrabold uppercase tracking-widest text-gray-700">Password</label>
-                <button type="button" onClick={handleForgotPassword} className="text-[11px] font-bold text-gray-500 hover:text-black">Forgot?</button>
-              </div>
-              <div className="relative">
-                <Shield size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                <input
-                  type="password"
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') handleSubmit(); }}
-                  placeholder="••••••••"
-                  className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg text-sm focus:outline-none focus:border-black transition-colors"
-                />
-              </div>
-            </div>
 
             {error && (
               <div className="flex items-start gap-2 p-3 rounded-lg border border-red-200 bg-red-50">
@@ -3090,15 +3016,6 @@ function LoginPage() {
                 <p className="text-xs text-red-800 font-medium">{error}</p>
               </div>
             )}
-
-            <button
-              onClick={handleSubmit}
-              disabled={loading || ssoLoading}
-              className="w-full py-3 font-extrabold uppercase tracking-wider text-sm rounded-lg transition-all hover:translate-y-[-1px] disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ backgroundColor: YELLOW, color: BLACK }}
-            >
-              {loading ? 'Signing in…' : 'Sign In with Email'}
-            </button>
 
             <p className="text-[11px] text-center text-gray-500 mt-4">
               By signing in, you agree to Solidaridad's Code of Conduct and Acceptable Use Policy.

@@ -2580,6 +2580,49 @@ async function saveUserName(uid, name) {
   }
 }
 
+async function loadCertificate(uid, courseId) {
+  if (!uid || !courseId) return null;
+  try {
+    const snap = await getDoc(doc(db, 'users', uid, 'certificates', courseId));
+    return snap.exists() ? snap.data() : null;
+  } catch (e) {
+    console.error('loadCertificate failed', e);
+    return null;
+  }
+}
+
+// Write the cert doc once on first 100% completion. Idempotent: if a cert
+// already exists for this user+course, we keep the original issuedAt (the
+// rules also forbid update/delete, so any concurrent attempt would just no-op).
+async function issueCertificateIfFirstTime(uid, course, score) {
+  if (!uid || !course) return;
+  try {
+    const ref = doc(db, 'users', uid, 'certificates', course.id);
+    const existing = await getDoc(ref);
+    if (existing.exists()) return;
+    const yr = new Date().getFullYear();
+    const certCode = course.id.toUpperCase().slice(0, 3);
+    await setDoc(ref, {
+      certId: `SCA-${certCode}-${yr}`,
+      courseTitle: course.title,
+      score: score || 0,
+      issuedAt: serverTimestamp(),
+    });
+  } catch (e) {
+    console.error('issueCertificateIfFirstTime failed', e);
+  }
+}
+
+function computeCompletion(course, p = {}) {
+  if (!course) return 0;
+  const totalSteps = course.lessons.length + 2;
+  let done = 0;
+  course.lessons.forEach(l => { if (p[`lesson-${l.id}`]) done++; });
+  if (p.interactive) done++;
+  if (p.quiz) done++;
+  return Math.round((done / totalSteps) * 100);
+}
+
 function isAllowedEmail(email) {
   if (!email) return false;
   const trimmed = email.trim().toLowerCase();
@@ -2676,18 +2719,19 @@ export default function App() {
     };
     setProgress(next);
     saveCourseProgress(userUid, courseId, { [key]: value });
+
+    const course = COURSES.find(c => c.id === courseId);
+    if (course
+        && computeCompletion(course, progress[courseId]) < 100
+        && computeCompletion(course, next[courseId]) === 100) {
+      const quizScore = next[courseId].quiz?.score || 0;
+      issueCertificateIfFirstTime(userUid, course, quizScore);
+    }
   };
 
   const courseCompletion = (courseId) => {
-    const p = progress[courseId] || {};
     const course = COURSES.find(c => c.id === courseId);
-    if (!course) return 0;
-    const totalSteps = course.lessons.length + 2;
-    let done = 0;
-    course.lessons.forEach(l => { if (p[`lesson-${l.id}`]) done++; });
-    if (p.interactive) done++;
-    if (p.quiz) done++;
-    return Math.round((done / totalSteps) * 100);
+    return computeCompletion(course, progress[courseId]);
   };
 
   const completedCount = COURSES.filter(c => courseCompletion(c.id) === 100).length;
@@ -2896,6 +2940,7 @@ export default function App() {
           {view === 'certificate' && (
             <CertificateView
               userName={userName}
+              uid={userUid}
               course={certificateCourse}
               onBack={() => { setView('list'); setPage('certificates'); }}
             />
@@ -4218,11 +4263,24 @@ function QuizView({ course, onComplete, onBack }) {
 }
 
 // ===== Certificate View =====
-function CertificateView({ userName, onBack, course = null }) {
-  const courseCode = course ? course.id.toUpperCase().slice(0, 3) : 'MST';
-  const certId = `SCA-${courseCode}-2026`;
+function CertificateView({ userName, onBack, course = null, uid = '' }) {
+  const [cert, setCert] = useState(null);
 
-  const issueDate = new Date().toLocaleDateString('en-GB', {
+  useEffect(() => {
+    if (!course || !uid) { setCert(null); return; }
+    let cancelled = false;
+    (async () => {
+      const c = await loadCertificate(uid, course.id);
+      if (!cancelled) setCert(c);
+    })();
+    return () => { cancelled = true; };
+  }, [course?.id, uid]);
+
+  const courseCode = course ? course.id.toUpperCase().slice(0, 3) : 'MST';
+  const fallbackYear = new Date().getFullYear();
+  const certId = cert?.certId || `SCA-${courseCode}-${fallbackYear}`;
+
+  const issueDate = (cert?.issuedAt?.toDate?.() || new Date()).toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',

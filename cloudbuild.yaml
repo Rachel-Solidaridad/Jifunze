@@ -1,3 +1,7 @@
+# NOTE: Cloud Build pipeline is NOT actively used. Production deploys go through
+# Firebase Hosting via .github/workflows/firebase-hosting-merge.yml. Kept as a
+# fallback only; not actively maintained.
+
 steps:
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'

@@ -1,6 +1,6 @@
 # Jifunze — Solidaridad ECA Learning Hub
 
-Interactive e-learning platform for Solidaridad East & Central Africa staff. Built with React + Vite + Tailwind, deployable to Google Cloud Run via Docker + Nginx.
+Interactive e-learning platform for Solidaridad East & Central Africa staff. Built with React + Vite + Tailwind, deployed to Firebase Hosting via GitHub Actions.
 
 **Tagline:** *Change That Matters.*
 
@@ -74,9 +74,12 @@ jifunze-learning-hub/
 ├── vite.config.js          # Vite configuration
 ├── tailwind.config.js      # Tailwind theme — Solidaridad brand colours
 ├── postcss.config.js       # PostCSS for Tailwind
-├── Dockerfile              # Multi-stage build (Node → Nginx)
-├── nginx.conf              # Nginx serving config (SPA fallback, gzip, caching)
-├── cloudbuild.yaml         # Cloud Build → Cloud Run deployment config
+├── firebase.json           # Firebase Hosting config (SPA rewrites, asset caching)
+├── .firebaserc             # Firebase project alias (default → jifunze-7dbfe)
+├── .github/workflows/      # GitHub Actions for auto-deploy on merge + PR previews
+├── Dockerfile              # Fallback only — Cloud Run path, not actively maintained
+├── nginx.conf              # Fallback only — used by the Docker/Cloud Run path
+├── cloudbuild.yaml         # Fallback only — Cloud Build → Cloud Run pipeline
 ├── .gitignore
 └── README.md
 ```
@@ -111,42 +114,68 @@ These are wired into `tailwind.config.js` as `solidaridad-yellow`, `solidaridad-
 
 ---
 
-## Deployment to Cloud Run
+## Deployment
 
-### Option A: Cloud Build (recommended)
+### Primary path: Firebase Hosting (auto-deploy from GitHub)
 
-The included `cloudbuild.yaml` builds the Docker image, pushes to Container Registry, and deploys to Cloud Run in one command.
+The site is deployed to Firebase Hosting from GitHub Actions. Firebase project: **`jifunze-7dbfe`**.
+
+- **Live URLs:** `https://jifunze-7dbfe.web.app` and `https://jifunze-7dbfe.firebaseapp.com`
+- **On push to `main`** → `.github/workflows/firebase-hosting-merge.yml` runs `npm ci && npm run build` and deploys to the `live` channel.
+- **On pull request** → `.github/workflows/firebase-hosting-pull-request.yml` deploys to an ephemeral preview channel and posts the URL as a PR comment (7-day expiry by default).
+
+#### Required GitHub secret (one-time setup)
+
+The deploy workflows authenticate to Firebase using a Google service account key stored as the GitHub repo secret **`FIREBASE_SERVICE_ACCOUNT_JIFUNZE_7DBFE`**. The easiest way to create it:
+
+```bash
+# Install the Firebase CLI once (locally or globally)
+npm install -g firebase-tools
+
+# Sign in to Google (opens browser)
+firebase login
+
+# From the project root: creates the service account, uploads the key as a
+# GitHub repo secret named FIREBASE_SERVICE_ACCOUNT_JIFUNZE_7DBFE, and asks
+# whether to scaffold workflows (skip — they already exist here).
+firebase init hosting:github
+```
+
+If you prefer not to use the CLI, you can do it manually:
+
+1. In the Firebase Console → Project Settings → Service Accounts, generate a new private key (JSON).
+2. In GitHub → repo Settings → Secrets and variables → Actions, create a secret named `FIREBASE_SERVICE_ACCOUNT_JIFUNZE_7DBFE` with the JSON contents as the value.
+
+#### Local preview of the production build
+
+```bash
+npm run build
+npx firebase emulators:start --only hosting
+# → http://localhost:5000
+```
+
+#### Manual / emergency deploy
+
+```bash
+npm run build
+npx firebase deploy --only hosting
+```
+
+#### Rollback
+
+If a deploy ships a regression: `npx firebase hosting:rollback` (or pick a previous release in the Firebase Console → Hosting → Release history).
+
+---
+
+### Fallback: Cloud Run (not actively maintained)
+
+The repo still contains `Dockerfile`, `nginx.conf`, and `cloudbuild.yaml` from an earlier Cloud Run deploy pipeline. These are kept as an emergency fallback only — they are **not part of the active deploy path** and may drift out of date. Don't rely on them without re-testing first.
+
+If you ever need them, the original flow was:
 
 ```bash
 gcloud builds submit --config=cloudbuild.yaml --region=europe-west1
 ```
-
-Make sure your GCP project has Cloud Build, Container Registry, and Cloud Run APIs enabled, and that the Cloud Build service account has Cloud Run Admin permissions.
-
-### Option B: Manual Docker build
-
-```bash
-# Build image locally
-docker build -t gcr.io/YOUR_PROJECT/jifunze .
-
-# Push to Container Registry
-docker push gcr.io/YOUR_PROJECT/jifunze
-
-# Deploy to Cloud Run
-gcloud run deploy jifunze \
-  --image=gcr.io/YOUR_PROJECT/jifunze \
-  --region=europe-west1 \
-  --platform=managed \
-  --allow-unauthenticated \
-  --port=8080 \
-  --memory=256Mi
-```
-
-Replace `YOUR_PROJECT` with your GCP project ID.
-
-### Continuous deployment from GitHub
-
-Once the repo is on GitHub, set up a Cloud Build trigger pointing at the `main` branch and the `cloudbuild.yaml`. Every push to `main` will rebuild and redeploy automatically.
 
 ---
 

@@ -1,3 +1,7 @@
+# NOTE: This Dockerfile is NOT actively used. Production deploys go through
+# Firebase Hosting via .github/workflows/firebase-hosting-merge.yml. Kept as a
+# fallback for Cloud Run; not actively maintained. See README.md for details.
+
 # --- Build stage ---
 FROM node:20-alpine AS build
 WORKDIR /app

@@ -32,3 +32,11 @@ Thumbs.db
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+
+# Vite scratch files
+vite.config.js.timestamp-*

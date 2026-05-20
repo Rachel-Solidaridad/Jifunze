@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Award, CheckCircle2, ChevronRight, ChevronLeft, Home, Users, Target, Lightbulb, Shield, Globe, Mail, Palette, FileText, AlertTriangle, Sparkles, Trophy, X, Check, ArrowRight, RotateCcw, MapPin, TrendingUp, Leaf, Search, BarChart3, MessageSquare, BookMarked, Clock, Layers, Menu, DollarSign, CloudRain, Database, ClipboardCheck, Languages } from 'lucide-react';
+import { signInWithPopup, signInWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged } from 'firebase/auth';
+import { auth, googleProvider, ALLOWED_DOMAIN } from './firebase';
 
 const YELLOW = '#FFC800';
 const GREY = '#D9D9C3';
@@ -2560,32 +2562,14 @@ async function saveUserName(name) {
   }
 }
 
-async function loadUserEmail() {
-  try {
-    return localStorage.getItem('user-email') || '';
-  } catch {
-    return '';
-  }
-}
-
-async function saveUserEmail(email) {
-  try {
-    localStorage.setItem('user-email', email);
-  } catch (e) {
-    console.error('Save failed', e);
-  }
-}
-
 async function clearSession() {
   try {
-    localStorage.removeItem('user-email');
     localStorage.removeItem('user-name');
   } catch (e) {
     console.error('Clear failed', e);
   }
 }
 
-const ALLOWED_DOMAIN = 'solidaridadnetwork.org';
 function isAllowedEmail(email) {
   if (!email) return false;
   const trimmed = email.trim().toLowerCase();
@@ -2593,6 +2577,17 @@ function isAllowedEmail(email) {
   const match = trimmed.match(re);
   if (!match) return false;
   return match[1] === ALLOWED_DOMAIN;
+}
+
+function friendlyAuthError(err) {
+  const code = err?.code || '';
+  if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found') {
+    return 'Email or password is incorrect. If this is your first time, ask an admin to provision your account or use Google sign-in.';
+  }
+  if (code === 'auth/too-many-requests') return 'Too many attempts. Wait a few minutes before trying again.';
+  if (code === 'auth/network-request-failed') return 'Network error. Check your connection and try again.';
+  if (code === 'auth/popup-blocked') return 'Sign-in popup was blocked. Allow popups for this site and try again.';
+  return err?.message || 'Something went wrong. Please try again.';
 }
 
 function nameFromEmail(email) {
@@ -2624,30 +2619,39 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
+    let unsub = () => {};
     (async () => {
       const p = await loadProgress();
-      const n = await loadUserName();
-      const e = await loadUserEmail();
       setProgress(p);
-      setUserName(n);
-      setUserEmail(e);
-      if (e && !n) setShowNamePrompt(true);
-      setLoaded(true);
+      unsub = onAuthStateChanged(auth, async (user) => {
+        if (user && isAllowedEmail(user.email)) {
+          const email = user.email.toLowerCase();
+          setUserEmail(email);
+          const storedName = await loadUserName();
+          const derived = user.displayName || nameFromEmail(email);
+          if (!storedName && derived) {
+            setUserName(derived);
+            saveUserName(derived);
+          } else {
+            setUserName(storedName);
+            if (!storedName) setShowNamePrompt(true);
+          }
+        } else {
+          setUserEmail('');
+          setUserName('');
+        }
+        setLoaded(true);
+      });
     })();
+    return () => unsub();
   }, []);
 
-  const handleLogin = (email) => {
-    const cleaned = email.trim().toLowerCase();
-    setUserEmail(cleaned);
-    saveUserEmail(cleaned);
-    const derived = nameFromEmail(cleaned);
-    if (derived && !userName) {
-      setUserName(derived);
-      saveUserName(derived);
-    }
-  };
-
   const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (e) {
+      console.error('Sign-out failed', e);
+    }
     await clearSession();
     setUserEmail('');
     setUserName('');
@@ -2695,7 +2699,7 @@ export default function App() {
   }
 
   if (!userEmail) {
-    return <LoginPage onLogin={handleLogin} />;
+    return <LoginPage />;
   }
 
   const goToCourse = (course) => {
@@ -2910,14 +2914,14 @@ function SidebarItem({ icon: Icon, label, active, onClick }) {
 }
 
 // ===== Login Page =====
-function LoginPage({ onLogin }) {
+function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [ssoLoading, setSsoLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     if (e) e.preventDefault();
     setError('');
 
@@ -2936,20 +2940,51 @@ function LoginPage({ onLogin }) {
     }
 
     setLoading(true);
-    setTimeout(() => {
+    try {
+      await signInWithEmailAndPassword(auth, trimmed, password);
+    } catch (err) {
+      setError(friendlyAuthError(err));
+    } finally {
       setLoading(false);
-      onLogin(trimmed);
-    }, 600);
+    }
   };
 
-  const handleGoogleSSO = () => {
+  const handleGoogleSSO = async () => {
     setError('');
     setSsoLoading(true);
-    setTimeout(() => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const signedInEmail = (result.user.email || '').toLowerCase();
+      if (!isAllowedEmail(signedInEmail)) {
+        await signOut(auth);
+        setError(`Only @${ALLOWED_DOMAIN} Google accounts are permitted.`);
+      }
+    } catch (err) {
+      if (err?.code !== 'auth/popup-closed-by-user' && err?.code !== 'auth/cancelled-popup-request') {
+        setError(friendlyAuthError(err));
+      }
+    } finally {
       setSsoLoading(false);
-      const demoEmail = `demo.user@${ALLOWED_DOMAIN}`;
-      onLogin(demoEmail);
-    }, 900);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    setError('');
+    const trimmed = email.trim().toLowerCase();
+    if (!trimmed) {
+      setError('Enter your email above first, then click "Forgot?" to receive a reset link.');
+      return;
+    }
+    if (!isAllowedEmail(trimmed)) {
+      setError(`Only @${ALLOWED_DOMAIN} email addresses are permitted.`);
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(auth, trimmed);
+      setError('Password reset email sent. Check your inbox.');
+    } catch (err) {
+      setError(friendlyAuthError(err));
+    }
   };
 
   return (
@@ -3033,7 +3068,7 @@ function LoginPage({ onLogin }) {
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label className="block text-xs font-extrabold uppercase tracking-widest text-gray-700">Password</label>
-                <button type="button" className="text-[11px] font-bold text-gray-500 hover:text-black">Forgot?</button>
+                <button type="button" onClick={handleForgotPassword} className="text-[11px] font-bold text-gray-500 hover:text-black">Forgot?</button>
               </div>
               <div className="relative">
                 <Shield size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />

@@ -3009,26 +3009,54 @@ function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden" style={{ backgroundColor: '#fafafa' }}>
-      <div className="absolute top-0 right-0 w-96 h-96 rounded-full opacity-10 -translate-y-1/3 translate-x-1/3" style={{ backgroundColor: YELLOW }} />
-      <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full opacity-5 translate-y-1/3 -translate-x-1/3 bg-black" />
+      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+        <div className="absolute top-0 left-0 right-0 h-44" style={{ backgroundColor: GREY, opacity: 0.35 }} />
+        <svg
+          viewBox="0 0 1440 320"
+          preserveAspectRatio="none"
+          className="absolute top-24 left-0 w-full h-64"
+        >
+          <path
+            d="M0 220 Q 360 60, 720 160 T 1440 120"
+            stroke={YELLOW}
+            strokeWidth="56"
+            strokeLinecap="round"
+            fill="none"
+          />
+        </svg>
+        <svg
+          viewBox="0 0 1440 320"
+          preserveAspectRatio="none"
+          className="absolute bottom-0 left-0 w-full h-40"
+        >
+          <path
+            d="M0 240 Q 360 180, 720 220 T 1440 200"
+            stroke={BLACK}
+            strokeWidth="3"
+            fill="none"
+            strokeLinecap="round"
+          />
+        </svg>
+      </div>
 
       <div className="relative w-full max-w-md">
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center mb-8 px-6 py-4 bg-white rounded-2xl border border-gray-200 shadow-sm">
           <div className="inline-flex items-center gap-3">
             <JifunzeIcon size={56} color={BLACK} accent={YELLOW} />
             <div className="flex flex-col items-start">
               <span className="font-extrabold text-4xl tracking-tight leading-none text-black">Jifunze</span>
-              <svg width="120" height="8" viewBox="0 0 120 8" className="mt-1.5">
-                <path d="M2 6 Q 60 1, 118 4" stroke={YELLOW} strokeWidth="3" fill="none" strokeLinecap="round" />
-              </svg>
+              <Swoosh w={120} />
             </div>
           </div>
         </div>
 
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-7 md:p-9">
           <div className="text-center mb-6">
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">Welcome back</h1>
-            <p className="mt-2 text-sm text-gray-600">
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight uppercase">Welcome back</h1>
+            <div className="flex justify-center mt-2">
+              <Swoosh w={64} />
+            </div>
+            <p className="mt-3 text-sm text-gray-600">
               Sign in with your <strong>@{ALLOWED_DOMAIN}</strong> Google Workspace account to continue.
             </p>
           </div>

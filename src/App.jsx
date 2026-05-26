@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BookOpen, Award, CheckCircle2, ChevronRight, ChevronLeft, Home, Users, Target, Lightbulb, Shield, ShieldAlert, Globe, Mail, Palette, FileText, AlertTriangle, Sparkles, Trophy, X, Check, ArrowRight, RotateCcw, MapPin, TrendingUp, Leaf, Search, BarChart3, MessageSquare, BookMarked, Clock, Layers, Menu, DollarSign, CloudRain, Database, ClipboardCheck, Languages } from 'lucide-react';
+import { BookOpen, Award, CheckCircle2, ChevronRight, ChevronLeft, Home, Users, Target, Lightbulb, Shield, ShieldAlert, Globe, Mail, Palette, FileText, AlertTriangle, Sparkles, Trophy, X, Check, ArrowRight, RotateCcw, MapPin, TrendingUp, Leaf, Search, BarChart3, MessageSquare, BookMarked, Clock, Layers, Menu, DollarSign, CloudRain, Database, ClipboardCheck, Languages, Coffee, Apple, Wheat, Pickaxe, Shirt, Milk, Scissors, TreePalm, Bean, Lock } from 'lucide-react';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp, query, orderBy, limit, onSnapshot, addDoc, writeBatch, increment } from 'firebase/firestore';
 import { auth, googleProvider, ALLOWED_DOMAIN, db } from './firebase';
@@ -2698,6 +2698,69 @@ COURSES.push({
   ],
 });
 
+
+// ===== Commodity course placeholders =====
+// Lightweight stub entries — listed in the catalog under the Commodities cluster
+// so staff can see what's coming. They are not openable, not counted toward
+// completion stats, and have no lessons/quiz/interactive blocks.
+const COMMODITY_PLACEHOLDERS = [
+  { id: 'coffee', title: 'Coffee', subtitle: 'Coming soon', icon: Coffee, description: 'Solidaridad ECA\'s coffee curriculum — agronomy, certification, market access, and EUDR readiness. In development.' },
+  { id: 'tea', title: 'Tea', subtitle: 'Coming soon', icon: Leaf, description: 'Solidaridad ECA\'s tea curriculum — sustainable cultivation, factory engagement, and farmer livelihoods. In development.' },
+  { id: 'fruits-veg', title: 'Fruits & Vegetables', subtitle: 'Coming soon', icon: Apple, description: 'Solidaridad ECA\'s horticulture curriculum — production, post-harvest handling, food safety, and market linkages. In development.' },
+  { id: 'food-crops', title: 'Food Crops', subtitle: 'Coming soon', icon: Wheat, description: 'Solidaridad ECA\'s food crops curriculum — maize, beans, sorghum, and other staples. In development.' },
+  { id: 'gold', title: 'Gold', subtitle: 'Coming soon', icon: Pickaxe, description: 'Solidaridad ECA\'s artisanal and small-scale mining curriculum — responsible gold, mercury reduction, and miner welfare. In development.' },
+  { id: 'leather', title: 'Leather', subtitle: 'Coming soon', icon: Shirt, description: 'Solidaridad ECA\'s leather curriculum — responsible sourcing, tanneries, and value-chain upgrading. In development.' },
+  { id: 'dairy', title: 'Dairy', subtitle: 'Coming soon', icon: Milk, description: 'Solidaridad ECA\'s dairy curriculum — herd management, quality-based payment, and cooperative strengthening. In development.' },
+  { id: 'cotton-textile', title: 'Cotton & Textile', subtitle: 'Coming soon', icon: Scissors, description: 'Solidaridad ECA\'s cotton and textile curriculum — Better Cotton, ginning, and the fashion value chain. In development.' },
+  { id: 'oil-palm', title: 'Oil Palm', subtitle: 'Coming soon', icon: TreePalm, description: 'Solidaridad ECA\'s oil palm curriculum — smallholder production, RSPO standards, and deforestation-free supply chains. In development.' },
+  { id: 'cocoa', title: 'Cocoa', subtitle: 'Coming soon', icon: Bean, description: 'Solidaridad ECA\'s cocoa curriculum — agroforestry, living income, and EUDR-aligned traceability. In development.' },
+];
+
+COMMODITY_PLACEHOLDERS.forEach(p => {
+  COURSES.push({
+    id: p.id,
+    title: p.title,
+    subtitle: p.subtitle,
+    category: 'Commodities',
+    icon: p.icon,
+    duration: 'Coming soon',
+    description: p.description,
+    lessons: [],
+    placeholder: true,
+  });
+});
+
+
+// ===== Course clusters (catalog grouping) =====
+const CLUSTERS = [
+  {
+    name: 'Strategy & Organisational Excellence',
+    blurb: 'Strategy, people, communications, and how we measure what we change.',
+    courseIds: ['masp', 'welcome', 'brand', 'pmel'],
+  },
+  {
+    name: 'Governance, Ethics & Compliance',
+    blurb: 'The standards we hold ourselves to and the channels that keep us accountable.',
+    courseIds: ['integrity', 'risk', 'ethics'],
+  },
+  {
+    name: 'Innovation & Strategic Transformation',
+    blurb: 'Climate, finance, gender, and the digital tools driving systems change.',
+    courseIds: ['climate', 'finance', 'gender', 'digital'],
+  },
+  {
+    name: 'Commodities',
+    blurb: 'Crop, livestock, and value-chain curricula. Soy is live; more launching through MASP IV.',
+    courseIds: ['soy', 'coffee', 'tea', 'fruits-veg', 'food-crops', 'gold', 'leather', 'dairy', 'cotton-textile', 'oil-palm', 'cocoa'],
+  },
+  {
+    name: 'Sustainability & Responsible Business',
+    blurb: 'Pricing, trade, and the regulations shaping how we do business.',
+    courseIds: ['truepricing', 'eudr'],
+  },
+];
+
+
 // ===== Storage helpers (Firestore-backed, per-user) =====
 async function loadProgress(uid) {
   if (!uid) return {};
@@ -2917,8 +2980,10 @@ export default function App() {
     return computeCompletion(course, progress[courseId]);
   };
 
-  const completedCount = COURSES.filter(c => courseCompletion(c.id) === 100).length;
-  const inProgressCount = COURSES.filter(c => {
+  // Placeholders (Coming soon) don't count toward completion stats or the Master Certificate.
+  const liveCourses = COURSES.filter(c => !c.placeholder);
+  const completedCount = liveCourses.filter(c => courseCompletion(c.id) === 100).length;
+  const inProgressCount = liveCourses.filter(c => {
     const p = courseCompletion(c.id);
     return p > 0 && p < 100;
   }).length;
@@ -3052,12 +3117,12 @@ export default function App() {
           {view === 'list' && page === 'certificates' && (
             <CertificatesPage
               userName={userName}
-              courses={COURSES}
+              courses={liveCourses}
               courseCompletion={courseCompletion}
               onSelectCourse={goToCourse}
               onViewMaster={() => { setCertificateCourse(null); setView('certificate'); }}
               onViewCourseCertificate={(course) => { setCertificateCourse(course); setView('certificate'); }}
-              allComplete={completedCount === COURSES.length}
+              allComplete={completedCount === liveCourses.length}
             />
           )}
 
@@ -3434,7 +3499,7 @@ function DashboardPage({ userName, courses, courseCompletion, completedCount, in
         )}
       </div>
 
-      {courses.filter(c => courseCompletion(c.id) === 0).length > 0 && (
+      {courses.filter(c => !c.placeholder && courseCompletion(c.id) === 0).length > 0 && (
         <div className="mt-10">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-xl md:text-2xl font-extrabold tracking-tight">Recommended For You</h2>
@@ -3443,7 +3508,7 @@ function DashboardPage({ userName, courses, courseCompletion, completedCount, in
             </button>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {courses.filter(c => courseCompletion(c.id) === 0).slice(0, 3).map(course => (
+            {courses.filter(c => !c.placeholder && courseCompletion(c.id) === 0).slice(0, 3).map(course => (
               <CourseCard key={course.id} course={course} progress={0} onClick={() => onSelectCourse(course)} />
             ))}
           </div>
@@ -3510,11 +3575,26 @@ function ContinueLearningCard({ course, progress, onClick }) {
 
 // ===== Catalog Page =====
 function CatalogPage({ courses, activeCategory, setActiveCategory, searchQuery, courseCompletion, onSelectCourse }) {
-  const filtered = courses.filter(c => {
-    const matchesCat = activeCategory === 'All' || c.category === activeCategory;
-    const matchesSearch = !searchQuery || c.title.toLowerCase().includes(searchQuery.toLowerCase()) || c.description.toLowerCase().includes(searchQuery.toLowerCase()) || c.category.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCat && matchesSearch;
-  });
+  // `activeCategory` is reused as the active cluster name ('All' or a CLUSTERS[].name).
+  const q = (searchQuery || '').toLowerCase();
+  const matchesSearch = (c) =>
+    !q ||
+    c.title.toLowerCase().includes(q) ||
+    c.description.toLowerCase().includes(q) ||
+    c.category.toLowerCase().includes(q);
+
+  const courseById = Object.fromEntries(courses.map(c => [c.id, c]));
+  const clustersToShow = CLUSTERS.filter(cl => activeCategory === 'All' || cl.name === activeCategory);
+
+  const sections = clustersToShow.map(cluster => ({
+    ...cluster,
+    courses: cluster.courseIds
+      .map(id => courseById[id])
+      .filter(Boolean)
+      .filter(matchesSearch),
+  })).filter(s => s.courses.length > 0);
+
+  const clusterPills = ['All', ...CLUSTERS.map(c => c.name)];
 
   return (
     <div>
@@ -3522,30 +3602,51 @@ function CatalogPage({ courses, activeCategory, setActiveCategory, searchQuery, 
       <p className="mt-3 text-gray-600 max-w-3xl">Explore our comprehensive library of courses designed to get you up to speed with Solidaridad's operations, tools, and methodologies in East & Central Africa.</p>
 
       <div className="mt-6 flex flex-wrap gap-2">
-        {CATEGORIES.map(cat => (
+        {clusterPills.map(name => (
           <button
-            key={cat}
-            onClick={() => setActiveCategory(cat)}
+            key={name}
+            onClick={() => setActiveCategory(name)}
             className={`px-4 py-1.5 rounded-full text-sm font-bold border transition-all ${
-              activeCategory === cat
+              activeCategory === name
                 ? 'bg-black text-white border-black'
                 : 'bg-white text-black border-gray-300 hover:border-black'
             }`}
           >
-            {cat}
+            {name}
           </button>
         ))}
       </div>
 
-      {filtered.length === 0 ? (
+      {sections.length === 0 ? (
         <div className="mt-12 p-12 text-center border-2 border-dashed border-gray-300 rounded">
           <Search size={32} className="mx-auto text-gray-400" />
           <p className="mt-3 text-gray-600">No courses match your filters.</p>
         </div>
       ) : (
-        <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filtered.map(course => (
-            <CourseCard key={course.id} course={course} progress={courseCompletion(course.id)} onClick={() => onSelectCourse(course)} />
+        <div className="mt-10 space-y-12">
+          {sections.map(section => (
+            <section key={section.name}>
+              <div className="flex items-baseline justify-between flex-wrap gap-x-4 gap-y-1">
+                <h2 className="text-xl md:text-2xl font-extrabold tracking-tight uppercase">{section.name}</h2>
+                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                  {section.courses.filter(c => !c.placeholder).length} live · {section.courses.filter(c => c.placeholder).length} coming soon
+                </span>
+              </div>
+              <Swoosh w={96} />
+              {section.blurb ? (
+                <p className="mt-3 text-sm text-gray-600 max-w-3xl">{section.blurb}</p>
+              ) : null}
+              <div className="mt-5 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                {section.courses.map(course => (
+                  <CourseCard
+                    key={course.id}
+                    course={course}
+                    progress={courseCompletion(course.id)}
+                    onClick={() => onSelectCourse(course)}
+                  />
+                ))}
+              </div>
+            </section>
           ))}
         </div>
       )}
@@ -3557,6 +3658,30 @@ function CatalogPage({ courses, activeCategory, setActiveCategory, searchQuery, 
 function CourseCard({ course, progress, onClick }) {
   const Icon = course.icon;
   const done = progress === 100;
+
+  if (course.placeholder) {
+    return (
+      <div
+        aria-disabled="true"
+        className="text-left bg-white border border-gray-200 rounded-lg overflow-hidden flex flex-col cursor-not-allowed opacity-90"
+      >
+        <div className="relative h-44 flex items-center justify-center" style={{ backgroundColor: GREY }}>
+          <Icon size={72} strokeWidth={1.5} className="text-black opacity-60" />
+          <div className="absolute top-3 left-3 px-2.5 py-1 bg-white text-xs font-extrabold uppercase tracking-wider rounded-full border border-black inline-flex items-center gap-1.5">
+            <Lock size={11} strokeWidth={2.5} />
+            Coming soon
+          </div>
+        </div>
+        <div className="p-5 flex flex-col flex-1">
+          <h3 className="font-extrabold text-lg tracking-tight leading-snug">{course.title}</h3>
+          <p className="mt-2 text-sm text-gray-600 line-clamp-3 flex-1">{course.description}</p>
+          <div className="mt-4 w-full py-3 font-extrabold tracking-wider text-sm rounded text-center bg-gray-100 text-gray-500">
+            In development
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <button

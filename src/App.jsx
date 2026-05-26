@@ -3052,7 +3052,7 @@ function LoginPage() {
 
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-7 md:p-9">
           <div className="text-center mb-6">
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight uppercase">Welcome back</h1>
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight uppercase">Welcome</h1>
             <div className="flex justify-center mt-2">
               <Swoosh w={64} />
             </div>

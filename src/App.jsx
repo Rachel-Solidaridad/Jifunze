@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BookOpen, Award, CheckCircle2, ChevronRight, ChevronLeft, Home, Users, Target, Lightbulb, Shield, Globe, Mail, Palette, FileText, AlertTriangle, Sparkles, Trophy, X, Check, ArrowRight, RotateCcw, MapPin, TrendingUp, Leaf, Search, BarChart3, MessageSquare, BookMarked, Clock, Layers, Menu, DollarSign, CloudRain, Database, ClipboardCheck, Languages } from 'lucide-react';
+import { BookOpen, Award, CheckCircle2, ChevronRight, ChevronLeft, Home, Users, Target, Lightbulb, Shield, ShieldAlert, Globe, Mail, Palette, FileText, AlertTriangle, Sparkles, Trophy, X, Check, ArrowRight, RotateCcw, MapPin, TrendingUp, Leaf, Search, BarChart3, MessageSquare, BookMarked, Clock, Layers, Menu, DollarSign, CloudRain, Database, ClipboardCheck, Languages } from 'lucide-react';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp, query, orderBy, limit, onSnapshot, addDoc, writeBatch, increment } from 'firebase/firestore';
 import { auth, googleProvider, ALLOWED_DOMAIN, db } from './firebase';
@@ -2526,6 +2526,175 @@ COURSES.push({
     { q: 'Soybean rust can cause yield losses of up to:', options: ['5%', '20%', '80%', '100% in all conditions'], answer: 2 },
     { q: 'The largest critical loss point in smallholder soy post-harvest is:', options: ['Storage (9.4%)', 'Homestead drying (7.2%)', 'Field drying & harvesting (13.9%)', 'Transport'], answer: 2 },
     { q: 'For areas where soy hasn\'t been planted in 3+ years, the safest variety choice is:', options: ['Any saved seed', 'A specific variety requiring its own rhizobia strain', 'A promiscuous variety like Tikolore or Wamini, with proper inoculation', 'Any variety — soil bacteria are always present'], answer: 2 },
+  ],
+});
+
+
+COURSES.push({
+  id: 'risk',
+  title: 'Risk Management',
+  subtitle: 'Anticipate, decide, act',
+  category: 'Compliance',
+  icon: ShieldAlert,
+  duration: '25 min',
+  description: 'Learn how Solidaridad ECA identifies, assesses, treats, and reports risks — from the three lines of defense to risk appetite, the likelihood-impact heat map, and your role as a first-line risk owner.',
+  lessons: [
+    {
+      id: 'risk-overview',
+      title: 'Why We Manage Risk',
+      content: [
+        { type: 'p', text: 'Risk is the uncertainty of not achieving our objectives. REC ECA operates across Ethiopia, Kenya, Tanzania, and Uganda, and faces a fast-changing landscape — EUDR and other trade regulations, carbon market and ITMO frameworks, climate shocks, foreign exchange pressures, donor concentration, cybersecurity threats, civic space restrictions, and election-related instability.' },
+        { type: 'p', text: 'Risk management is not about eliminating risk. It is about understanding it, so we make better decisions for farmers, partners, donors, and colleagues.' },
+        { type: 'list', items: [
+          'Proactively identify and prioritise risks rather than avoiding them',
+          'Allocate resources where exposure is greatest',
+          'Build resilience so disruptions don\'t derail delivery',
+          'Protect financial sustainability, reputation, and donor trust',
+          'Make confident, evidence-based decisions across the region',
+        ]},
+        { type: 'highlight', text: 'The goal is not to eliminate risk — it is to make better decisions.' },
+        { type: 'callout', text: 'Risk management is the responsibility of every staff member, not just senior leadership.' },
+      ],
+    },
+    {
+      id: 'risk-defense',
+      title: 'The Three Lines of Defense',
+      content: [
+        { type: 'p', text: 'REC ECA uses a three lines of defense model — clear ownership separated from oversight and from independent assurance.' },
+        { type: 'list', items: [
+          'First line — country teams, project managers, and functional leads. You own and manage risks in your day-to-day work.',
+          'Second line — Risk & Compliance, Finance, HR, Legal, Procurement, Thematic Leads. They maintain the framework, train staff, monitor, and challenge the first line.',
+          'Third line — Internal Audit (or external auditors). They provide independent assurance that controls work as intended.',
+        ]},
+        { type: 'p', text: 'Ultimate accountability sits with the Managing Director and the Senior Management Team (SMT). Every risk has a named owner — at regional, country, or project level.' },
+        { type: 'callout', text: 'If you are a programme, project, or country staff member, you are part of the first line. Identifying and escalating risk is part of your role.' },
+      ],
+    },
+    {
+      id: 'risk-process',
+      title: 'The Risk Management Process',
+      content: [
+        { type: 'p', text: 'Risk management is a continuous cycle. It runs through strategy, programme delivery, and daily decisions — not just an annual exercise.' },
+        { type: 'list', items: [
+          'Establish context — link the risk to REC ECA\'s strategic objectives and the MASP',
+          'Identify — what could go wrong, and what opportunities might we miss?',
+          'Analyse — what causes this risk, and what are the likelihood and consequences?',
+          'Evaluate — how serious is it compared to other risks?',
+          'Treat — choose a response: avoid, transfer, mitigate, or accept',
+          'Monitor & review — track Key Risk Indicators (KRIs) and update at least annually',
+          'Communicate & consult — keep stakeholders informed at every stage',
+        ]},
+        { type: 'callout', text: 'Every risk identified must be logged on the risk register, linked to a named owner, and assessed for both inherent and residual risk.' },
+        { type: 'highlight', text: 'Risk management is most effective when it is embedded in routine work, not bolted on at year-end.' },
+      ],
+    },
+    {
+      id: 'risk-assessment',
+      title: 'Likelihood, Impact & the Heat Map',
+      content: [
+        { type: 'p', text: 'Each risk is rated on two scales — how likely it is to occur, and how severe the impact would be if it did. The combination produces a Low, Medium, or High rating on the heat map.' },
+        { type: 'list', items: [
+          'Rare (1) — may occur once or twice in 10 years',
+          'Unlikely (2) — may occur 2-5 times in 10 years',
+          'Possible (3) — may occur 5-10 times in 5 years',
+          'Likely (4) — may occur at least quarterly',
+          'Almost certain (5) — may occur at least monthly',
+        ]},
+        { type: 'p', text: 'Impact is assessed across five dimensions — pick whichever is most relevant for the risk:' },
+        { type: 'list', items: [
+          'Financial — % of annual expenditure lost',
+          'Reputational — local, national, or international media exposure',
+          'Compliance — donor or government reporting and corrective action',
+          'Stakeholder — complaints, formal intervention, or litigation',
+          'Time delay — operations delay from under a week to over three months',
+        ]},
+        { type: 'callout', text: 'Always assess inherent risk first (no controls), then residual risk (after controls). The gap between them shows whether your controls are working.' },
+        { type: 'highlight', text: 'High-rated risks demand immediate senior management attention. Medium risks need timely action within existing frameworks. Low risks are managed in routine operations.' },
+      ],
+    },
+    {
+      id: 'risk-treatment',
+      title: 'Treating, Accepting & Reporting Risk',
+      content: [
+        { type: 'p', text: 'Once a risk is assessed, the risk owner selects one of four treatment options — and documents why.' },
+        { type: 'list', items: [
+          'Avoid — stop or never start the activity that creates the risk',
+          'Transfer (share) — shift the risk to a third party, e.g. insurance or a partner',
+          'Mitigate (reduce) — take action to lower the likelihood or the impact',
+          'Accept — acknowledge the risk and take no further action because cost of mitigation exceeds the loss',
+        ]},
+        { type: 'p', text: 'Risk appetite sets the boundaries of what REC ECA is willing to accept. Each risk category has qualitative statements (e.g. "zero tolerance for safeguarding violations") and quantitative limits (e.g. "no single donor over 30% of country funding"). Key Risk Indicators (KRIs) and Early Warning Indicators (EWIs, set at around 80-90% of the limit) trigger action before a breach.' },
+        { type: 'callout', text: 'If you must exceed a limit for a strategic or humanitarian reason, submit a Country Risk Waiver. Waivers need SMT approval, are time-bound (typically max 12 months), and trigger enhanced reporting.' },
+        { type: 'p', text: 'Material risks are reported quarterly through consolidated dashboards that feed the SMT — covering trend analysis, KRI updates, outstanding treatment actions, and any newly escalating risks.' },
+        { type: 'highlight', text: 'When in doubt, escalate. Reporting a risk early is always better than explaining a breach later.' },
+      ],
+    },
+  ],
+  interactive: {
+    type: 'scenario',
+    title: 'Real Risk Decisions',
+    scenarios: [
+      {
+        situation: 'A single donor is on track to contribute 35% of your country office\'s annual funding next year — above the regional 30% concentration limit. The donor has been a long-term partner with strong impact alignment.',
+        options: [
+          { text: 'Accept the exposure quietly — they are a trusted partner.', correct: false, feedback: 'A breach is a breach, even with a trusted partner. Unreported concentration is exactly the kind of exposure the policy is designed to surface.' },
+          { text: 'Submit a Country Risk Waiver to the SMT with rationale, time limit, and a diversification plan.', correct: true, feedback: 'Correct. Waivers exist for exactly this — strategic exposures that exceed the limit need transparent approval, a deadline (max 12 months), and enhanced reporting until exposure is back within bounds.' },
+          { text: 'Reject the funding to stay under the limit.', correct: false, feedback: 'Walking away from a strong partnership without exploring waiver or diversification options is rarely the right call. The waiver process exists to make conscious risk-taking transparent, not to block it.' },
+        ],
+      },
+      {
+        situation: 'Your country office\'s FX losses are at 4.2% of the operational budget. The 5% Quantitative Risk Limit is approaching, and the Kenyan shilling continues to weaken.',
+        options: [
+          { text: 'Wait until the 5% limit is breached, then report it.', correct: false, feedback: 'Early Warning Indicators are set at around 80% of the limit for a reason. At 4.2% you have already crossed the EWI and the Country Risk Champion should be proposing corrective action now.' },
+          { text: 'Notify the Country Risk Champion and propose mitigation — hedging, supplier renegotiation, or budget reallocation.', correct: true, feedback: 'Correct. EWIs are designed to trigger action before a formal breach. Mitigation now is far cheaper than recovery after a breach.' },
+          { text: 'Adjust the FX assumption in the books so the loss looks smaller.', correct: false, feedback: 'Never. This is financial misconduct, not risk management — and it breaks the reporting integrity that the whole framework depends on.' },
+        ],
+      },
+      {
+        situation: 'A field officer reports possible labour violations at a partner cooperative in a coffee programme. The programme is mid-cycle and a major donor expects continued delivery.',
+        options: [
+          { text: 'Investigate quietly after the donor reporting cycle to avoid disruption.', correct: false, feedback: 'Safeguarding has zero tolerance in our risk appetite. Delaying investigation to protect a reporting cycle compounds the harm and the reputational exposure.' },
+          { text: 'Escalate immediately to the Country Risk Champion and Safeguarding focal point, pause exposure where needed, and brief the donor transparently.', correct: true, feedback: 'Correct. Safeguarding sits in the highest-priority risk category. Transparent, immediate escalation — even to the donor — protects communities, the programme, and Solidaridad\'s credibility.' },
+          { text: 'Drop the partner with no investigation.', correct: false, feedback: 'A blanket termination without facts can harm workers further and expose Solidaridad to disputes. Investigate, document, and act on findings.' },
+        ],
+      },
+      {
+        situation: 'An EUDR-driven contract with an offtaker offers strong farmer income but the partner\'s sustainability practices are improving slowly. Due diligence flags moderate environmental and labour risk.',
+        options: [
+          { text: 'Sign now and address the issues "in due course."', correct: false, feedback: '"Address it later" rarely happens once the ink is dry. Signing without safeguards exposes farmers and Solidaridad to reputational and compliance risk.' },
+          { text: 'Engage on conditional terms — binding sustainability milestones, monitoring KRIs, and a right to exit if commitments slip.', correct: true, feedback: 'Correct. This treats the risk through mitigation rather than avoidance — preserving market access while holding the partner accountable. Document the residual risk and assign an owner.' },
+          { text: 'Reject the contract outright.', correct: false, feedback: 'Outright rejection may protect Solidaridad on paper but abandons farmers who need market access. Conditional engagement is usually the more solidaristic and the more impact-driven response.' },
+        ],
+      },
+      {
+        situation: 'IT detects a possible data breach involving a project beneficiary database. It is unclear whether data has been exfiltrated.',
+        options: [
+          { text: 'Hold off until you have more information so you do not raise a false alarm.', correct: false, feedback: 'Cybersecurity and data privacy are explicit risk categories in the policy. A possible breach is itself a material risk event — it needs immediate re-evaluation, not silence.' },
+          { text: 'Trigger the incident protocol, brief the SMT, re-evaluate the risk\'s likelihood, impact, and velocity, and initiate a root-cause review.', correct: true, feedback: 'Correct. A material incident must be promptly re-assessed and, where appropriate, trigger a deeper review to ensure similar events cannot recur. Speed and transparency protect beneficiaries and the organization.' },
+          { text: 'Delete affected records to limit exposure.', correct: false, feedback: 'Destroying evidence undermines investigation, breaches data-handling obligations, and could itself become a compliance violation.' },
+        ],
+      },
+      {
+        situation: 'A project manager wants to accept a known risk because mitigation feels too costly and the deadline is tight.',
+        options: [
+          { text: 'Tick the "accept" box on the risk register and move on.', correct: false, feedback: 'Acceptance is a valid treatment — but only with documented rationale, named approver, time limit (max 12 months), and evidence that reasonable mitigation has been considered.' },
+          { text: 'Document the rationale, confirm reasonable mitigations were considered, get SMT approval, set a review date, and log it in the risk register.', correct: true, feedback: 'Correct. Acceptance is transparent, time-bound, and approved at the right level. The cumulative impact of all accepted risks is reviewed by the SMT so the total exposure stays within appetite.' },
+          { text: 'Avoid logging it — fewer red items on the register looks better in the dashboard.', correct: false, feedback: 'Hiding risks is the opposite of risk management. The register is the basis for quarterly SMT review — unlogged risks become surprises later.' },
+        ],
+      },
+    ],
+  },
+  quiz: [
+    { q: 'Risk management is the responsibility of:', options: ['Only the SMT', 'Only Risk & Compliance', 'Every staff member, with assigned risk owners', 'Internal Audit alone'], answer: 2 },
+    { q: 'In the three lines of defense model, country and programme teams are:', options: ['The third line', 'The second line', 'The first line', 'Outside the model'], answer: 2 },
+    { q: 'How many key risk categories does the REC ECA framework define?', options: ['Three', 'Five', 'Eight', 'Twelve'], answer: 2 },
+    { q: 'The four risk treatment options are:', options: ['Plan, do, check, act', 'Avoid, transfer, mitigate, accept', 'Identify, assess, escalate, ignore', 'Buy, sell, hold, hedge'], answer: 1 },
+    { q: 'Inherent risk is best described as:', options: ['Risk after controls are applied', 'Risk before considering any controls', 'Only financial risk', 'A risk that has already occurred'], answer: 1 },
+    { q: 'A likelihood rating of "Almost certain" means the event:', options: ['May occur once every 10 years', 'May occur quarterly', 'May occur at least monthly', 'Has already occurred'], answer: 2 },
+    { q: 'What does KRI stand for?', options: ['Key Risk Indicator', 'Known Risk Item', 'Kenyan Risk Index', 'Key Reporting Item'], answer: 0 },
+    { q: 'A Country Risk Waiver is approved by:', options: ['Any line manager', 'The Senior Management Team (SMT)', 'The donor', 'The first staff member to spot it'], answer: 1 },
+    { q: 'A risk waiver is typically time-bound to a maximum of:', options: ['3 months', '6 months', '12 months', 'Indefinite'], answer: 2 },
+    { q: 'Material risks must be reported to the SMT at minimum:', options: ['Annually', 'Quarterly', 'Only when a breach occurs', 'Never — only when audited'], answer: 1 },
   ],
 });
 

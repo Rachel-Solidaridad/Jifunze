@@ -50,7 +50,7 @@ const COURSES = [
     id: 'welcome',
     title: 'HR Culture & Compliance',
     subtitle: 'Onboarding essentials',
-    category: 'Onboarding',
+    category: 'HR',
     icon: Users,
     duration: '1 hr',
     description: 'Welcome to Solidaridad East and Central Africa! A complete onboarding course covering who we are, our values, history, governance, HR essentials, integrity, and your first 90 days.',

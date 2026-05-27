@@ -1875,7 +1875,7 @@ COURSES.push({
   id: 'eudr',
   title: 'EUDR: EU Deforestation Regulation',
   subtitle: 'What every Solidaridad staff member needs to know',
-  category: 'Climate & NRM',
+  category: 'EUDR',
   icon: Leaf,
   duration: '1 hr',
   description: 'A comprehensive overview of Regulation (EU) 2023/1115 — the EU Deforestation Regulation — and what it means in practice for Solidaridad ECA staff, cooperatives, and smallholder producers of coffee, cocoa, palm oil, cattle products, and wood.',

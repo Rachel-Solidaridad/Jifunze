@@ -2534,7 +2534,7 @@ COURSES.push({
   id: 'risk',
   title: 'Risk Management',
   subtitle: 'Anticipate, decide, act',
-  category: 'Compliance',
+  category: 'Risk',
   icon: ShieldAlert,
   duration: '25 min',
   description: 'Learn how Solidaridad ECA identifies, assesses, treats, and reports risks — from the three lines of defense to risk appetite, the likelihood-impact heat map, and your role as a first-line risk owner.',

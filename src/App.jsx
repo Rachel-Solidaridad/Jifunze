@@ -2896,7 +2896,15 @@ function nameFromEmail(email) {
     .join(' ');
 }
 
-const CATEGORIES = ['All', 'Onboarding', 'Strategy', 'Climate & NRM', 'Commodities', 'Access to Finance', 'True Pricing', 'Gender', 'Communications', 'Digital', 'PMEL', 'Compliance', 'Ethics'];
+const GENERAL_TOPIC = { id: '__general__', title: 'General Discussion' };
+
+function threadTopicLabel(thread) {
+  if (thread?.courseId) {
+    const course = COURSES.find(c => c.id === thread.courseId);
+    if (course) return course.title;
+  }
+  return thread?.category || GENERAL_TOPIC.title;
+}
 
 // ===== Main App =====
 export default function App() {
@@ -3887,7 +3895,7 @@ function ForumPage({ userName, userUid }) {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs uppercase tracking-widest font-bold px-2 py-0.5 border border-black rounded-full">{t.category || 'General'}</span>
+                  <span className="text-xs uppercase tracking-widest font-bold px-2 py-0.5 border border-black rounded-full">{threadTopicLabel(t)}</span>
                   <span className="text-xs text-gray-500">{timeAgo(t.lastReplyAt || t.createdAt)}</span>
                 </div>
                 <h3 className="font-extrabold tracking-tight mt-2 leading-snug">{t.title}</h3>
@@ -3912,10 +3920,10 @@ function ForumPage({ userName, userUid }) {
 }
 
 function NewThreadModal({ userName, userUid, onClose }) {
-  const POST_CATEGORIES = CATEGORIES.filter(c => c !== 'All');
+  const topicOptions = [GENERAL_TOPIC, ...COURSES.map(c => ({ id: c.id, title: c.title }))];
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
-  const [category, setCategory] = useState(POST_CATEGORIES[0]);
+  const [topicId, setTopicId] = useState(GENERAL_TOPIC.id);
   const [country, setCountry] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -3932,10 +3940,14 @@ function NewThreadModal({ userName, userUid, onClose }) {
     }
     setSubmitting(true);
     try {
+      const isGeneral = topicId === GENERAL_TOPIC.id;
+      const selectedCourse = isGeneral ? null : COURSES.find(c => c.id === topicId);
+      const topicLabel = selectedCourse ? selectedCourse.title : GENERAL_TOPIC.title;
       await addDoc(collection(db, 'forum'), {
         title: title.trim(),
         body: body.trim(),
-        category,
+        courseId: selectedCourse ? selectedCourse.id : null,
+        category: topicLabel,
         authorUid: userUid,
         authorName: userName || 'Anonymous',
         country: country.trim(),
@@ -3977,12 +3989,13 @@ function NewThreadModal({ userName, userUid, onClose }) {
             className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-black"
             maxLength={140}
           />
+          <label className="block text-xs font-bold uppercase tracking-wider text-gray-600">Topic</label>
           <select
-            value={category}
-            onChange={e => setCategory(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-black bg-white"
+            value={topicId}
+            onChange={e => setTopicId(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-black bg-white -mt-2"
           >
-            {POST_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+            {topicOptions.map(opt => <option key={opt.id} value={opt.id}>{opt.title}</option>)}
           </select>
           <input
             type="text"
@@ -4082,7 +4095,7 @@ function ThreadDetail({ thread, userName, userUid, onBack }) {
 
       <div className="bg-white border border-gray-200 rounded-lg p-6">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-xs uppercase tracking-widest font-bold px-2 py-0.5 border border-black rounded-full">{thread.category || 'General'}</span>
+          <span className="text-xs uppercase tracking-widest font-bold px-2 py-0.5 border border-black rounded-full">{threadTopicLabel(thread)}</span>
           <span className="text-xs text-gray-500">{timeAgo(thread.createdAt)}</span>
         </div>
         <h1 className="mt-3 text-2xl md:text-3xl font-extrabold tracking-tight leading-tight">{thread.title}</h1>

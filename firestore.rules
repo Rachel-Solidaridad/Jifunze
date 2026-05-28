@@ -12,23 +12,68 @@ service cloud.firestore {
         && request.auth.token.email.matches('.*@solidaridadnetwork[.]org$');
     }
 
-    // --- /users/{uid} ---------------------------------------------------------
-    // Profile + per-user subcollections. Only the owner can read or write.
-    match /users/{uid} {
-      allow read, write: if signedInSolidaridad() && request.auth.uid == uid;
+    // Role helpers. Looks up the caller's role on /users/{uid}. Missing field
+    // is treated as 'learner' (the default for any new account).
+    function callerRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid))
+        .data.get('role', 'learner');
+    }
+    function isAdmin() {
+      return signedInSolidaridad() && callerRole() == 'admin';
+    }
+    function isManagerOrAdmin() {
+      return signedInSolidaridad() && callerRole() in ['manager', 'admin'];
+    }
 
-      // Per-course progress (one doc per course id).
+    // --- /users/{uid} ---------------------------------------------------------
+    // Owner can read/write their own profile. Managers and admins can read
+    // any profile (needed for the admin dashboard user table). Only admins
+    // can change someone else's role; learners and managers cannot self-promote.
+    match /users/{uid} {
+      allow read: if signedInSolidaridad()
+        && (request.auth.uid == uid || isManagerOrAdmin());
+
+      // Owner can update their own profile, but NOT their own role (only
+      // admins can change roles, including on their own doc).
+      allow create: if signedInSolidaridad() && request.auth.uid == uid;
+      allow update: if signedInSolidaridad() && (
+        (request.auth.uid == uid
+          && (!('role' in request.resource.data.diff(resource.data).affectedKeys())))
+        || isAdmin()
+      );
+      allow delete: if false;
+
+      // Per-course progress (one doc per course id). Owner writes, managers
+      // and admins read for analytics.
       match /progress/{courseId} {
-        allow read, write: if signedInSolidaridad() && request.auth.uid == uid;
+        allow read: if signedInSolidaridad()
+          && (request.auth.uid == uid || isManagerOrAdmin());
+        allow write: if signedInSolidaridad() && request.auth.uid == uid;
       }
 
       // Certificates are write-once: created on first 100% completion,
-      // never updated or deleted (immutable audit trail).
+      // never updated or deleted (immutable audit trail). Managers and
+      // admins can read for reporting.
       match /certificates/{courseId} {
-        allow read:           if signedInSolidaridad() && request.auth.uid == uid;
-        allow create:         if signedInSolidaridad() && request.auth.uid == uid;
+        allow read: if signedInSolidaridad()
+          && (request.auth.uid == uid || isManagerOrAdmin());
+        allow create: if signedInSolidaridad() && request.auth.uid == uid;
         allow update, delete: if false;
       }
+    }
+
+    // --- /assignments/{assignmentId} ------------------------------------------
+    // Required-course assignments. Managers and admins can create/delete;
+    // the assigned learner can read their own assignments to surface the
+    // "Required for you" section.
+    match /assignments/{assignmentId} {
+      allow read: if signedInSolidaridad() && (
+        isManagerOrAdmin()
+        || resource.data.userId == request.auth.uid
+      );
+      allow create: if isManagerOrAdmin()
+        && request.resource.data.assignedBy == request.auth.uid;
+      allow update, delete: if isManagerOrAdmin();
     }
 
     // --- /forum/{threadId} ----------------------------------------------------

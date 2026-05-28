@@ -7,6 +7,21 @@
         { "fieldPath": "category",  "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "assignments",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId",     "order": "ASCENDING" },
+        { "fieldPath": "assignedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "certificates",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        { "fieldPath": "issuedAt", "order": "DESCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

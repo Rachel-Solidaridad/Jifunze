@@ -3,6 +3,9 @@ import { BookOpen, Award, CheckCircle2, ChevronRight, ChevronLeft, Home, Users, 
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp, query, orderBy, limit, onSnapshot, addDoc, writeBatch, increment } from 'firebase/firestore';
 import { auth, googleProvider, ALLOWED_DOMAIN, db } from './firebase';
+import { ROLES, isSeedAdmin, normalizeRole, canViewAdminDashboard } from './auth/roles';
+import AdminDashboard from './admin/AdminDashboard';
+import { listAssignmentsForUser } from './admin/queries';
 
 const YELLOW = '#FFC800';
 const GREY = '#D9D9C3';
@@ -2775,12 +2778,19 @@ async function loadProgress(uid) {
   }
 }
 
-async function saveCourseProgress(uid, courseId, partial) {
+async function saveCourseProgress(uid, courseId, partial, opts = {}) {
   if (!uid) return;
   try {
+    const payload = {
+      ...partial,
+      lastViewedAt: serverTimestamp(),
+      lastActiveAt: serverTimestamp(),
+    };
+    if (opts.startedAt) payload.startedAt = serverTimestamp();
+    if (opts.completedAt) payload.completedAt = serverTimestamp();
     await setDoc(
       doc(db, 'users', uid, 'progress', courseId),
-      { ...partial, lastViewedAt: serverTimestamp() },
+      payload,
       { merge: true },
     );
   } catch (e) {
@@ -2809,6 +2819,38 @@ async function saveUserName(uid, name) {
     );
   } catch (e) {
     console.error('saveUserName failed', e);
+  }
+}
+
+// Load the user's role from their /users/{uid} doc, creating the doc on
+// first login if it doesn't exist. Seed admins (per SEED_ADMINS) get
+// `role: 'admin'` on first creation; everyone else defaults to 'learner'.
+async function loadOrInitUserDoc(uid, email) {
+  if (!uid) return { role: ROLES.LEARNER };
+  try {
+    const ref = doc(db, 'users', uid);
+    const snap = await getDoc(ref);
+    if (snap.exists()) {
+      const data = snap.data();
+      // Touch lastActiveAt + ensure email is recorded for the admin user table.
+      await setDoc(
+        ref,
+        { email, lastActiveAt: serverTimestamp() },
+        { merge: true },
+      );
+      return { ...data, role: normalizeRole(data.role) };
+    }
+    const initialRole = isSeedAdmin(email) ? ROLES.ADMIN : ROLES.LEARNER;
+    await setDoc(ref, {
+      email,
+      role: initialRole,
+      createdAt: serverTimestamp(),
+      lastActiveAt: serverTimestamp(),
+    });
+    return { role: initialRole, email };
+  } catch (e) {
+    console.error('loadOrInitUserDoc failed', e);
+    return { role: ROLES.LEARNER };
   }
 }
 
@@ -2917,6 +2959,8 @@ export default function App() {
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   const [userUid, setUserUid] = useState('');
+  const [userRole, setUserRole] = useState(ROLES.LEARNER);
+  const [myAssignments, setMyAssignments] = useState([]);
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [activeCategory, setActiveCategory] = useState('All');
@@ -2930,11 +2974,15 @@ export default function App() {
         const uid = user.uid;
         setUserEmail(email);
         setUserUid(uid);
-        const [p, storedName] = await Promise.all([
+        const [p, storedName, userDoc, asgn] = await Promise.all([
           loadProgress(uid),
           loadUserName(uid),
+          loadOrInitUserDoc(uid, email),
+          listAssignmentsForUser(uid).catch(() => []),
         ]);
         setProgress(p);
+        setUserRole(userDoc.role || ROLES.LEARNER);
+        setMyAssignments(asgn);
         const derived = user.displayName || nameFromEmail(email);
         if (storedName) {
           setUserName(storedName);
@@ -2948,7 +2996,9 @@ export default function App() {
         setUserEmail('');
         setUserUid('');
         setUserName('');
+        setUserRole(ROLES.LEARNER);
         setProgress({});
+        setMyAssignments([]);
       }
       setLoaded(true);
     });
@@ -2967,17 +3017,25 @@ export default function App() {
 
   const updateProgress = (courseId, key, value) => {
     if (!userUid) return;
+    const prev = progress[courseId] || {};
     const next = {
       ...progress,
-      [courseId]: { ...(progress[courseId] || {}), [key]: value },
+      [courseId]: { ...prev, [key]: value },
     };
     setProgress(next);
-    saveCourseProgress(userUid, courseId, { [key]: value });
 
     const course = COURSES.find(c => c.id === courseId);
-    if (course
-        && computeCompletion(course, progress[courseId]) < 100
-        && computeCompletion(course, next[courseId]) === 100) {
+    const prevPct = computeCompletion(course, prev);
+    const nextPct = computeCompletion(course, next[courseId]);
+    const isFirstWrite = Object.keys(prev).length === 0;
+    const justCompleted = course && prevPct < 100 && nextPct === 100;
+
+    saveCourseProgress(userUid, courseId, { [key]: value }, {
+      startedAt: isFirstWrite,
+      completedAt: justCompleted,
+    });
+
+    if (justCompleted) {
       const quizScore = next[courseId].quiz?.score || 0;
       issueCertificateIfFirstTime(userUid, course, quizScore);
     }
@@ -3050,6 +3108,9 @@ export default function App() {
           <SidebarItem icon={BookMarked} label="Course Catalog" active={page === 'catalog'} onClick={() => navigate('catalog')} />
           <SidebarItem icon={Award} label="My Certificates" active={page === 'certificates'} onClick={() => navigate('certificates')} />
           <SidebarItem icon={MessageSquare} label="Community Forum" active={page === 'forum'} onClick={() => navigate('forum')} />
+          {canViewAdminDashboard(userRole) && (
+            <SidebarItem icon={Shield} label="Admin" active={page === 'admin'} onClick={() => navigate('admin')} />
+          )}
         </nav>
 
         <div className="p-4 border-t border-gray-800">
@@ -3091,6 +3152,21 @@ export default function App() {
                 style={{ '--tw-ring-color': YELLOW }}
               />
             </div>
+            {canViewAdminDashboard(userRole) && (
+              <button
+                onClick={() => navigate('admin')}
+                aria-label="Open admin dashboard"
+                title="Admin dashboard"
+                className={`flex items-center gap-1.5 text-sm font-bold uppercase tracking-wider px-3 py-2 rounded border transition-colors ${
+                  page === 'admin'
+                    ? 'bg-black text-white border-black'
+                    : 'bg-white text-black border-gray-300 hover:border-black'
+                }`}
+              >
+                <Shield size={16} />
+                <span className="hidden sm:inline">Admin</span>
+              </button>
+            )}
           </div>
         </header>
 
@@ -3104,6 +3180,7 @@ export default function App() {
               inProgressCount={inProgressCount}
               onSelectCourse={goToCourse}
               onGoToCatalog={() => navigate('catalog')}
+              assignments={myAssignments}
             />
           )}
 
@@ -3132,6 +3209,15 @@ export default function App() {
 
           {view === 'list' && page === 'forum' && (
             <ForumPage userName={userName} userUid={userUid} />
+          )}
+
+          {view === 'list' && page === 'admin' && canViewAdminDashboard(userRole) && (
+            <AdminDashboard
+              currentRole={userRole}
+              currentUid={userUid}
+              courses={COURSES}
+              computeCompletion={computeCompletion}
+            />
           )}
 
           {view === 'course' && activeCourse && (
@@ -3406,11 +3492,15 @@ function NamePrompt({ onSubmit }) {
 }
 
 // ===== Dashboard Page =====
-function DashboardPage({ userName, courses, courseCompletion, completedCount, inProgressCount, onSelectCourse, onGoToCatalog }) {
+function DashboardPage({ userName, courses, courseCompletion, completedCount, inProgressCount, onSelectCourse, onGoToCatalog, assignments = [] }) {
   const inProgressCourses = courses.filter(c => {
     const p = courseCompletion(c.id);
     return p > 0 && p < 100;
   });
+
+  const requiredCourses = assignments
+    .map(a => courses.find(c => c.id === a.courseId))
+    .filter(c => c && courseCompletion(c.id) < 100);
 
   const durationToHours = (d) => {
     if (!d) return 0;
@@ -3472,6 +3562,22 @@ function DashboardPage({ userName, courses, courseCompletion, completedCount, in
         <DashStatCard icon={Clock} label="Learning Hours" value={learningHours.toFixed(1)} />
         <DashStatCard icon={Award} label="Certificates Earned" value={completedCount} />
       </div>
+
+      {requiredCourses.length > 0 && (
+        <div className="mt-10">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h2 className="text-xl md:text-2xl font-extrabold tracking-tight">Required For You</h2>
+              <p className="text-sm text-gray-600">Assigned by your admin — please complete.</p>
+            </div>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {requiredCourses.map(course => (
+              <CourseCard key={course.id} course={course} progress={courseCompletion(course.id)} onClick={() => onSelectCourse(course)} />
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="mt-10">
         <div className="flex items-center justify-between mb-5">
@@ -3917,6 +4023,16 @@ function ForumPage({ userName, userUid }) {
       </div>
     </div>
   );
+}
+
+const GENERAL_TOPIC = { id: '__general__', title: 'General Discussion' };
+
+function threadTopicLabel(thread) {
+  if (thread?.courseId) {
+    const course = COURSES.find(c => c.id === thread.courseId);
+    if (course) return course.title;
+  }
+  return thread?.category || GENERAL_TOPIC.title;
 }
 
 function NewThreadModal({ userName, userUid, onClose }) {

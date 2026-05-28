@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BookOpen, Award, CheckCircle2, ChevronRight, ChevronLeft, Home, Users, Target, Lightbulb, Shield, ShieldAlert, Globe, Mail, Palette, FileText, AlertTriangle, Sparkles, Trophy, X, Check, ArrowRight, RotateCcw, MapPin, TrendingUp, Leaf, Search, BarChart3, MessageSquare, BookMarked, Clock, Layers, Menu, DollarSign, CloudRain, Database, ClipboardCheck, Languages, Coffee, Apple, Wheat, Pickaxe, Shirt, Milk, Scissors, TreePalm, Bean, Lock } from 'lucide-react';
+import { BookOpen, Award, CheckCircle2, ChevronRight, ChevronLeft, Home, Users, Target, Lightbulb, Shield, ShieldAlert, Globe, Mail, Palette, FileText, AlertTriangle, Sparkles, Trophy, X, Check, ArrowRight, RotateCcw, MapPin, TrendingUp, Leaf, Search, BarChart3, MessageSquare, BookMarked, Clock, Layers, Menu, DollarSign, CloudRain, Database, ClipboardCheck, Coffee, Apple, Wheat, Pickaxe, Shirt, Milk, Scissors, TreePalm, Bean, Lock } from 'lucide-react';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp, query, orderBy, limit, onSnapshot, addDoc, writeBatch, increment } from 'firebase/firestore';
 import { auth, googleProvider, ALLOWED_DOMAIN, db } from './firebase';
@@ -3083,10 +3083,6 @@ export default function App() {
                 style={{ '--tw-ring-color': YELLOW }}
               />
             </div>
-            <button className="hidden sm:flex items-center gap-1.5 text-sm font-semibold hover:bg-gray-100 px-3 py-2 rounded">
-              <Languages size={16} />
-              <span style={{ backgroundColor: '#dbeafe', padding: '2px 6px', borderRadius: 4 }}>English (EN)</span>
-            </button>
           </div>
         </header>
 

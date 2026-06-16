@@ -4,14 +4,45 @@ import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp, query, orderBy, limit, onSnapshot, addDoc, writeBatch, increment } from 'firebase/firestore';
 import { auth, googleProvider, ALLOWED_DOMAIN, db } from './firebase';
 import { ROLES, isSeedAdmin, normalizeRole, canViewAdminDashboard } from './auth/roles';
+import { listAssignmentsForUser } from './admin/queries';
+// Branded Solidaridad commodity glyphs, used for the commodity courses.
+import soyIcon from './assets/commodities/soy.svg';
+import coffeeIcon from './assets/commodities/coffee.svg';
+import teaIcon from './assets/commodities/tea.svg';
+import oilPalmIcon from './assets/commodities/oil-palm.svg';
+import foodCropsIcon from './assets/commodities/food-crops.svg';
+import fruitsVegIcon from './assets/commodities/fruits-veg.svg';
+import cocoaIcon from './assets/commodities/cocoa.svg';
+import goldIcon from './assets/commodities/gold.svg';
+import cottonIcon from './assets/commodities/cotton-textile.svg';
+import leatherIcon from './assets/commodities/leather.svg';
+import dairyIcon from './assets/commodities/dairy.svg';
+
 // Lazy-loaded so the admin bundle isn't part of the initial download for
 // learners (the large majority of users).
 const AdminDashboard = lazy(() => import('./admin/AdminDashboard'));
-import { listAssignmentsForUser } from './admin/queries';
 
 const YELLOW = '#FFC800';
 const GREY = '#D9D9C3';
 const BLACK = '#000000';
+
+// Wraps a branded commodity SVG so it can be used wherever a course `icon`
+// component is expected (same { size, className } API as the lucide icons).
+// Rendered as a black silhouette to match the icon treatment on the yellow
+// course panels.
+const commodityIcon = (src) => function CommodityIcon({ size = 24, className = '', style }) {
+  return (
+    <img
+      src={src}
+      width={size}
+      height={size}
+      alt=""
+      aria-hidden="true"
+      className={className}
+      style={{ filter: 'brightness(0)', objectFit: 'contain', display: 'block', ...style }}
+    />
+  );
+};
 
 const Swoosh = ({ w = 180, color = YELLOW }) => (
   <svg width={w} height="10" viewBox="0 0 180 10" className="mt-1">
@@ -2221,7 +2252,7 @@ COURSES.push({
   title: 'Soy: Crop, Practice & Programme',
   subtitle: 'Solidaridad\'s soy curriculum at a glance',
   category: 'Commodities',
-  icon: Lightbulb,
+  icon: commodityIcon(soyIcon),
   duration: '1 hr 15 min',
   description: 'A seven-module summary of Solidaridad\'s Soy Training Manual — developed under SATSBIS (Southern Africa towards Soybean Import Substitution) and applicable wherever Solidaridad works with soy. Designed for staff who support field teams, partner cooperatives, and farmer training programmes.',
   lessons: [
@@ -2602,7 +2633,7 @@ COURSES.push({
   title: 'Coffee: Agronomy, Quality & Climate',
   subtitle: 'Growing, processing and quality across Arabica and Robusta',
   category: 'Commodities',
-  icon: Coffee,
+  icon: commodityIcon(coffeeIcon),
   duration: '1 hr 20 min',
   description: 'A seven-module working summary of Solidaridad ECA\'s coffee curriculum, drawing on the Tanzania National Coffee Sustainability Curriculum, the UCDA Robusta Coffee Handbook, and Solidaridad\'s climate-smart, organic, nursery business-case, and waste-to-wealth (biochar) materials. Designed for staff who support field teams, partner cooperatives, and farmer training programmes across Arabica and Robusta systems.',
   lessons: [
@@ -2929,7 +2960,7 @@ COURSES.push({
   title: 'Tea: Leaf, Quality & Livelihoods',
   subtitle: 'Plucking standards, green-leaf factories and women in tea',
   category: 'Commodities',
-  icon: Leaf,
+  icon: commodityIcon(teaIcon),
   duration: '1 hr 10 min',
   description: 'A six-module summary of Solidaridad ECA\'s sustainable tea work, drawing on the Reclaim Sustainability! (RS!) Tea programme in Kenya and Uganda and the Women in Tea report, combined with standard sustainable-tea agronomy. Designed for staff who support field teams, factories, farmer associations, and women-in-tea groups.',
   lessons: [
@@ -3213,7 +3244,7 @@ COURSES.push({
   title: 'Fruits & Vegetables: Growing, Quality & Markets',
   subtitle: 'Production, food safety and market access',
   category: 'Commodities',
-  icon: Apple,
+  icon: commodityIcon(fruitsVegIcon),
   duration: '1 hr 15 min',
   description: 'A seven-module summary of Solidaridad ECA\'s sustainable horticulture curriculum, drawn from the FOSEK Fruits, Vegetables & Sweet Potato Production Guide, the Roots of Resilience biodiversity handbook, and the regional horticulture sector strategy. Designed for staff who support field teams, partner cooperatives, and farmer training programmes across the fruit and vegetable value chains.',
   lessons: [
@@ -3543,7 +3574,7 @@ COURSES.push({
   title: 'Food Crops: Yields, Resilience & Nutrition',
   subtitle: 'Productive, climate-resilient and nutritious staples',
   category: 'Commodities',
-  icon: Wheat,
+  icon: commodityIcon(foodCropsIcon),
   duration: '1 hr 15 min',
   description: 'A six-module summary of Solidaridad ECA\'s food crops curriculum — drawing on the CSV Maize agronomy and Cereal GAP manuals, the P4G Climate-Smart Agriculture manual, the SAVE agroforestry and Roots of Resilience biodiversity handbooks, the FOSEK food crop and nutrition guide, and the VSLA training manual. Built for staff who support field teams, lead-farmer trainers, and partner cooperatives across maize and cereals, beans, sweet potato, and vegetables.',
   lessons: [
@@ -3832,7 +3863,7 @@ COURSES.push({
   title: 'Gold: Responsible Artisanal & Small-Scale Mining',
   subtitle: 'Safety, mercury reduction, ESG and miner welfare',
   category: 'Commodities',
-  icon: Pickaxe,
+  icon: commodityIcon(goldIcon),
   duration: '1 hr 20 min',
   description: 'A seven-module summary of Solidaridad ECA\'s responsible artisanal and small-scale gold mining (ASGM) curriculum — drawn from occupational health and safety, emergency rescue and first aid, mine design, mercury reduction and ESG, self-regulation and formalisation, and governance and financial management training developed with miners in Busia, Kassanda, Migori, Geita and beyond. Designed for staff who support mining organisations (ASMOs), associations, and cooperatives.',
   lessons: [
@@ -4198,7 +4229,7 @@ COURSES.push({
   title: 'Oil Palm: Best Practice & Sustainable Production',
   subtitle: 'Best Management Practices for smallholder palm',
   category: 'Commodities',
-  icon: TreePalm,
+  icon: commodityIcon(oilPalmIcon),
   duration: '1 hr 15 min',
   description: 'A seven-module summary of the Best Management Practices (BMP) for Oil Palm Production curriculum developed for smallholder farmers in East and Central Africa under the National Oil Palm Project. Built for Solidaridad ECA staff who support field teams, partner cooperatives, and farmer training in smallholder oil palm. Covers varieties and establishment, agronomy and the BMP field calendar, harvesting and fresh fruit bunch (FFB) quality, integrated pest and disease management, safe agrochemical use, and sustainability, agroforestry and carbon.',
   lessons: [
@@ -4515,7 +4546,7 @@ COURSES.push({
   title: 'Cocoa: Farming, Climate & Farmer Empowerment',
   subtitle: 'Solidaridad ECA\'s sustainable cocoa programme in Bundibugyo',
   category: 'Commodities',
-  icon: Bean,
+  icon: commodityIcon(cocoaIcon),
   duration: '1 hr 20 min',
   description: 'A seven-module working summary of Solidaridad Eastern and Central Africa\'s cocoa programme, built on the ICAM-funded "Sustainable Farming for a Climate-Resilient Livelihood of Cocoa Farmers in Bundibugyo District, Uganda" project. Covers the cocoa value chain, agroforestry and good agricultural practice, the farm-level greenhouse-gas footprint, and the farmer-empowerment pillars Solidaridad pairs with agronomy: VSLA, the Gender Action Learning System (GALS), and EA$E business and financial skills. Designed for staff who support field teams, gender champions, and partner cooperatives.',
   lessons: [
@@ -4848,7 +4879,7 @@ COURSES.push({
   title: 'Cotton & Textile: Crop, Standard & Value Chain',
   subtitle: 'Better Cotton and the fashion value chain',
   category: 'Commodities',
-  icon: Scissors,
+  icon: commodityIcon(cottonIcon),
   duration: '1 hr 15 min',
   description: 'A six-module course on cotton and the fashion value chain for Solidaridad ECA staff who support field teams, ginners, cooperatives, and textile-sector partners. It frames cotton within ECA\'s Fashion sector (cotton, leather, textiles) in Ethiopia and Uganda, and grounds practice in the Better Cotton Standard, cotton good agricultural practice (GAP), integrated pest management, responsible ginning, fibre quality, decent work, and the cotton-to-garment chain that links farms to EUDR- and CSDDD-facing markets.',
   lessons: [
@@ -5139,7 +5170,7 @@ COURSES.push({
   title: 'Leather: Hides, Tanning & Responsible Sourcing',
   subtitle: 'From rawstock to finished leather, done responsibly',
   category: 'Commodities',
-  icon: Shirt,
+  icon: commodityIcon(leatherIcon),
   duration: '1 hr 10 min',
   description: 'A six-module working summary of Solidaridad ECA\'s approach to the leather value chain — from hides and skins at the farm and abattoir, through tanning and finishing, to environmental management, decent work, and responsible sourcing under EUDR and CSDDD. Built on Solidaridad ECA\'s Fashion (cotton, leather, textiles) programme framing and well-established sector good practice. Designed for staff who support producers, cooperatives, tanneries, and processors — primarily in Ethiopia, and in Uganda.',
   lessons: [
@@ -5430,7 +5461,7 @@ COURSES.push({
   title: 'Dairy: Herd, Milk & Market',
   subtitle: 'Productive herds, clean milk and better markets',
   category: 'Commodities',
-  icon: Milk,
+  icon: commodityIcon(dairyIcon),
   duration: '1 hr 10 min',
   description: 'A six-module working summary of Solidaridad East & Central Africa\'s smallholder dairy programme framing, combined with established good practice for dairy in East Africa. Designed for staff who support field teams, partner cooperatives, and milk-bulking hubs. Livestock (Dairy) is an active commodity in Ethiopia and Kenya, with the e-Dairy quality-based payment tool central to the digital strategy.',
   lessons: [

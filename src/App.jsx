@@ -2599,8 +2599,8 @@ COURSES.push({
 
 COURSES.push({
   id: 'coffee',
-  title: 'Coffee: Crop, Practice & Programme',
-  subtitle: 'Solidaridad\'s ECA coffee curriculum at a glance',
+  title: 'Coffee: Agronomy, Quality & Climate',
+  subtitle: 'Growing, processing and quality across Arabica and Robusta',
   category: 'Commodities',
   icon: Coffee,
   duration: '1 hr 20 min',
@@ -2926,8 +2926,8 @@ COURSES.push({
 
 COURSES.push({
   id: 'tea',
-  title: 'Tea: Crop, Practice & Programme',
-  subtitle: 'Solidaridad ECA\'s sustainable tea work at a glance',
+  title: 'Tea: Leaf, Quality & Livelihoods',
+  subtitle: 'Plucking standards, green-leaf factories and women in tea',
   category: 'Commodities',
   icon: Leaf,
   duration: '1 hr 10 min',
@@ -3210,8 +3210,8 @@ COURSES.push({
 
 COURSES.push({
   id: 'fruits-veg',
-  title: 'Fruits & Vegetables: Horticulture, Practice & Markets',
-  subtitle: 'Solidaridad ECA\'s sustainable horticulture curriculum at a glance',
+  title: 'Fruits & Vegetables: Growing, Quality & Markets',
+  subtitle: 'Production, food safety and market access',
   category: 'Commodities',
   icon: Apple,
   duration: '1 hr 15 min',
@@ -3540,8 +3540,8 @@ COURSES.push({
 
 COURSES.push({
   id: 'food-crops',
-  title: 'Food Crops: Staples, Practice & Programme',
-  subtitle: 'Solidaridad ECA\'s food crops curriculum at a glance',
+  title: 'Food Crops: Yields, Resilience & Nutrition',
+  subtitle: 'Productive, climate-resilient and nutritious staples',
   category: 'Commodities',
   icon: Wheat,
   duration: '1 hr 15 min',
@@ -3830,7 +3830,7 @@ COURSES.push({
 COURSES.push({
   id: 'gold',
   title: 'Gold: Responsible Artisanal & Small-Scale Mining',
-  subtitle: 'Solidaridad ECA\'s ASGM curriculum at a glance',
+  subtitle: 'Safety, mercury reduction, ESG and miner welfare',
   category: 'Commodities',
   icon: Pickaxe,
   duration: '1 hr 20 min',
@@ -4195,8 +4195,8 @@ COURSES.push({
 
 COURSES.push({
   id: 'oil-palm',
-  title: 'Oil Palm: Crop, Practice & Programme',
-  subtitle: 'Solidaridad\'s oil palm Best Management Practices at a glance',
+  title: 'Oil Palm: Best Practice & Sustainable Production',
+  subtitle: 'Best Management Practices for smallholder palm',
   category: 'Commodities',
   icon: TreePalm,
   duration: '1 hr 15 min',
@@ -4846,7 +4846,7 @@ COURSES.push({
 COURSES.push({
   id: 'cotton-textile',
   title: 'Cotton & Textile: Crop, Standard & Value Chain',
-  subtitle: 'Solidaridad ECA\'s cotton and fashion curriculum at a glance',
+  subtitle: 'Better Cotton and the fashion value chain',
   category: 'Commodities',
   icon: Scissors,
   duration: '1 hr 15 min',
@@ -5137,7 +5137,7 @@ COURSES.push({
 COURSES.push({
   id: 'leather',
   title: 'Leather: Hides, Tanning & Responsible Sourcing',
-  subtitle: 'Solidaridad ECA\'s leather curriculum at a glance',
+  subtitle: 'From rawstock to finished leather, done responsibly',
   category: 'Commodities',
   icon: Shirt,
   duration: '1 hr 10 min',
@@ -5428,7 +5428,7 @@ COURSES.push({
 COURSES.push({
   id: 'dairy',
   title: 'Dairy: Herd, Milk & Market',
-  subtitle: 'Solidaridad ECA\'s smallholder dairy curriculum at a glance',
+  subtitle: 'Productive herds, clean milk and better markets',
   category: 'Commodities',
   icon: Milk,
   duration: '1 hr 10 min',

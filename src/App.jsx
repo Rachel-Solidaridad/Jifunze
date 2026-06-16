@@ -3545,7 +3545,7 @@ function DashboardPage({ userName, courses, courseCompletion, completedCount, in
             Karibu, {firstName}!
           </h1>
           <p className="mt-3 text-sm md:text-base text-gray-300 leading-relaxed">
-            Explore the new Solidaridad ECA onboarding tracks below to learn how our digital tools, communications, PMEL, and field teams drive change that matters.
+            Welcome to the Solidaridad ECA Learning Platform. Start your learning journey by exploring the tracks below and discovering the knowledge, skills, and insights that support our work and impact.
           </p>
           <button
             onClick={onGoToCatalog}
@@ -4023,16 +4023,6 @@ function ForumPage({ userName, userUid }) {
       </div>
     </div>
   );
-}
-
-const GENERAL_TOPIC = { id: '__general__', title: 'General Discussion' };
-
-function threadTopicLabel(thread) {
-  if (thread?.courseId) {
-    const course = COURSES.find(c => c.id === thread.courseId);
-    if (course) return course.title;
-  }
-  return thread?.category || GENERAL_TOPIC.title;
 }
 
 function NewThreadModal({ userName, userUid, onClose }) {

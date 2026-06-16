@@ -5830,7 +5830,7 @@ const CLUSTERS = [
   },
   {
     name: 'Commodities',
-    blurb: 'Crop, livestock, and value-chain curricula. Soy is live; more launching through MASP IV.',
+    blurb: 'Crop, livestock, mining, and fashion value-chain curricula across our ECA commodities.',
     courseIds: ['soy', 'coffee', 'tea', 'fruits-veg', 'food-crops', 'gold', 'leather', 'dairy', 'cotton-textile', 'oil-palm', 'cocoa'],
   },
   {

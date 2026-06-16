@@ -17,6 +17,20 @@ import goldIcon from './assets/commodities/gold.svg';
 import cottonIcon from './assets/commodities/cotton-textile.svg';
 import leatherIcon from './assets/commodities/leather.svg';
 import dairyIcon from './assets/commodities/dairy.svg';
+// Branded Solidaridad glyphs for the non-commodity courses.
+import welcomeIcon from './assets/icons/welcome.svg';
+import maspIcon from './assets/icons/masp.svg';
+import integrityIcon from './assets/icons/integrity.png';
+import ethicsIcon from './assets/icons/ethics.svg';
+import climateIcon from './assets/icons/climate.svg';
+import financeIcon from './assets/icons/finance.svg';
+import truePricingIcon from './assets/icons/truepricing.png';
+import brandIconSrc from './assets/icons/brand.svg';
+import digitalIcon from './assets/icons/digital.svg';
+import pmelIcon from './assets/icons/pmel.png';
+import genderIcon from './assets/icons/gender.svg';
+import eudrIcon from './assets/icons/eudr.svg';
+import riskIcon from './assets/icons/risk.png';
 
 // Lazy-loaded so the admin bundle isn't part of the initial download for
 // learners (the large majority of users).
@@ -146,7 +160,7 @@ const COURSES = [
     title: 'HR Culture & Compliance',
     subtitle: 'Onboarding essentials',
     category: 'HR',
-    icon: Users,
+    icon: commodityIcon(welcomeIcon),
     duration: '1 hr',
     description: 'Welcome to Solidaridad East and Central Africa! A complete onboarding course covering who we are, our values, history, governance, HR essentials, integrity, and your first 90 days.',
     lessons: [
@@ -368,7 +382,7 @@ const COURSES = [
     title: 'MASP 2026-2030: Our Strategic Plan',
     subtitle: 'Regional strategy deep-dive',
     category: 'Strategy',
-    icon: Target,
+    icon: commodityIcon(maspIcon),
     duration: '1 hr 15 min',
     description: 'A comprehensive walk-through of Solidaridad East & Central Africa\'s Multi-Annual Strategic Plan (MASP IV) — context, ambitions, theory of change, pathways, KPIs, and how it shapes everything we do.',
     lessons: [
@@ -591,7 +605,7 @@ const COURSES = [
     title: 'Code of Conduct & Whistleblower Protocol',
     subtitle: 'Ethics & accountability',
     category: 'Compliance',
-    icon: Shield,
+    icon: commodityIcon(integrityIcon),
     duration: '25 min',
     description: 'Understand the ethical standards that guide our work. Learn how to recognize misconduct and the safe channels available to report concerns.',
     lessons: [
@@ -712,7 +726,7 @@ COURSES.push(
     title: 'Navigating Ethical Dilemmas',
     subtitle: 'Real-world decision making',
     category: 'Ethics',
-    icon: AlertTriangle,
+    icon: commodityIcon(ethicsIcon),
     duration: '30 min',
     description: 'Practice navigating real ethical dilemmas Solidaridad teams face in the field — from results reporting to private sector partnerships, carbon credits, and internal controls.',
     lessons: [
@@ -845,7 +859,7 @@ COURSES.push(
     title: 'Climate & Natural Resource Management',
     subtitle: 'Regenerative landscapes',
     category: 'Climate & NRM',
-    icon: CloudRain,
+    icon: commodityIcon(climateIcon),
     duration: '30 min',
     description: 'Learn how Solidaridad embeds climate adaptation, mitigation, and nature-based solutions across agriculture, mining, and industry.',
     lessons: [
@@ -942,7 +956,7 @@ COURSES.push(
     title: 'Access to Finance',
     subtitle: 'Inclusive financial ecosystems',
     category: 'Access to Finance',
-    icon: DollarSign,
+    icon: commodityIcon(financeIcon),
     duration: '20 min',
     description: 'Discover how Solidaridad mobilizes responsible finance for small-scale producers, MSMEs, and community enterprises across East & Central Africa.',
     lessons: [
@@ -1036,7 +1050,7 @@ COURSES.push(
     title: 'Fundamentals of True Pricing',
     subtitle: 'Making hidden costs visible',
     category: 'True Pricing',
-    icon: TrendingUp,
+    icon: commodityIcon(truePricingIcon),
     duration: '1 hr',
     description: 'A complete primer on True Pricing — what it is, why it matters, the methodology, real-world cases, and how it can transform Solidaridad\'s work with farmers and supply chains.',
     lessons: [
@@ -1317,7 +1331,7 @@ COURSES.push(
     title: 'Communications & Branding',
     subtitle: 'Representing Solidaridad',
     category: 'Communications',
-    icon: Palette,
+    icon: commodityIcon(brandIconSrc),
     duration: '20 min',
     description: 'Master logo usage, colours, typography, email etiquette, and Solidaridad\'s UN English writing style.',
     lessons: [
@@ -1400,7 +1414,7 @@ COURSES.push(
     title: 'Digital Solutions',
     subtitle: 'Tech for transformation',
     category: 'Digital',
-    icon: Database,
+    icon: commodityIcon(digitalIcon),
     duration: '20 min',
     description: 'Explore the digital ecosystem powering Solidaridad — from Solichain blockchain traceability to J\'Funze e-learning and Uwanjani field data.',
     lessons: [
@@ -1482,7 +1496,7 @@ COURSES.push(
     title: 'Planning, Monitoring, Evaluation & Learning (PMEL)',
     subtitle: 'Evidence-based decision making',
     category: 'PMEL',
-    icon: ClipboardCheck,
+    icon: commodityIcon(pmelIcon),
     duration: '25 min',
     description: 'Learn how Solidaridad uses data, indicators, and adaptive management to drive evidence-based decisions across MASP IV.',
     lessons: [
@@ -1577,7 +1591,7 @@ COURSES.push({
   title: 'Gender, Equality & Inclusion',
   subtitle: 'Inclusive programming the Solidaridad way',
   category: 'Gender',
-  icon: Users,
+  icon: commodityIcon(genderIcon),
   duration: '1 hr 15 min',
   description: 'A comprehensive gender course built on Solidaridad\'s Gender Task Force materials and the KAYA learning journey. Covers four modules — Gender Basics, Gender Analysis, Gender Responsive Programming, and Sustainability & Inclusivity — adapted for ECA staff at all levels.',
   lessons: [
@@ -1971,7 +1985,7 @@ COURSES.push({
   title: 'EUDR: EU Deforestation Regulation',
   subtitle: 'What every Solidaridad staff member needs to know',
   category: 'EUDR',
-  icon: Leaf,
+  icon: commodityIcon(eudrIcon),
   duration: '1 hr',
   description: 'A comprehensive overview of Regulation (EU) 2023/1115 — the EU Deforestation Regulation — and what it means in practice for Solidaridad ECA staff, cooperatives, and smallholder producers of coffee, cocoa, palm oil, cattle products, and wood.',
   lessons: [
@@ -5736,7 +5750,7 @@ COURSES.push({
   title: 'Risk Management',
   subtitle: 'Anticipate, decide, act',
   category: 'Risk',
-  icon: ShieldAlert,
+  icon: commodityIcon(riskIcon),
   duration: '25 min',
   description: 'Learn how Solidaridad ECA identifies, assesses, treats, and reports risks — from the three lines of defense to risk appetite, the likelihood-impact heat map, and your role as a first-line risk owner.',
   lessons: [

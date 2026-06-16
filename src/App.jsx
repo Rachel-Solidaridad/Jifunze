@@ -48,6 +48,65 @@ const Logo = ({ light = false }) => (
   </div>
 );
 
+// Decorative leaf motif (reused from the dashboard hero) for the loading screen.
+const LeafMotif = ({ className = '', color = YELLOW, style }) => (
+  <svg viewBox="0 0 200 200" className={className} style={style} fill="none" stroke={color} strokeWidth="3">
+    <path d="M100 30 Q 160 60, 160 130 Q 160 170, 100 170 Q 40 170, 40 130 Q 40 60, 100 30 Z" strokeLinejoin="round" />
+    <path d="M100 30 L 100 170" strokeLinecap="round" />
+    <path d="M100 70 Q 130 80, 145 110" strokeLinecap="round" />
+    <path d="M100 90 Q 130 100, 145 130" strokeLinecap="round" />
+    <path d="M100 110 Q 130 120, 140 145" strokeLinecap="round" />
+    <path d="M100 70 Q 70 80, 55 110" strokeLinecap="round" />
+    <path d="M100 90 Q 70 100, 55 130" strokeLinecap="round" />
+    <path d="M100 110 Q 70 120, 60 145" strokeLinecap="round" />
+  </svg>
+);
+
+// Branded full-screen loader. A dark canvas (so the white logo reads), floating
+// leaf vectors, and a row of "growing" blades that animate while data loads.
+const LoadingScreen = () => (
+  <div className="min-h-screen relative flex items-center justify-center overflow-hidden bg-black text-white">
+    <style>{`
+      @keyframes jf-float { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-14px); } }
+      @keyframes jf-grow { 0%,100%{ transform: scaleY(0.35); opacity: 0.45; } 50%{ transform: scaleY(1); opacity: 1; } }
+      @keyframes jf-rise { 0%{ opacity: 0; transform: translateY(10px); } 100%{ opacity: 1; transform: translateY(0); } }
+    `}</style>
+
+    {/* Floating background leaf vectors */}
+    <LeafMotif className="absolute -left-16 -top-10 w-72 h-72 opacity-[0.07]" style={{ animation: 'jf-float 7s ease-in-out infinite' }} />
+    <LeafMotif className="absolute right-[-3rem] top-1/4 w-56 h-56 opacity-[0.06]" style={{ animation: 'jf-float 9s ease-in-out infinite', animationDelay: '1.2s' }} />
+    <LeafMotif className="absolute -bottom-16 left-1/4 w-80 h-80 opacity-[0.05]" style={{ animation: 'jf-float 8s ease-in-out infinite', animationDelay: '0.6s' }} />
+    {/* Warm glow behind the mark */}
+    <div className="absolute w-[28rem] h-[28rem] rounded-full blur-3xl opacity-20" style={{ background: `radial-gradient(circle, ${YELLOW} 0%, transparent 70%)` }} />
+
+    <div className="relative z-10 flex flex-col items-center px-6 text-center" style={{ animation: 'jf-rise 0.7s ease-out both' }}>
+      <JifunzeIcon size={76} color="#fff" accent={YELLOW} />
+      <span className="mt-4 font-extrabold text-4xl text-white tracking-tight leading-none">Jifunze</span>
+      <Swoosh w={130} />
+      <p className="mt-3 text-sm uppercase tracking-[0.25em] text-gray-400">Solidaridad ECA Learning Hub</p>
+
+      {/* Growing blades loader */}
+      <div className="mt-9 flex items-end gap-1.5 h-9">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <span
+            key={i}
+            className="w-2 rounded-full"
+            style={{
+              height: '100%',
+              backgroundColor: YELLOW,
+              transformOrigin: 'bottom',
+              animation: `jf-grow 1.1s ease-in-out ${i * 0.13}s infinite`,
+            }}
+          />
+        ))}
+      </div>
+
+      <p className="mt-6 text-sm text-gray-400">Loading your learning hub…</p>
+      <p className="mt-10 text-xs uppercase tracking-[0.3em] text-gray-600">Change that matters</p>
+    </div>
+  </div>
+);
+
 const COURSES = [
   {
     id: 'welcome',
@@ -6132,14 +6191,7 @@ export default function App() {
   }).length;
 
   if (!loaded) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-center">
-          <SidebarLogo />
-          <p className="mt-4 text-sm text-gray-500">Loading your learning hub…</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   if (!userEmail) {

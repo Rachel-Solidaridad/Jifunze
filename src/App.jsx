@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { BookOpen, Award, CheckCircle2, ChevronRight, ChevronLeft, Home, Users, Target, Lightbulb, Shield, ShieldAlert, Globe, Mail, Palette, FileText, AlertTriangle, Sparkles, Trophy, X, Check, ArrowRight, RotateCcw, MapPin, TrendingUp, Leaf, Search, BarChart3, MessageSquare, BookMarked, Clock, Layers, Menu, DollarSign, CloudRain, Database, ClipboardCheck, Coffee, Apple, Wheat, Pickaxe, Shirt, Milk, Scissors, TreePalm, Bean, Lock } from 'lucide-react';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp, query, orderBy, limit, onSnapshot, addDoc, writeBatch, increment } from 'firebase/firestore';
 import { auth, googleProvider, ALLOWED_DOMAIN, db } from './firebase';
 import { ROLES, isSeedAdmin, normalizeRole, canViewAdminDashboard } from './auth/roles';
-import AdminDashboard from './admin/AdminDashboard';
+// Lazy-loaded so the admin bundle isn't part of the initial download for
+// learners (the large majority of users).
+const AdminDashboard = lazy(() => import('./admin/AdminDashboard'));
 import { listAssignmentsForUser } from './admin/queries';
 
 const YELLOW = '#FFC800';
@@ -6104,30 +6106,37 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (user) => {
+    const unsub = onAuthStateChanged(auth, (user) => {
       if (user && isAllowedEmail(user.email)) {
         const email = user.email.toLowerCase();
         const uid = user.uid;
         setUserEmail(email);
         setUserUid(uid);
-        const [p, storedName, userDoc, asgn] = await Promise.all([
-          loadProgress(uid),
-          loadUserName(uid),
-          loadOrInitUserDoc(uid, email),
-          listAssignmentsForUser(uid).catch(() => []),
-        ]);
-        setProgress(p);
-        setUserRole(userDoc.role || ROLES.LEARNER);
-        setMyAssignments(asgn);
+        // Show the app immediately on a derived name. The catalog and courses
+        // are static, so they need no network — only per-user data does.
         const derived = user.displayName || nameFromEmail(email);
-        if (storedName) {
-          setUserName(storedName);
-        } else if (derived) {
-          setUserName(derived);
-          saveUserName(uid, derived);
-        } else {
-          setShowNamePrompt(true);
-        }
+        if (derived) setUserName(derived);
+        setLoaded(true);
+        // Hydrate per-user data in the background so Firestore round-trips
+        // don't gate the first paint.
+        (async () => {
+          const [p, storedName, userDoc, asgn] = await Promise.all([
+            loadProgress(uid),
+            loadUserName(uid),
+            loadOrInitUserDoc(uid, email),
+            listAssignmentsForUser(uid).catch(() => []),
+          ]);
+          setProgress(p);
+          setUserRole(userDoc.role || ROLES.LEARNER);
+          setMyAssignments(asgn);
+          if (storedName) {
+            setUserName(storedName);
+          } else if (derived) {
+            saveUserName(uid, derived);
+          } else {
+            setShowNamePrompt(true);
+          }
+        })();
       } else {
         setUserEmail('');
         setUserUid('');
@@ -6135,8 +6144,8 @@ export default function App() {
         setUserRole(ROLES.LEARNER);
         setProgress({});
         setMyAssignments([]);
+        setLoaded(true);
       }
-      setLoaded(true);
     });
     return () => unsub();
   }, []);
@@ -6341,12 +6350,14 @@ export default function App() {
           )}
 
           {view === 'list' && page === 'admin' && canViewAdminDashboard(userRole) && (
-            <AdminDashboard
-              currentRole={userRole}
-              currentUid={userUid}
-              courses={COURSES}
-              computeCompletion={computeCompletion}
-            />
+            <Suspense fallback={<div className="py-16 text-center text-sm text-gray-500">Loading admin dashboard…</div>}>
+              <AdminDashboard
+                currentRole={userRole}
+                currentUid={userUid}
+                courses={COURSES}
+                computeCompletion={computeCompletion}
+              />
+            </Suspense>
           )}
 
           {view === 'course' && activeCourse && (

@@ -12,5 +12,15 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
+    rollupOptions: {
+      output: {
+        // Split heavy, rarely-changing vendors into their own chunks so they
+        // are cached across deploys and parsed in parallel with the app code.
+        manualChunks: {
+          react: ['react', 'react-dom'],
+          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore'],
+        },
+      },
+    },
   },
 });

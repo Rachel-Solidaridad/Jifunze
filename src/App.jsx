@@ -18,9 +18,9 @@ import cottonIcon from './assets/commodities/cotton-textile.svg';
 import leatherIcon from './assets/commodities/leather.svg';
 import dairyIcon from './assets/commodities/dairy.svg';
 // Branded Solidaridad glyphs for the non-commodity courses.
-import welcomeIcon from './assets/icons/welcome.svg';
+import welcomeIcon from './assets/icons/welcome.png';
 import maspIcon from './assets/icons/masp.svg';
-import integrityIcon from './assets/icons/integrity.png';
+import integrityIcon from './assets/icons/integrity.svg';
 import ethicsIcon from './assets/icons/ethics.svg';
 import climateIcon from './assets/icons/climate.svg';
 import financeIcon from './assets/icons/finance.svg';
@@ -29,7 +29,7 @@ import brandIconSrc from './assets/icons/brand.svg';
 import digitalIcon from './assets/icons/digital.svg';
 import pmelIcon from './assets/icons/pmel.png';
 import genderIcon from './assets/icons/gender.svg';
-import eudrIcon from './assets/icons/eudr.svg';
+import eudrIcon from './assets/icons/eudr.png';
 import riskIcon from './assets/icons/risk.png';
 
 // Lazy-loaded so the admin bundle isn't part of the initial download for

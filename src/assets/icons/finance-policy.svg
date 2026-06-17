@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- receipt body with torn/zigzag bottom -->
+  <path d="M18 8 H46 V49 l-3.5 3 l-3.5 -3 l-3.5 3 l-3.5 -3 l-3.5 3 l-3.5 -3 l-3.5 3 l-3.5 -3 V8 Z"/>
+  <!-- line items -->
+  <line x1="24" y1="16" x2="40" y2="16" stroke-width="2.6"/>
+  <line x1="24" y1="22" x2="40" y2="22" stroke-width="2.6"/>
+  <!-- approved checkmark -->
+  <path d="M24 36 l5 6 l11 -13" stroke-width="4"/>
+</svg>

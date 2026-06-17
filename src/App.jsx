@@ -31,6 +31,7 @@ import pmelIcon from './assets/icons/pmel.svg';
 import genderIcon from './assets/icons/gender.svg';
 import eudrIcon from './assets/icons/eudr.png';
 import riskIcon from './assets/icons/risk.svg';
+import financePolicyIcon from './assets/icons/finance-policy.svg';
 
 // Lazy-loaded so the admin bundle isn't part of the initial download for
 // learners (the large majority of users).
@@ -5914,6 +5915,207 @@ COURSES.push({
 });
 
 
+COURSES.push({
+  id: 'finance-policy',
+  title: 'Finance, Procurement & Expenses',
+  subtitle: 'Spend smart, stay compliant',
+  category: 'Strategy',
+  icon: commodityIcon(financePolicyIcon),
+  duration: '55 min',
+  description: 'A practical, scenario-driven walk through the 2025 ECA Finance & Procurement Manual and the Travel & Expenses Policy. Learn how to travel, buy, claim and account the Solidaridad way — the rules that keep our money clean, our donors happy and our auditors smiling.',
+  lessons: [
+    {
+      id: 'fin-why',
+      title: 'Why Every Shilling Has a Story',
+      content: [
+        { type: 'p', text: 'Solidaridad ECA manages money that belongs to donors, partners and the communities we serve. The Finance & Procurement Manual (Issue No. 5, 19 May 2025) and the Travel & Expenses Policy exist so that every euro, shilling, birr or schilling can be traced, justified and trusted. This is not red tape — it is how we protect our reputation and keep funding flowing.' },
+        { type: 'highlight', text: 'If it is not documented, it did not happen. Every payment, trip and purchase needs a paper trail.' },
+        { type: 'list', title: 'The three principles behind every rule', items: [
+          'Value for money — we get the best outcome for what we spend.',
+          'Transparency & accountability — decisions are documented and auditable.',
+          'Compliance — we follow internal policy, donor rules and local law.',
+        ] },
+        { type: 'callout', title: 'Who owns the money?', text: 'The Managing Director (MD) carries overall responsibility for ECA’s financial management, advised by the Financial Controller (FC). But financial controls only work if every staff member plays their part.' },
+        { type: 'value', title: 'FISCAL YEAR', text: 'ECA’s financial year runs 1 January to 31 December.' },
+        { type: 'value', title: 'CURRENCY', text: 'The base currency is the currency of the country where an office is registered; the dual reporting currency is the Euro.' },
+        { type: 'p', text: 'Two golden override rules to remember: where a donor’s rules are stricter than ours, the donor’s rules win. And where national law differs from the Manual, the law of the country supersedes the Manual.' },
+      ],
+    },
+    {
+      id: 'fin-travel-before',
+      title: 'Travel: Before You Go',
+      content: [
+        { type: 'p', text: 'Good trips start with good planning. Every business trip needs advance approval — never book first and ask later.' },
+        { type: 'pathway', title: 'THE APPROVAL CHAIN', text: 'Raise a Travel Request Form (destination, purpose, dates, estimated costs) → get your Line Manager’s sign-off → the Project Manager reviews it → the Country Manager gives final approval.' },
+        { type: 'list', title: 'Booking the smart way', items: [
+          'Book flights at least 3 weeks ahead to catch discounted fares.',
+          'Use ECA’s preferred suppliers — the Operations team arranges bookings.',
+          'Economy class is mandatory. Exceptions only for flights over 8 hours, medical reasons, or where your contract specifies otherwise.',
+          'Book hotels through the Operations team at least 2 weeks before travel — usually 3 to 4-star, best corporate rate.',
+        ] },
+        { type: 'callout', title: 'Who pays the hotel?', text: 'ECA pays accommodation directly to the hotel (bed & breakfast). You do not pay and claim it back — so book through Operations early.' },
+        { type: 'highlight', text: 'Need a travel advance? The request must be approved at least 2 weeks before you travel.' },
+        { type: 'p', text: 'Before you fly: check your passport and visa are valid, confirm any vaccinations (ECA covers visa and vaccination costs for business travel), and check travel advisories for your destination.' },
+      ],
+    },
+    {
+      id: 'fin-travel-after',
+      title: 'Travel: On the Road & Accounting',
+      content: [
+        { type: 'p', text: 'On the road, the prepaid card is your best friend. Use the Solidaridad prepaid (or corporate) card for all business expenses wherever possible, and keep every original tax receipt.' },
+        { type: 'callout', title: 'Never mix money', text: 'Personal expenses must NEVER be charged to the prepaid or corporate card. If a personal item lands on your hotel bill, settle it yourself at checkout.' },
+        { type: 'stat', value: 'KES 2,000', label: 'Per diem (DSA) per day in Kenya — rates are UN-based and reviewed annually' },
+        { type: 'list', title: 'How the Daily Subsistence Allowance (DSA) works', items: [
+          'Covers meals, non-alcoholic drinks and minor incidentals (local transport, tips).',
+          'Accommodation is NOT in the DSA — ECA pays the hotel directly.',
+          'Non-duplication: if meals are already provided (e.g. at an event), the DSA is reduced.',
+          'For remote or unlisted locations, confirm the rate with Finance before you travel.',
+        ] },
+        { type: 'list', title: 'What ECA will NOT reimburse', items: [
+          'Tobacco, alcohol and personal toiletries.',
+          'Hotel minibar (except water), in-room movies and personal phone calls.',
+          'Laundry — unless the trip is over 4 consecutive nights, and then capped at USD 20 per week.',
+          'Gifts or souvenirs over USD 100 must be reported and justified.',
+        ] },
+        { type: 'pathway', title: 'CLAIM THE RIGHT WAY', text: 'Submit your Travel Expense Report within 7 days of returning, with original receipts, the correct cost-centre codes and a field-visit report. Convert any foreign-currency spend using the Oanda rate on the date of the expense.' },
+        { type: 'highlight', text: 'One trip at a time: you cannot hold two travel advances at once. Account fully for the last trip first — late accounting can be recovered from your salary.' },
+      ],
+    },
+    {
+      id: 'fin-procurement',
+      title: 'Procurement: The Right Way to Buy',
+      content: [
+        { type: 'p', text: 'Procurement is simply how we buy goods and services fairly. The method you must use depends on the value of what you are buying — bigger spend means more competition and more oversight.' },
+        { type: 'pathway', title: 'UNDER €500 · PRUDENT SHOPPING', text: 'Buy directly from a local supplier, but still get at least 3 verbal or written quotes and keep a quote analysis. (Approved by the Country Manager.)' },
+        { type: 'pathway', title: '€500 – €15,000 · WRITTEN QUOTES', text: 'Obtain at least 3 written quotes and pick the best-value supplier against clear criteria (quality, price, delivery). The Tender Evaluation Committee (TEC) authorises the supplier.' },
+        { type: 'pathway', title: '€15,000 – €100,000 · COMPETITIVE BIDDING', text: 'Run a formal competitive bid — invite prequalified suppliers, consider at least 3 bids, and let the TEC evaluate against predefined criteria.' },
+        { type: 'pathway', title: 'OVER €100,000 · OPEN TENDER', text: 'Advertise an open, public tender with explicit evaluation criteria. The TEC adjudicates and appoints the supplier.' },
+        { type: 'callout', title: 'Single-sourcing (one supplier, no competition)', text: 'Allowed only when there is genuinely one supplier, continuity is essential, or there is a real emergency — and always with written justification, TEC consultation first, then MD approval.' },
+        { type: 'list', title: 'Buy with integrity', items: [
+          'All staff submit an annual conflict-of-interest declaration; TEC members declare and recuse themselves on any item they are connected to.',
+          'The TEC normally meets every Tuesday; each meeting needs at least 4 members.',
+          'Complete and sign a Purchase Requisition Form with a quote analysis before TEC approval.',
+          'Preference goes to suppliers that meet our environmental, social and governance (ESG) standards.',
+        ] },
+        { type: 'highlight', text: 'No documents, no payment. Every payment needs (in order): Delivery Note, Local Purchase Order, Invoices/receipts, and Supporting Quotations — plus TEC minutes where applicable.' },
+      ],
+    },
+    {
+      id: 'fin-money-moves',
+      title: 'How Money Moves: Payments, Petty Cash & Banking',
+      content: [
+        { type: 'p', text: 'Payments run on a predictable weekly rhythm so Finance can verify everything properly. Plan ahead and your supplier or reimbursement is never late.' },
+        { type: 'pathway', title: 'THE PAYMENT WEEK', text: 'Finance prepares payments on Wednesday → the FC reviews on Thursday → the MD authorises on Friday. Salaries are processed after the 23rd of each month.' },
+        { type: 'list', title: 'Give Finance enough runway', items: [
+          'Submit source documents to procurement at least 4 weeks before the activity, or to Finance at least 2 weeks before.',
+          'Every ECA bank account needs a minimum of 2 authorised signatories — the MD and FC are the primary signatories.',
+          'Advance payments over EUR 10,000 to a new supplier need a signed contract, a bank guarantee and valid registration/tax documents.',
+        ] },
+        { type: 'stat', value: 'KES 25,000', label: 'Maximum petty-cash float at country offices (EUR 150.25); head office is KES 50,000 (EUR 340)' },
+        { type: 'list', title: 'Petty cash discipline', items: [
+          'It runs on an imprest basis: physical cash + supporting receipts must always equal the float.',
+          'Replenish when the float drops to the threshold (about EUR 75 / KES 10,000).',
+          'Petty cash is for small incidentals only — never use it to dodge the procurement process.',
+        ] },
+        { type: 'callout', title: 'Cost-centre coding', text: 'Every travel and procurement cost must be charged to the correct cost centre / project code. When in doubt — especially for a new project — confirm the code with Finance before you submit.' },
+      ],
+    },
+    {
+      id: 'fin-assets-compliance',
+      title: 'Assets, Overheads & Staying Audit-Ready',
+      content: [
+        { type: 'p', text: 'The rules do not stop at payments. Assets, overheads and good record-keeping all keep ECA audit-ready and sustainable.' },
+        { type: 'list', title: 'Looking after assets', items: [
+          'Items worth more than EUR 700 go on the fixed-asset register and are tagged and verified annually.',
+          'Disposing of an asset worth over EUR 1,000 needs a valuation; all disposals go through the TEC and are approved by the MD, with priority given to staff.',
+          'Private use of a Solidaridad asset needs Country Manager authorisation and written MD approval.',
+        ] },
+        { type: 'list', title: 'Buying IT kit', items: [
+          'Purchase computer hardware only from approved preferred vendors, following the standard specifications for your staff cluster.',
+          'MacBooks are approved only case-by-case on technical need.',
+          'Hardware follows a 5-year refresh cycle and only full-time staff qualify for a refresh.',
+        ] },
+        { type: 'value', title: 'OVERHEADS', text: 'Projects contribute to core costs (rent, utilities, support staff): typically a minimum of 7% for donors, 8% for private companies, and 6% for private individuals.' },
+        { type: 'value', title: 'RECORDS', text: 'Keep travel and financial documentation securely for at least 7 years for audit and legal purposes.' },
+        { type: 'highlight', text: 'Master these basics and you protect every project: spend with a plan, keep your receipts, charge the right code, and account on time.' },
+      ],
+    },
+  ],
+  interactive: {
+    type: 'scenario',
+    intro: 'You are travelling, buying and claiming on Solidaridad business. Make the call that keeps you compliant.',
+    scenarios: [
+      {
+        situation: 'It is Monday. You need to fly for a workshop next Monday — 7 days away — and you’d prefer business class for the 2-hour hop. What do you do?',
+        options: [
+          { text: 'Book a business-class ticket yourself today and claim it later.', correct: false, feedback: 'Two problems: economy is mandatory for a short flight, and you should book through Operations / preferred suppliers, not pay-and-claim.' },
+          { text: 'Ask Operations to book an economy fare through a preferred supplier, and flag that timing is tight.', correct: true, feedback: 'Correct. Economy is the rule (exceptions are flights over 8 hours, medical or contractual), and Operations books through preferred suppliers. Flights should ideally be booked 3 weeks ahead — so raise it early.' },
+          { text: 'Wait until the day before and book whatever is cheapest.', correct: false, feedback: 'Last-minute booking usually costs more and breaks the 3-weeks-ahead guidance. Plan early.' },
+        ],
+      },
+      {
+        situation: 'You got back from a field trip 10 days ago and still haven’t filed your expense report. Now you need an advance for a new trip. What’s the issue?',
+        options: [
+          { text: 'No issue — just request the new advance.', correct: false, feedback: 'You cannot hold two advances at once, and your report is already overdue (the limit is 7 days). Unaccounted advances can be recovered from your salary.' },
+          { text: 'File and fully account for the last trip first, then request the new advance.', correct: true, feedback: 'Correct. Submit the Travel Expense Report within 7 days, account fully for the previous advance, then raise the next request — one trip at a time.' },
+          { text: 'Combine both trips into one report next month.', correct: false, feedback: 'Reports are due within 7 days of each trip; rolling them together breaks the timeline and risks salary recovery of the open advance.' },
+        ],
+      },
+      {
+        situation: 'At checkout, your 2-night hotel bill includes a USD 12 minibar beer and a USD 15 laundry charge. How should you handle it?',
+        options: [
+          { text: 'Pay the beer and laundry yourself; only claim the room and eligible costs.', correct: true, feedback: 'Correct. Alcohol and minibar (except water) are never reimbursed, and laundry is only covered on trips over 4 consecutive nights (capped at USD 20/week). Settle personal items at checkout.' },
+          { text: 'Claim the full bill — it was all on one invoice.', correct: false, feedback: 'No. Alcohol/minibar are excluded, and laundry on a 2-night trip is not eligible. Personal items must be paid by you.' },
+          { text: 'Charge it all to the prepaid card to sort out later.', correct: false, feedback: 'Personal items must never go on the prepaid card. Pay them yourself at the hotel.' },
+        ],
+      },
+      {
+        situation: 'Your project needs 6 laptops at about EUR 8,000 total. Which procurement route is correct?',
+        options: [
+          { text: 'Just buy them from a shop you like — it’s urgent.', correct: false, feedback: 'Direct purchase (prudent shopping) only applies under EUR 500. EUR 8,000 needs written quotes and TEC authorisation.' },
+          { text: 'Get at least 3 written quotes, pick the best value, and have the TEC authorise the supplier.', correct: true, feedback: 'Correct. Spend between EUR 500 and EUR 15,000 needs at least 3 written quotes and TEC authorisation — and buy from approved preferred vendors following standard specs.' },
+          { text: 'Run a full public open tender.', correct: false, feedback: 'Open tender is for spend over EUR 100,000. For EUR 8,000, three written quotes is the right (and proportionate) method.' },
+        ],
+      },
+      {
+        situation: 'A highly specialised software service is genuinely only available from one vendor. You want to skip the quotes. Can you?',
+        options: [
+          { text: 'Yes — just buy it; there is only one supplier anyway.', correct: false, feedback: 'Single-sourcing is allowed in this case, but never without process. You still need justification and approval.' },
+          { text: 'Write a justification, consult the TEC first, then get MD approval before committing.', correct: true, feedback: 'Correct. Single-sourcing (sole supplier, continuity, or emergency) requires written justification, TEC consultation, and MD approval, all documented in the procurement file.' },
+          { text: 'Ask a friend in another team to approve it quietly.', correct: false, feedback: 'Never. Approvals must follow the authority levels — TEC then MD — and be documented and auditable.' },
+        ],
+      },
+      {
+        situation: 'In a TEC meeting, one of the bidding companies is owned by a committee member’s spouse. What should happen?',
+        options: [
+          { text: 'Nothing — the member can still vote, they’ll be fair.', correct: false, feedback: 'That is a clear conflict of interest. Staying in the room and voting undermines the integrity of the whole process.' },
+          { text: 'The member declares the conflict and recuses themselves; it is noted in the minutes.', correct: true, feedback: 'Correct. Staff make annual conflict-of-interest declarations, and TEC members must declare and recuse on any item they are connected to — recorded in the minutes.' },
+          { text: 'Cancel the entire tender.', correct: false, feedback: 'No need. The conflicted member simply recuses; the TEC can proceed impartially with its remaining members (minimum of 4).' },
+        ],
+      },
+    ],
+  },
+  quiz: [
+    { q: 'Within how many days of returning must you submit your travel expense report?', options: ['3 days', '7 days', '14 days', '30 days'], answer: 1 },
+    { q: 'Economy class is mandatory EXCEPT when:', options: ['You are tired', 'The flight is over 8 hours, or for medical/contractual reasons', 'You booked late', 'A colleague is flying business'], answer: 1 },
+    { q: 'How far in advance should flights normally be booked?', options: ['3 days', '1 week', '3 weeks', '3 months'], answer: 2 },
+    { q: 'Which of these does the prepaid/corporate card NEVER cover?', options: ['Approved hotel transfers', 'Personal expenses', 'Eligible business meals', 'Conference fees'], answer: 1 },
+    { q: 'The Daily Subsistence Allowance (DSA) in Kenya is:', options: ['KES 500/day', 'KES 2,000/day', 'KES 10,000/day', 'Whatever you spend'], answer: 1 },
+    { q: 'Which expense is NOT reimbursed by Solidaridad?', options: ['A business lunch', 'Alcohol and minibar items (except water)', 'A taxi to a meeting', 'An eligible visa fee'], answer: 1 },
+    { q: 'A purchase of EUR 8,000 requires:', options: ['A direct purchase, no quotes', 'At least 3 written quotes and TEC authorisation', 'An open public tender', 'Only the Country Manager’s nod'], answer: 1 },
+    { q: 'Contracts over EUR 100,000 must use:', options: ['Prudent shopping', '3 verbal quotes', 'An open tender process', 'Petty cash'], answer: 2 },
+    { q: 'Single-sourcing a supplier requires:', options: ['Nothing if there is only one supplier', 'Written justification, TEC consultation, and MD approval', 'Just the PM’s email', 'A coin toss'], answer: 1 },
+    { q: 'Every payment request must include, in order:', options: ['Only an invoice', 'Delivery note, local purchase order, invoices/receipts, supporting quotations', 'A WhatsApp message', 'The supplier’s logo'], answer: 1 },
+    { q: 'How many authorised signatories does every ECA bank account need?', options: ['One', 'Two', 'Three', 'Five'], answer: 1 },
+    { q: 'Who gives final authorisation for payments each week?', options: ['Any line manager', 'The Office Manager', 'The Managing Director (on Friday)', 'The supplier'], answer: 2 },
+    { q: 'An item must go on the fixed-asset register if it is worth more than:', options: ['EUR 100', 'EUR 700', 'EUR 5,000', 'EUR 10,000'], answer: 1 },
+    { q: 'Petty cash runs on an imprest basis, meaning:', options: ['You can spend freely', 'Cash plus receipts must always equal the float', 'It replaces procurement', 'Only the MD can touch it'], answer: 1 },
+    { q: 'Foreign-currency expenses are converted using:', options: ['Any rate you like', 'The Oanda rate on the date of the expense', 'Last year’s rate', 'The airport kiosk rate'], answer: 1 },
+    { q: 'If a donor’s rules are stricter than ECA policy, you should:', options: ['Ignore the donor', 'Follow the donor’s rules', 'Average the two', 'Ask the supplier'], answer: 1 },
+  ],
+});
+
+
 // All commodity courses are now full courses (no placeholders remain).
 
 
@@ -5922,7 +6124,7 @@ const CLUSTERS = [
   {
     name: 'Strategy & Organisational Excellence',
     blurb: 'Strategy, people, communications, and how we measure what we change.',
-    courseIds: ['masp', 'welcome', 'brand', 'pmel'],
+    courseIds: ['masp', 'welcome', 'finance-policy', 'brand', 'pmel'],
   },
   {
     name: 'Governance, Ethics & Compliance',

@@ -27,7 +27,7 @@ import financeIcon from './assets/icons/finance.png';
 import truePricingIcon from './assets/icons/truepricing.png';
 import brandIconSrc from './assets/icons/brand.svg';
 import digitalIcon from './assets/icons/digital.svg';
-import pmelIcon from './assets/icons/pmel.png';
+import pmelIcon from './assets/icons/pmel.svg';
 import genderIcon from './assets/icons/gender.svg';
 import eudrIcon from './assets/icons/eudr.png';
 import riskIcon from './assets/icons/risk.svg';

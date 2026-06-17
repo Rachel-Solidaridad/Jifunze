@@ -1,6 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
-  <!-- compass ring -->
-  <circle cx="32" cy="32" r="23"/>
-  <!-- navigation arrow (moral compass needle) -->
-  <path d="M32 15 L 43 46 L 32 39 L 21 46 Z" fill="#000" stroke="#000" stroke-width="2"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" stroke-linecap="round" stroke-linejoin="round">
+  <!-- balance scale balanced above the head -->
+  <g fill="none" stroke="#000" stroke-width="2.8">
+    <!-- stand rising from the head + beam -->
+    <line x1="32" y1="23" x2="32" y2="8"/>
+    <line x1="17" y1="9" x2="47" y2="9"/>
+    <!-- hanger strings -->
+    <line x1="17" y1="9" x2="17" y2="13"/>
+    <line x1="47" y1="9" x2="47" y2="13"/>
+    <!-- pans (shallow bowls) -->
+    <path d="M11.5 13 A 5.6 4 0 0 0 22.5 13"/>
+    <path d="M41.5 13 A 5.6 4 0 0 0 52.5 13"/>
+  </g>
+  <circle cx="32" cy="9" r="2.1" fill="#000"/>
+  <!-- profile head (facing left), solid -->
+  <path d="M45 32
+           C 45 25 39 22 33 23
+           C 26 24 22 29 21 34
+           L 14 39 C 12 40 13 43 16 43 L 21 43
+           C 20 47 22 51 26 52
+           L 26 60 L 43 60 L 43 42
+           C 45 39 46 35 45 32 Z" fill="#000"/>
 </svg>

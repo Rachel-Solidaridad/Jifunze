@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+  <!-- magnifying-glass lens -->
+  <circle cx="27" cy="27" r="17"/>
+  <!-- handle -->
+  <line x1="39.5" y1="39.5" x2="53" y2="53" stroke-width="4.5"/>
+  <!-- mini bar chart inside the lens (monitoring & evaluation of results) -->
+  <line x1="18" y1="34" x2="37" y2="34"/>
+  <line x1="22" y1="34" x2="22" y2="28" stroke-width="3"/>
+  <line x1="28" y1="34" x2="28" y2="22" stroke-width="3"/>
+  <line x1="34" y1="34" x2="34" y2="25" stroke-width="3"/>
+</svg>

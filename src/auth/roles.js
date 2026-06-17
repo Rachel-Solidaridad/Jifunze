@@ -24,9 +24,11 @@ export const ROLE_LABELS = {
 export const ROLE_OPTIONS = [ROLES.LEARNER, ROLES.MANAGER, ROLES.ADMIN];
 
 // Seed admin emails — these accounts auto-get `role: 'admin'` on first login.
+// Everyone else is a default learner unless promoted by an admin via the UI.
 // All lowercase; must be @solidaridadnetwork.org.
 export const SEED_ADMINS = [
-  'rachel@solidaridadnetwork.org',
+  'rachel.wanyoike@solidaridadnetwork.org',
+  'digital.eca@solidaridadnetwork.org',
 ];
 
 export function isSeedAdmin(email) {

@@ -3,7 +3,7 @@ import { BookOpen, Award, CheckCircle2, ChevronRight, ChevronLeft, Home, Users, 
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp, query, orderBy, limit, onSnapshot, addDoc, writeBatch, increment } from 'firebase/firestore';
 import { auth, googleProvider, ALLOWED_DOMAIN, db } from './firebase';
-import { ROLES, isSeedAdmin, normalizeRole, canViewAdminDashboard } from './auth/roles';
+import { ROLES, isSeedAdmin, normalizeRole, canViewAdminDashboard, isAdmin } from './auth/roles';
 import { listAssignmentsForUser } from './admin/queries';
 // Branded Solidaridad commodity glyphs, used for the commodity courses.
 import soyIcon from './assets/commodities/soy.svg';
@@ -6291,7 +6291,7 @@ export default function App() {
           <SidebarItem icon={BookMarked} label="Course Catalog" active={page === 'catalog'} onClick={() => navigate('catalog')} />
           <SidebarItem icon={Award} label="My Certificates" active={page === 'certificates'} onClick={() => navigate('certificates')} />
           <SidebarItem icon={MessageSquare} label="Community Forum" active={page === 'forum'} onClick={() => navigate('forum')} />
-          {canViewAdminDashboard(userRole) && (
+          {isAdmin(userRole) && (
             <SidebarItem icon={Shield} label="Admin" active={page === 'admin'} onClick={() => navigate('admin')} />
           )}
         </nav>
@@ -6335,7 +6335,7 @@ export default function App() {
                 style={{ '--tw-ring-color': YELLOW }}
               />
             </div>
-            {canViewAdminDashboard(userRole) && (
+            {isAdmin(userRole) && (
               <button
                 onClick={() => navigate('admin')}
                 aria-label="Open admin dashboard"
@@ -6394,7 +6394,7 @@ export default function App() {
             <ForumPage userName={userName} userUid={userUid} />
           )}
 
-          {view === 'list' && page === 'admin' && canViewAdminDashboard(userRole) && (
+          {view === 'list' && page === 'admin' && isAdmin(userRole) && (
             <Suspense fallback={<div className="py-16 text-center text-sm text-gray-500">Loading admin dashboard…</div>}>
               <AdminDashboard
                 currentRole={userRole}

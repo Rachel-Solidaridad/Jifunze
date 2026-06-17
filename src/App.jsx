@@ -5921,7 +5921,7 @@ COURSES.push({
   subtitle: 'Spend smart, stay compliant',
   category: 'Finance',
   icon: commodityIcon(financePolicyIcon),
-  duration: '1 hr 40 min',
+  duration: '1 hr 35 min',
   description: 'A comprehensive, scenario-driven walk through the 2025 ECA Finance & Procurement Manual (Issue No. 5), the Travel & Expenses Policy and QSP, and ECA leadership guidance on co-financing, controls and audit readiness. Across fourteen modules you will learn how money flows through Solidaridad ECA — how we plan, approve, travel, claim, buy, pay, bank, allocate and account — so every euro and shilling is traceable, justified and trusted.',
   lessons: [
     {
@@ -5979,9 +5979,6 @@ COURSES.push({
         { type: 'list', title: 'Budgeting with discipline', items: [
           'Design and manage budgets strictly in line with the contract’s expenditure requirements.',
           'Apply the correct overhead / indirect-cost percentages from the Manual (typically 7% donors, 8% private companies, 6% individuals).',
-          'Retain 2% of the project budget for NS (network support / management allocation).',
-          'Budget staff costs correctly and, once funds arrive, transfer them to the dedicated payroll accounts promptly.',
-          'Account for additional income (rent, interest, other) and track and report it correctly.',
         ] },
         { type: 'list', title: 'When reality differs from the plan', items: [
           'Underspending: find the cause early and, with donor approval, reallocate to avoid waste.',
@@ -6114,7 +6111,7 @@ COURSES.push({
           'All procurement and payment documents are uploaded and retained in the central drive, with a complete, traceable audit trail.',
           'Advance payments over EUR 10,000 to a new supplier need a signed contract, a bank guarantee and valid registration/tax documents.',
         ] },
-        { type: 'callout', title: 'Consultants & partners', text: 'Project Managers verify delivery (a report and signed payment request, or a delivery note for goods) and submit to the Regional PMEL Manager for approval before payment. Once a contract is signed, the bank details cannot be changed without verification.' },
+        { type: 'callout', title: 'Consultants & partners', text: 'Project Managers verify delivery (a report and signed payment request, or a delivery note for goods) and submit to the Regional PMEL Manager for approval before payment. Once a contract is signed, the bank details cannot be changed.' },
       ],
     },
     {
@@ -6141,10 +6138,8 @@ COURSES.push({
       title: 'Financial Controls & Audit Readiness',
       content: [
         { type: 'p', text: 'Good controls catch errors before they become problems — and the best controls are built into the system, not left to memory. Our aim is compliance by design, with a complete, traceable record behind every transaction.' },
-        { type: 'callout', title: 'Beware bank-detail changes', text: 'A request to change a supplier’s or partner’s bank details is a classic fraud signal. Apply two-step verification: ask for an official letter AND confirm by phone with a known contact before anything changes. Once a contract is signed, bank details cannot simply be changed.' },
         { type: 'list', title: 'Integrity & accuracy controls', items: [
           'Record and reconcile all transactions regularly — monthly reconciliations catch discrepancies early.',
-          'Verify bank details in contracts are correct before payment.',
           'Use correct decimal precision in every financial entry.',
           'Review dormant accounts yearly and close them where needed.',
           'Process advance retirements within the defined timelines so balances do not stay open.',
@@ -6223,14 +6218,6 @@ COURSES.push({
         ],
       },
       {
-        situation: 'A supplier emails: “We’ve changed banks — please pay our invoice to this new account.” What do you do?',
-        options: [
-          { text: 'Update the details and pay — the invoice looks genuine.', correct: false, feedback: 'This is a classic fraud pattern. Acting on an email alone risks paying a fraudster.' },
-          { text: 'Apply two-step verification: request an official letter AND confirm by phone with a known contact before changing anything.', correct: true, feedback: 'Correct. Bank-detail changes need strict two-step verification (official letter plus a phone call to a known contact). Details fixed in a signed contract cannot simply be changed.' },
-          { text: 'Ask a colleague if the email looks fine, then pay.', correct: false, feedback: 'A quick glance is not verification. Use the official-letter-plus-phone-call check every time.' },
-        ],
-      },
-      {
         situation: 'Your project needs 6 laptops at about EUR 8,000 total. Which procurement route is correct?',
         options: [
           { text: 'Just buy them from a shop you like — it’s urgent.', correct: false, feedback: 'Direct purchase (prudent shopping) only applies under EUR 500. EUR 8,000 needs written quotes and TEC authorisation.' },
@@ -6281,7 +6268,6 @@ COURSES.push({
     { q: 'Contracts over EUR 100,000 must use:', options: ['Prudent shopping', '3 verbal quotes', 'An open tender process', 'Petty cash'], answer: 2 },
     { q: 'Splitting one large purchase into smaller orders to stay under a threshold is:', options: ['Smart budgeting', 'A procurement breach that defeats the controls', 'Fine if urgent', 'Allowed under EUR 500'], answer: 1 },
     { q: 'Before a Purchase Order is authorised, the TEC evaluation matrix must be:', options: ['Drafted only', 'Fully signed (and documents then locked)', 'Emailed to the supplier', 'Approved verbally'], answer: 1 },
-    { q: 'When a supplier requests a change of bank details, you should:', options: ['Update and pay immediately', 'Apply two-step verification — official letter plus a phone call to a known contact', 'Ask a colleague’s opinion and pay', 'Ignore it'], answer: 1 },
     { q: 'Every payment file must include, in order:', options: ['Only an invoice', 'Delivery note, local purchase order, invoices/receipts, supporting quotations', 'A WhatsApp message', 'The supplier’s logo'], answer: 1 },
     { q: 'No funds may be disbursed without:', options: ['A verbal request', 'An approved requisition, Purchase Order and/or signed contract', 'A friendly reminder', 'The supplier’s thank-you note'], answer: 1 },
     { q: 'Supporting documents for transactions should be:', options: ['Kept on a personal laptop', 'Uploaded and retained in the central Google Drive with a full audit trail', 'Printed and taken home', 'Deleted after payment'], answer: 1 },

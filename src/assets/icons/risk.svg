@@ -1,19 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <!-- ground line -->
-  <rect x="3" y="52" width="40" height="3" rx="1.5" fill="#000"/>
-  <!-- domino 1: falling, leaning right -->
-  <rect x="5" y="33" width="6.5" height="19" rx="1.5" fill="#000" transform="rotate(32 8.2 51.5)"/>
-  <!-- domino 2: leaning into the next -->
-  <rect x="17" y="33" width="6.5" height="19" rx="1.5" fill="#000" transform="rotate(15 20.2 51.5)"/>
-  <!-- domino 3: still upright (held) -->
-  <rect x="30" y="33" width="6.5" height="19" rx="1.5" fill="#000"/>
-  <!-- open hand stopping the fall -->
-  <g fill="#000">
-    <rect x="44" y="38" width="15" height="16" rx="4.5"/>
-    <rect x="45" y="29" width="3" height="12" rx="1.5"/>
-    <rect x="49" y="27" width="3" height="14" rx="1.5"/>
-    <rect x="53" y="27" width="3" height="14" rx="1.5"/>
-    <rect x="57" y="29.5" width="3" height="11" rx="1.5"/>
-    <rect x="40.5" y="41" width="7" height="3.6" rx="1.8" transform="rotate(-28 47 43)"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke="#000" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round">
+  <!-- gauge arc (semicircle) -->
+  <path d="M9 44 A 23 23 0 0 1 55 44"/>
+  <!-- tick marks -->
+  <line x1="9" y1="44" x2="13.5" y2="44"/>
+  <line x1="14.8" y1="27.5" x2="18" y2="30.7"/>
+  <line x1="32" y1="21" x2="32" y2="25.5"/>
+  <line x1="49.2" y1="27.5" x2="46" y2="30.7"/>
+  <line x1="55" y1="44" x2="50.5" y2="44"/>
+  <!-- needle pointing to the high zone -->
+  <line x1="32" y1="44" x2="45" y2="30" stroke-width="3.6"/>
+  <!-- hub -->
+  <circle cx="32" cy="44" r="3.4" fill="#000" stroke="none"/>
+  <!-- base / stand -->
+  <line x1="22" y1="52" x2="42" y2="52" stroke-width="3.4"/>
+  <line x1="32" y1="44" x2="32" y2="52"/>
 </svg>

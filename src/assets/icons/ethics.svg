@@ -1,23 +1,27 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" stroke-linecap="round" stroke-linejoin="round">
-  <!-- balance scale balanced above the head -->
-  <g fill="none" stroke="#000" stroke-width="2.8">
-    <!-- stand rising from the head + beam -->
-    <line x1="32" y1="23" x2="32" y2="8"/>
-    <line x1="17" y1="9" x2="47" y2="9"/>
-    <!-- hanger strings -->
-    <line x1="17" y1="9" x2="17" y2="13"/>
-    <line x1="47" y1="9" x2="47" y2="13"/>
-    <!-- pans (shallow bowls) -->
-    <path d="M11.5 13 A 5.6 4 0 0 0 22.5 13"/>
-    <path d="M41.5 13 A 5.6 4 0 0 0 52.5 13"/>
+  <!-- balance scale balanced on the head -->
+  <g fill="none" stroke="#000" stroke-width="3">
+    <!-- central post rising from the head -->
+    <line x1="32" y1="25" x2="32" y2="8"/>
+    <!-- beam -->
+    <line x1="14" y1="9" x2="50" y2="9"/>
+    <!-- triangular hanger strings -->
+    <line x1="14" y1="9" x2="9" y2="15"/>
+    <line x1="14" y1="9" x2="19" y2="15"/>
+    <line x1="50" y1="9" x2="45" y2="15"/>
+    <line x1="50" y1="9" x2="55" y2="15"/>
+    <!-- pans (clear hanging bowls) -->
+    <path d="M8 15 Q 14 23 20 15"/>
+    <path d="M44 15 Q 50 23 56 15"/>
   </g>
-  <circle cx="32" cy="9" r="2.1" fill="#000"/>
+  <!-- pivot knob -->
+  <circle cx="32" cy="8.5" r="2.4" fill="#000"/>
   <!-- profile head (facing left), solid -->
-  <path d="M45 32
-           C 45 25 39 22 33 23
-           C 26 24 22 29 21 34
-           L 14 39 C 12 40 13 43 16 43 L 21 43
-           C 20 47 22 51 26 52
-           L 26 60 L 43 60 L 43 42
-           C 45 39 46 35 45 32 Z" fill="#000"/>
+  <path d="M45 33
+           C 45 26 39 23 33 24
+           C 26 25 22 30 21 35
+           L 14 40 C 12 41 13 44 16 44 L 21 44
+           C 20 48 22 52 26 53
+           L 26 60 L 43 60 L 43 43
+           C 45 40 46 36 45 33 Z" fill="#000"/>
 </svg>

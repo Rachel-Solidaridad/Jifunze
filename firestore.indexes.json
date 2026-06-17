@@ -15,13 +15,6 @@
         { "fieldPath": "userId",     "order": "ASCENDING" },
         { "fieldPath": "assignedAt", "order": "DESCENDING" }
       ]
-    },
-    {
-      "collectionGroup": "certificates",
-      "queryScope": "COLLECTION_GROUP",
-      "fields": [
-        { "fieldPath": "issuedAt", "order": "DESCENDING" }
-      ]
     }
   ],
   "fieldOverrides": []

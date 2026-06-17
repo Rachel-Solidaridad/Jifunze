@@ -6006,24 +6006,29 @@ async function saveUserName(uid, name) {
 }
 
 // Load the user's role from their /users/{uid} doc, creating the doc on
-// first login if it doesn't exist. Seed admins (per SEED_ADMINS) get
-// `role: 'admin'` on first creation; everyone else defaults to 'learner'.
+// first login if it doesn't exist. Seed admins (per SEED_ADMINS) are
+// auto-promoted to 'admin' on EVERY login, not just first creation —
+// that way, adding an email to SEED_ADMINS upgrades an existing user
+// the next time they sign in. Everyone else defaults to 'learner'.
 async function loadOrInitUserDoc(uid, email) {
   if (!uid) return { role: ROLES.LEARNER };
   try {
     const ref = doc(db, 'users', uid);
     const snap = await getDoc(ref);
+    const shouldBeAdmin = isSeedAdmin(email);
     if (snap.exists()) {
       const data = snap.data();
-      // Touch lastActiveAt + ensure email is recorded for the admin user table.
-      await setDoc(
-        ref,
-        { email, lastActiveAt: serverTimestamp() },
-        { merge: true },
-      );
-      return { ...data, role: normalizeRole(data.role) };
+      const currentRole = normalizeRole(data.role);
+      const update = { email, lastActiveAt: serverTimestamp() };
+      let nextRole = currentRole;
+      if (shouldBeAdmin && currentRole !== ROLES.ADMIN) {
+        update.role = ROLES.ADMIN;
+        nextRole = ROLES.ADMIN;
+      }
+      await setDoc(ref, update, { merge: true });
+      return { ...data, role: nextRole };
     }
-    const initialRole = isSeedAdmin(email) ? ROLES.ADMIN : ROLES.LEARNER;
+    const initialRole = shouldBeAdmin ? ROLES.ADMIN : ROLES.LEARNER;
     await setDoc(ref, {
       email,
       role: initialRole,

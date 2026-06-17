@@ -25,6 +25,19 @@ service cloud.firestore {
       return signedInSolidaridad() && callerRole() in ['manager', 'admin'];
     }
 
+    // Seed admins are hardcoded by email. They may self-promote to 'admin'
+    // on sign-in (used to bootstrap the first admins and to upgrade users
+    // who pre-existed before being added to the seed list). Keep this list
+    // in sync with SEED_ADMINS in src/auth/roles.js.
+    function isSeedAdminEmail() {
+      return request.auth != null
+        && request.auth.token.email is string
+        && request.auth.token.email in [
+          'rachel.wanyoike@solidaridadnetwork.org',
+          'digital.eca@solidaridadnetwork.org'
+        ];
+    }
+
     // --- /users/{uid} ---------------------------------------------------------
     // Owner can read/write their own profile. Managers and admins can read
     // any profile (needed for the admin dashboard user table). Only admins
@@ -33,12 +46,15 @@ service cloud.firestore {
       allow read: if signedInSolidaridad()
         && (request.auth.uid == uid || isManagerOrAdmin());
 
-      // Owner can update their own profile, but NOT their own role (only
-      // admins can change roles, including on their own doc).
+      // Owner can update their own profile, but NOT their own role —
+      // except a seed-admin email may set its own role to 'admin' (this
+      // is the bootstrap path). Anything else role-related requires admin.
       allow create: if signedInSolidaridad() && request.auth.uid == uid;
       allow update: if signedInSolidaridad() && (
-        (request.auth.uid == uid
-          && (!('role' in request.resource.data.diff(resource.data).affectedKeys())))
+        (request.auth.uid == uid && (
+          !('role' in request.resource.data.diff(resource.data).affectedKeys())
+          || (isSeedAdminEmail() && request.resource.data.role == 'admin')
+        ))
         || isAdmin()
       );
       allow delete: if false;

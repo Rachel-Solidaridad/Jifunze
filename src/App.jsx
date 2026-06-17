@@ -161,7 +161,7 @@ const COURSES = [
     subtitle: 'Onboarding essentials',
     category: 'HR',
     icon: commodityIcon(welcomeIcon),
-    duration: '30 min',
+    duration: '45 min',
     description: 'Welcome to Solidaridad East and Central Africa! A complete onboarding course covering who we are, our values, history, governance, HR essentials, integrity, and your first 90 days.',
     lessons: [
       {
@@ -383,7 +383,7 @@ const COURSES = [
     subtitle: 'Regional strategy deep-dive',
     category: 'Strategy',
     icon: commodityIcon(maspIcon),
-    duration: '25 min',
+    duration: '40 min',
     description: 'A comprehensive walk-through of Solidaridad East & Central Africa\'s Multi-Annual Strategic Plan (MASP IV) — context, ambitions, theory of change, pathways, KPIs, and how it shapes everything we do.',
     lessons: [
       {
@@ -606,7 +606,7 @@ const COURSES = [
     subtitle: 'Ethics & accountability',
     category: 'Compliance',
     icon: commodityIcon(integrityIcon),
-    duration: '20 min',
+    duration: '25 min',
     description: 'Understand the ethical standards that guide our work. Learn how to recognize misconduct and the safe channels available to report concerns.',
     lessons: [
       {
@@ -727,7 +727,7 @@ COURSES.push(
     subtitle: 'Real-world decision making',
     category: 'Ethics',
     icon: commodityIcon(ethicsIcon),
-    duration: '30 min',
+    duration: '40 min',
     description: 'Practice navigating real ethical dilemmas Solidaridad teams face in the field — from results reporting to private sector partnerships, carbon credits, and internal controls.',
     lessons: [
       {
@@ -860,7 +860,7 @@ COURSES.push(
     subtitle: 'Regenerative landscapes',
     category: 'Climate & NRM',
     icon: commodityIcon(climateIcon),
-    duration: '15 min',
+    duration: '20 min',
     description: 'Learn how Solidaridad embeds climate adaptation, mitigation, and nature-based solutions across agriculture, mining, and industry.',
     lessons: [
       {
@@ -957,7 +957,7 @@ COURSES.push(
     subtitle: 'Inclusive financial ecosystems',
     category: 'Access to Finance',
     icon: commodityIcon(financeIcon),
-    duration: '15 min',
+    duration: '25 min',
     description: 'Discover how Solidaridad mobilizes responsible finance for small-scale producers, MSMEs, and community enterprises across East & Central Africa.',
     lessons: [
       {
@@ -1051,7 +1051,7 @@ COURSES.push(
     subtitle: 'Making hidden costs visible',
     category: 'True Pricing',
     icon: commodityIcon(truePricingIcon),
-    duration: '40 min',
+    duration: '1 hr',
     description: 'A complete primer on True Pricing — what it is, why it matters, the methodology, real-world cases, and how it can transform Solidaridad\'s work with farmers and supply chains.',
     lessons: [
       {
@@ -1332,7 +1332,7 @@ COURSES.push(
     subtitle: 'Representing Solidaridad',
     category: 'Communications',
     icon: commodityIcon(brandIconSrc),
-    duration: '10 min',
+    duration: '15 min',
     description: 'Master logo usage, colours, typography, email etiquette, and Solidaridad\'s UN English writing style.',
     lessons: [
       {
@@ -1497,7 +1497,7 @@ COURSES.push(
     subtitle: 'Evidence-based decision making',
     category: 'PMEL',
     icon: commodityIcon(pmelIcon),
-    duration: '15 min',
+    duration: '20 min',
     description: 'Learn how Solidaridad uses data, indicators, and adaptive management to drive evidence-based decisions across MASP IV.',
     lessons: [
       {
@@ -1592,7 +1592,7 @@ COURSES.push({
   subtitle: 'Inclusive programming the Solidaridad way',
   category: 'Gender',
   icon: commodityIcon(genderIcon),
-  duration: '1 hr',
+  duration: '1 hr 20 min',
   description: 'A comprehensive gender course built on Solidaridad\'s Gender Task Force materials and the KAYA learning journey. Covers four modules — Gender Basics, Gender Analysis, Gender Responsive Programming, and Sustainability & Inclusivity — adapted for ECA staff at all levels.',
   lessons: [
     {
@@ -1986,7 +1986,7 @@ COURSES.push({
   subtitle: 'What every Solidaridad staff member needs to know',
   category: 'EUDR',
   icon: commodityIcon(eudrIcon),
-  duration: '50 min',
+  duration: '1 hr 5 min',
   description: 'A comprehensive overview of Regulation (EU) 2023/1115 — the EU Deforestation Regulation — and what it means in practice for Solidaridad ECA staff, cooperatives, and smallholder producers of coffee, cocoa, palm oil, cattle products, and wood.',
   lessons: [
     {
@@ -2267,7 +2267,7 @@ COURSES.push({
   subtitle: 'Solidaridad\'s soy curriculum at a glance',
   category: 'Commodities',
   icon: commodityIcon(soyIcon),
-  duration: '55 min',
+  duration: '1 hr 10 min',
   description: 'A seven-module summary of Solidaridad\'s Soy Training Manual — developed under SATSBIS (Southern Africa towards Soybean Import Substitution) and applicable wherever Solidaridad works with soy. Designed for staff who support field teams, partner cooperatives, and farmer training programmes.',
   lessons: [
     {
@@ -2648,7 +2648,7 @@ COURSES.push({
   subtitle: 'Growing, processing and quality across Arabica and Robusta',
   category: 'Commodities',
   icon: commodityIcon(coffeeIcon),
-  duration: '1 hr',
+  duration: '1 hr 20 min',
   description: 'A seven-module working summary of Solidaridad ECA\'s coffee curriculum, drawing on the Tanzania National Coffee Sustainability Curriculum, the UCDA Robusta Coffee Handbook, and Solidaridad\'s climate-smart, organic, nursery business-case, and waste-to-wealth (biochar) materials. Designed for staff who support field teams, partner cooperatives, and farmer training programmes across Arabica and Robusta systems.',
   lessons: [
     {
@@ -2975,7 +2975,7 @@ COURSES.push({
   subtitle: 'Plucking standards, green-leaf factories and women in tea',
   category: 'Commodities',
   icon: commodityIcon(teaIcon),
-  duration: '55 min',
+  duration: '1 hr 10 min',
   description: 'A six-module summary of Solidaridad ECA\'s sustainable tea work, drawing on the Reclaim Sustainability! (RS!) Tea programme in Kenya and Uganda and the Women in Tea report, combined with standard sustainable-tea agronomy. Designed for staff who support field teams, factories, farmer associations, and women-in-tea groups.',
   lessons: [
     {
@@ -3259,7 +3259,7 @@ COURSES.push({
   subtitle: 'Production, food safety and market access',
   category: 'Commodities',
   icon: commodityIcon(fruitsVegIcon),
-  duration: '1 hr',
+  duration: '1 hr 15 min',
   description: 'A seven-module summary of Solidaridad ECA\'s sustainable horticulture curriculum, drawn from the FOSEK Fruits, Vegetables & Sweet Potato Production Guide, the Roots of Resilience biodiversity handbook, and the regional horticulture sector strategy. Designed for staff who support field teams, partner cooperatives, and farmer training programmes across the fruit and vegetable value chains.',
   lessons: [
     {
@@ -3589,7 +3589,7 @@ COURSES.push({
   subtitle: 'Productive, climate-resilient and nutritious staples',
   category: 'Commodities',
   icon: commodityIcon(foodCropsIcon),
-  duration: '55 min',
+  duration: '1 hr 10 min',
   description: 'A six-module summary of Solidaridad ECA\'s food crops curriculum — drawing on the CSV Maize agronomy and Cereal GAP manuals, the P4G Climate-Smart Agriculture manual, the SAVE agroforestry and Roots of Resilience biodiversity handbooks, the FOSEK food crop and nutrition guide, and the VSLA training manual. Built for staff who support field teams, lead-farmer trainers, and partner cooperatives across maize and cereals, beans, sweet potato, and vegetables.',
   lessons: [
     {
@@ -3878,7 +3878,7 @@ COURSES.push({
   subtitle: 'Safety, mercury reduction, ESG and miner welfare',
   category: 'Commodities',
   icon: commodityIcon(goldIcon),
-  duration: '1 hr 10 min',
+  duration: '1 hr 25 min',
   description: 'A seven-module summary of Solidaridad ECA\'s responsible artisanal and small-scale gold mining (ASGM) curriculum — drawn from occupational health and safety, emergency rescue and first aid, mine design, mercury reduction and ESG, self-regulation and formalisation, and governance and financial management training developed with miners in Busia, Kassanda, Migori, Geita and beyond. Designed for staff who support mining organisations (ASMOs), associations, and cooperatives.',
   lessons: [
     {
@@ -4244,7 +4244,7 @@ COURSES.push({
   subtitle: 'Best Management Practices for smallholder palm',
   category: 'Commodities',
   icon: commodityIcon(oilPalmIcon),
-  duration: '1 hr',
+  duration: '1 hr 15 min',
   description: 'A seven-module summary of the Best Management Practices (BMP) for Oil Palm Production curriculum developed for smallholder farmers in East and Central Africa under the National Oil Palm Project. Built for Solidaridad ECA staff who support field teams, partner cooperatives, and farmer training in smallholder oil palm. Covers varieties and establishment, agronomy and the BMP field calendar, harvesting and fresh fruit bunch (FFB) quality, integrated pest and disease management, safe agrochemical use, and sustainability, agroforestry and carbon.',
   lessons: [
     {
@@ -4561,7 +4561,7 @@ COURSES.push({
   subtitle: 'Solidaridad ECA\'s sustainable cocoa programme in Bundibugyo',
   category: 'Commodities',
   icon: commodityIcon(cocoaIcon),
-  duration: '1 hr',
+  duration: '1 hr 15 min',
   description: 'A seven-module working summary of Solidaridad Eastern and Central Africa\'s cocoa programme, built on the ICAM-funded "Sustainable Farming for a Climate-Resilient Livelihood of Cocoa Farmers in Bundibugyo District, Uganda" project. Covers the cocoa value chain, agroforestry and good agricultural practice, the farm-level greenhouse-gas footprint, and the farmer-empowerment pillars Solidaridad pairs with agronomy: VSLA, the Gender Action Learning System (GALS), and EA$E business and financial skills. Designed for staff who support field teams, gender champions, and partner cooperatives.',
   lessons: [
     {
@@ -4894,7 +4894,7 @@ COURSES.push({
   subtitle: 'Better Cotton and the fashion value chain',
   category: 'Commodities',
   icon: commodityIcon(cottonIcon),
-  duration: '1 hr',
+  duration: '1 hr 15 min',
   description: 'A six-module course on cotton and the fashion value chain for Solidaridad ECA staff who support field teams, ginners, cooperatives, and textile-sector partners. It frames cotton within ECA\'s Fashion sector (cotton, leather, textiles) in Ethiopia and Uganda, and grounds practice in the Better Cotton Standard, cotton good agricultural practice (GAP), integrated pest management, responsible ginning, fibre quality, decent work, and the cotton-to-garment chain that links farms to EUDR- and CSDDD-facing markets.',
   lessons: [
     {
@@ -5185,7 +5185,7 @@ COURSES.push({
   subtitle: 'From rawstock to finished leather, done responsibly',
   category: 'Commodities',
   icon: commodityIcon(leatherIcon),
-  duration: '1 hr',
+  duration: '1 hr 15 min',
   description: 'A six-module working summary of Solidaridad ECA\'s approach to the leather value chain — from hides and skins at the farm and abattoir, through tanning and finishing, to environmental management, decent work, and responsible sourcing under EUDR and CSDDD. Built on Solidaridad ECA\'s Fashion (cotton, leather, textiles) programme framing and well-established sector good practice. Designed for staff who support producers, cooperatives, tanneries, and processors — primarily in Ethiopia, and in Uganda.',
   lessons: [
     {
@@ -5476,7 +5476,7 @@ COURSES.push({
   subtitle: 'Productive herds, clean milk and better markets',
   category: 'Commodities',
   icon: commodityIcon(dairyIcon),
-  duration: '1 hr',
+  duration: '1 hr 10 min',
   description: 'A six-module working summary of Solidaridad East & Central Africa\'s smallholder dairy programme framing, combined with established good practice for dairy in East Africa. Designed for staff who support field teams, partner cooperatives, and milk-bulking hubs. Livestock (Dairy) is an active commodity in Ethiopia and Kenya, with the e-Dairy quality-based payment tool central to the digital strategy.',
   lessons: [
     {
@@ -5751,7 +5751,7 @@ COURSES.push({
   subtitle: 'Anticipate, decide, act',
   category: 'Risk',
   icon: commodityIcon(riskIcon),
-  duration: '30 min',
+  duration: '45 min',
   description: 'Learn how Solidaridad ECA identifies, assesses, treats, and reports risks — from the three lines of defense to risk appetite, the likelihood-impact heat map, and your role as a first-line risk owner.',
   lessons: [
     {

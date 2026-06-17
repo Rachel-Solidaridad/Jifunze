@@ -30,7 +30,7 @@ import digitalIcon from './assets/icons/digital.svg';
 import pmelIcon from './assets/icons/pmel.png';
 import genderIcon from './assets/icons/gender.svg';
 import eudrIcon from './assets/icons/eudr.png';
-import riskIcon from './assets/icons/risk.png';
+import riskIcon from './assets/icons/risk.svg';
 
 // Lazy-loaded so the admin bundle isn't part of the initial download for
 // learners (the large majority of users).

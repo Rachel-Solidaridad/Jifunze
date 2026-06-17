@@ -5921,8 +5921,8 @@ COURSES.push({
   subtitle: 'Spend smart, stay compliant',
   category: 'Finance',
   icon: commodityIcon(financePolicyIcon),
-  duration: '1 hr 20 min',
-  description: 'A comprehensive, scenario-driven walk through the 2025 ECA Finance & Procurement Manual (Issue No. 5) and the Travel & Expenses Policy and QSP. Across twelve modules you will learn how money flows through Solidaridad ECA — how we plan, approve, travel, claim, buy, pay, bank and account — so every euro and shilling is traceable, justified and trusted.',
+  duration: '1 hr 40 min',
+  description: 'A comprehensive, scenario-driven walk through the 2025 ECA Finance & Procurement Manual (Issue No. 5), the Travel & Expenses Policy and QSP, and ECA leadership guidance on co-financing, controls and audit readiness. Across fourteen modules you will learn how money flows through Solidaridad ECA — how we plan, approve, travel, claim, buy, pay, bank, allocate and account — so every euro and shilling is traceable, justified and trusted.',
   lessons: [
     {
       id: 'fin-why',
@@ -5976,13 +5976,39 @@ COURSES.push({
       content: [
         { type: 'p', text: 'A budget is a plan for the year ahead. ECA’s annual budgeting cycle starts mid-year so that activities, people and money line up before January.' },
         { type: 'pathway', title: 'THE BUDGET CYCLE', text: 'July–August: the Management Team plans and managers draft programme budgets. The FC compiles a consolidated budget for the MD. October–November: the MD presents the approved budget (after Board approval) to staff.' },
+        { type: 'list', title: 'Budgeting with discipline', items: [
+          'Design and manage budgets strictly in line with the contract’s expenditure requirements.',
+          'Apply the correct overhead / indirect-cost percentages from the Manual (typically 7% donors, 8% private companies, 6% individuals).',
+          'Retain 2% of the project budget for NS (network support / management allocation).',
+          'Budget staff costs correctly and, once funds arrive, transfer them to the dedicated payroll accounts promptly.',
+          'Account for additional income (rent, interest, other) and track and report it correctly.',
+        ] },
         { type: 'list', title: 'When reality differs from the plan', items: [
           'Underspending: find the cause early and, with donor approval, reallocate to avoid waste.',
-          'Overspending: act immediately, find the root cause, and use contingency or reallocation — and tell the donor where required.',
+          'Overspending: act immediately, find the root cause, use contingency or reallocation, and tell the donor where required.',
           'Acceleration: spending faster than planned is fine only if it does not starve later activities of cash.',
         ] },
         { type: 'callout', title: 'Cost-centre coding', text: 'Every travel and procurement cost must be charged to the correct cost centre / project code. When in doubt — especially for a new project — confirm the code with Finance before you submit.' },
-        { type: 'value', title: 'OVERHEADS', text: 'Projects contribute to core costs (rent, utilities, support staff, governance): typically a minimum of 7% for donors, 8% for private companies, and 6% for private individuals.' },
+      ],
+    },
+    {
+      id: 'fin-cofinance',
+      title: 'Co-financing, Cost Allocation & Timesheets',
+      content: [
+        { type: 'p', text: 'As our portfolio grows, projects can share resources — infrastructure, partnerships, expertise and lessons learned — to increase efficiency and impact. This is co-financing, and it must always be intentional, transparent and well documented.' },
+        { type: 'list', title: 'Doing co-financing right', items: [
+          'Identify and document synergies during project design, not after the fact.',
+          'Budget co-financing transparently and align it with donor rules and cost-allocation principles.',
+          'Co-financing decisions are approved by the Country Managers, the Head of Programmes and the regional finance team.',
+          'It applies to both cash and in-kind contributions (staff time, office space, equipment, vehicles, technical assistance).',
+        ] },
+        { type: 'highlight', text: 'The golden rule of cost allocation: a cost or contribution may be counted ONCE. Never claim the same cost under more than one project, donor or funding source.' },
+        { type: 'list', title: 'Allocating shared costs', items: [
+          'Use a reasonable, documented and consistently applied method that reflects the actual benefit to each project.',
+          'Shared procurement, travel, training and operational costs are apportioned on documented criteria.',
+          'Keep a clear audit trail showing how shared costs and contributions were valued and allocated.',
+        ] },
+        { type: 'callout', title: 'Timesheets & effort reporting', text: 'Staff working on more than one project must record actual time on approved timesheets, completed and approved promptly. Salary costs are charged in proportion to real effort, and staff time given as an in-kind contribution must also be backed by timesheets.' },
       ],
     },
     {
@@ -6037,8 +6063,8 @@ COURSES.push({
           'Hotel bills, airline tickets and all other original receipts.',
         ] },
         { type: 'highlight', text: 'One trip at a time: you cannot hold two travel advances at once. Account fully for the last trip first — any advance not surrendered within 7 days can be recovered from your salary.' },
-        { type: 'callout', title: 'Refunds to others', text: 'Refunds to government staff are made at the applicable government rate; refunds to beneficiaries follow the country or project rate. Finance may ask for proof of the rate at any time.' },
-        { type: 'p', text: 'Keep your travel documentation securely for at least 7 years. Accounts stay unpaid until all required documents are received, so prompt, complete reporting is also the fastest way to be reimbursed.' },
+        { type: 'callout', title: 'Late retirements', text: 'If a retirement (accounting for an advance) is running late, manage it promptly and in a controlled way — escalate to your Country Manager, who will coordinate with HR where necessary. Accounts stay unpaid until all required documents are received.' },
+        { type: 'p', text: 'Keep your travel documentation securely for at least 7 years. Prompt, complete reporting is also the fastest way to be reimbursed.' },
       ],
     },
     {
@@ -6056,17 +6082,23 @@ COURSES.push({
     },
     {
       id: 'fin-procure-suppliers',
-      title: 'Procurement: Suppliers & Integrity',
+      title: 'Procurement: Suppliers, TEC & Evidence',
       content: [
-        { type: 'p', text: 'Fair process needs good suppliers and clean decisions. ECA keeps a Pre-Qualified Supplier List (PQL) of vendors assessed on financial stability, performance history, compliance and reputation, reviewed at least annually.' },
-        { type: 'list', title: 'Buying with integrity', items: [
-          'All staff submit an annual conflict-of-interest declaration; TEC members declare and recuse themselves on any item they are connected to (noted in the minutes).',
+        { type: 'p', text: 'Fair process needs good suppliers, clean decisions and watertight evidence. ECA keeps a Pre-Qualified Supplier List (PQL) of vendors assessed on financial stability, performance history, compliance and reputation, reviewed at least annually.' },
+        { type: 'list', title: 'Strong TEC governance', items: [
           'The TEC normally meets every Tuesday; each meeting needs at least 4 members.',
-          'Complete and sign a Purchase Requisition Form with a quote analysis before TEC approval.',
-          'Preference goes to suppliers that meet our environmental, social and governance (ESG) standards.',
+          'Every meeting opens with a formal conflict-of-interest declaration, captured in the minutes; members recuse themselves on items they are connected to.',
+          'TEC evaluation matrices must be fully signed (DocuSign or Google e-signature) before any Purchase Order is authorised.',
+          'Meetings are formally minuted and stored centrally with the signed matrices — and once decisions are finalised and signed, the documents are locked against further editing.',
+        ] },
+        { type: 'list', title: 'Evidence to keep on file', items: [
+          'Proof of adverts (website, email or other formats).',
+          'Delivery notes / goods-received notes.',
+          'Acknowledgement of payment receipt.',
+          'Beneficiaries’ acknowledgement of receipt.',
         ] },
         { type: 'callout', title: 'Buying IT kit', text: 'Purchase computer hardware only from approved preferred vendors, following the standard specifications for your staff cluster. MacBooks are approved only case-by-case on technical need. Hardware follows a 5-year refresh cycle, and only full-time staff qualify for a refresh.' },
-        { type: 'highlight', text: 'No documents, no payment. Every payment needs (in order): Delivery Note, Local Purchase Order, Invoices/receipts, and Supporting Quotations — plus TEC minutes where applicable.' },
+        { type: 'highlight', text: 'If you cannot demonstrate compliance during an audit, it counts as non-compliance. Strong record-keeping is the proof that good process happened.' },
       ],
     },
     {
@@ -6075,13 +6107,14 @@ COURSES.push({
       content: [
         { type: 'p', text: 'Payments run on a predictable weekly rhythm so Finance can verify everything properly. Plan ahead and your supplier or reimbursement is never late.' },
         { type: 'pathway', title: 'THE PAYMENT WEEK', text: 'Finance prepares payments on Wednesday → the FC reviews on Thursday → the MD authorises on Friday. Salaries are processed after the 23rd of each month.' },
+        { type: 'highlight', text: 'No approved requisition, Purchase Order or signed contract — no funds. Payments are gated on the paperwork being complete and approved.' },
         { type: 'list', title: 'Give Finance enough runway', items: [
           'Submit source documents to procurement at least 4 weeks before the activity, or to Finance at least 2 weeks before.',
-          'Advance payments over EUR 10,000 to a new supplier (fewer than 3 successful deliveries) need a signed contract, a bank guarantee and valid registration/tax documents.',
-          'For large or complex purchases, payment follows inspection and certification that goods/services were received in full.',
+          'Every payment file needs (in order): Delivery Note, Local Purchase Order, Invoices/receipts, Supporting Quotations — plus TEC minutes where applicable.',
+          'All procurement and payment documents are uploaded and retained in the central drive, with a complete, traceable audit trail.',
+          'Advance payments over EUR 10,000 to a new supplier need a signed contract, a bank guarantee and valid registration/tax documents.',
         ] },
-        { type: 'callout', title: 'Consultants & partners', text: 'Project Managers verify delivery (a report and signed payment request, or a delivery note for goods) and submit to the Regional PMEL Manager for approval before payment. Once a contract is signed, the bank details cannot be changed.' },
-        { type: 'highlight', text: 'Payments are only processed once the documentation is complete and approved — incomplete files wait.' },
+        { type: 'callout', title: 'Consultants & partners', text: 'Project Managers verify delivery (a report and signed payment request, or a delivery note for goods) and submit to the Regional PMEL Manager for approval before payment. Once a contract is signed, the bank details cannot be changed without verification.' },
       ],
     },
     {
@@ -6104,10 +6137,32 @@ COURSES.push({
       ],
     },
     {
-      id: 'fin-assets',
-      title: 'Assets, Reserves & Audit-Ready',
+      id: 'fin-controls',
+      title: 'Financial Controls & Audit Readiness',
       content: [
-        { type: 'p', text: 'The rules do not stop at payments. Assets, reserves and good record-keeping all keep ECA audit-ready and sustainable.' },
+        { type: 'p', text: 'Good controls catch errors before they become problems — and the best controls are built into the system, not left to memory. Our aim is compliance by design, with a complete, traceable record behind every transaction.' },
+        { type: 'callout', title: 'Beware bank-detail changes', text: 'A request to change a supplier’s or partner’s bank details is a classic fraud signal. Apply two-step verification: ask for an official letter AND confirm by phone with a known contact before anything changes. Once a contract is signed, bank details cannot simply be changed.' },
+        { type: 'list', title: 'Integrity & accuracy controls', items: [
+          'Record and reconcile all transactions regularly — monthly reconciliations catch discrepancies early.',
+          'Verify bank details in contracts are correct before payment.',
+          'Use correct decimal precision in every financial entry.',
+          'Review dormant accounts yearly and close them where needed.',
+          'Process advance retirements within the defined timelines so balances do not stay open.',
+        ] },
+        { type: 'list', title: 'Records & audit readiness', items: [
+          'Store every document in the correct central Google Drive folder, complete and clearly filed.',
+          'Keep records consistent and standardised across all teams and regions.',
+          'Keep soft and hard copies for at least 7 years and be ready for internal or regional checks at any time.',
+          'Actively follow up outstanding payments until they are fully received and cleared.',
+        ] },
+        { type: 'highlight', text: 'Reflection: where do we still rely on a person remembering, rather than the system enforcing? Those are the gaps an auditor will find first.' },
+      ],
+    },
+    {
+      id: 'fin-assets',
+      title: 'Assets, Reserves & Sustainability',
+      content: [
+        { type: 'p', text: 'The rules do not stop at payments. Assets, reserves and good stewardship keep ECA resilient and sustainable.' },
         { type: 'list', title: 'Looking after assets', items: [
           'Items worth more than EUR 700 go on the fixed-asset register and are tagged and physically verified annually.',
           'Disposing of an asset worth over EUR 1,000 needs a valuation; all disposals go through the TEC/Asset Disposals Committee and are approved by the MD, with priority given to staff.',
@@ -6119,13 +6174,13 @@ COURSES.push({
           'Pre-financing is discouraged and needs a formal agreement, an FC recommendation and MD approval.',
         ] },
         { type: 'callout', title: 'Emergencies', text: 'For genuine emergency procurement, ECA uses a streamlined but still-documented process, approved by the MD and FC and reviewed by the Management Team afterwards.' },
-        { type: 'highlight', text: 'Master these basics and you protect every project: spend with a plan, keep your receipts, charge the right code, follow the thresholds, and account on time.' },
+        { type: 'highlight', text: 'Master these basics and you protect every project: spend with a plan, allocate fairly, keep your receipts, follow the thresholds, verify before you pay, and account on time.' },
       ],
     },
   ],
   interactive: {
     type: 'scenario',
-    intro: 'You are travelling, buying, claiming and accounting on Solidaridad business. Make the call that keeps you compliant.',
+    intro: 'You are travelling, buying, claiming, allocating and accounting on Solidaridad business. Make the call that keeps you compliant.',
     scenarios: [
       {
         situation: 'It is Monday. You need to fly for a workshop next Monday — 7 days away — and you’d prefer business class for the 2-hour hop. What do you do?',
@@ -6139,7 +6194,7 @@ COURSES.push({
         situation: 'You got back from a field trip 10 days ago and still haven’t filed your expense report. Now you need an advance for a new trip. What’s the issue?',
         options: [
           { text: 'No issue — just request the new advance.', correct: false, feedback: 'You cannot hold two advances at once, and your report is already overdue (the limit is 7 days). Unaccounted advances can be recovered from your salary.' },
-          { text: 'File and fully account for the last trip first, then request the new advance.', correct: true, feedback: 'Correct. Submit the Travel Expense Report within 7 days, account fully for the previous advance, then raise the next request — one trip at a time.' },
+          { text: 'File and fully account for the last trip first, then request the new advance.', correct: true, feedback: 'Correct. Submit the Travel Expense Report within 7 days, account fully for the previous advance, then raise the next request — one trip at a time. If it is running late, escalate to your Country Manager.' },
           { text: 'Combine both trips into one report next month.', correct: false, feedback: 'Reports are due within 7 days of each trip; rolling them together breaks the timeline and risks salary recovery of the open advance.' },
         ],
       },
@@ -6152,11 +6207,27 @@ COURSES.push({
         ],
       },
       {
-        situation: 'You claim a meal you paid in US dollars. Which exchange rate should Finance expect you to use?',
+        situation: 'You split your week across two donor-funded projects. How should your salary cost be charged?',
         options: [
-          { text: 'The rate at the airport currency kiosk.', correct: false, feedback: 'Kiosk rates are not the reference. Use the agreed source.' },
-          { text: 'The Oanda rate on the date the expense was incurred.', correct: true, feedback: 'Correct. Foreign-currency spend is converted using the Oanda rate on the expense date.' },
-          { text: 'Whatever rate gives the biggest refund.', correct: false, feedback: 'Never. The conversion source and date are fixed by policy to keep claims honest and consistent.' },
+          { text: 'Charge 100% to whichever project has more budget left.', correct: false, feedback: 'That misstates effort and risks double-counting. Salary must follow actual effort, not budget convenience.' },
+          { text: 'Record actual time on approved timesheets and allocate salary in proportion to real effort on each project.', correct: true, feedback: 'Correct. Staff on multiple projects record actual time on approved timesheets, and salary is allocated by real effort — including staff time given as an in-kind contribution.' },
+          { text: 'Estimate a 50/50 split without timesheets — it’s roughly right.', correct: false, feedback: 'Allocation must be documented and based on actual effort. Donors often require detailed timesheet evidence.' },
+        ],
+      },
+      {
+        situation: 'Two projects will share the cost of one training event. How do you treat the cost?',
+        options: [
+          { text: 'Claim the full cost under both projects — twice the impact reported.', correct: false, feedback: 'That is double-counting and is prohibited. A cost may be counted only once.' },
+          { text: 'Apportion it between the projects using a documented, consistent method that reflects actual benefit.', correct: true, feedback: 'Correct. Shared costs are allocated once, on a reasonable and documented basis, with a clear audit trail — and co-financing is approved by the CMs, HOP and regional finance.' },
+          { text: 'Put it all on whichever project is easiest to charge.', correct: false, feedback: 'Allocation must reflect the actual benefit to each project and be documented — not chosen for convenience.' },
+        ],
+      },
+      {
+        situation: 'A supplier emails: “We’ve changed banks — please pay our invoice to this new account.” What do you do?',
+        options: [
+          { text: 'Update the details and pay — the invoice looks genuine.', correct: false, feedback: 'This is a classic fraud pattern. Acting on an email alone risks paying a fraudster.' },
+          { text: 'Apply two-step verification: request an official letter AND confirm by phone with a known contact before changing anything.', correct: true, feedback: 'Correct. Bank-detail changes need strict two-step verification (official letter plus a phone call to a known contact). Details fixed in a signed contract cannot simply be changed.' },
+          { text: 'Ask a colleague if the email looks fine, then pay.', correct: false, feedback: 'A quick glance is not verification. Use the official-letter-plus-phone-call check every time.' },
         ],
       },
       {
@@ -6176,19 +6247,19 @@ COURSES.push({
         ],
       },
       {
+        situation: 'A purchase order is needed urgently, but the TEC evaluation matrix has not been signed yet. Can the PO go ahead?',
+        options: [
+          { text: 'Yes — sign the matrix afterwards to save time.', correct: false, feedback: 'No. The PO cannot be authorised until the evaluation matrix is fully signed; signing afterwards breaks the control and fails audit.' },
+          { text: 'No — the evaluation matrix must be fully signed first, then the PO is authorised and the documents are locked.', correct: true, feedback: 'Correct. Matrices are fully signed (DocuSign/e-signature) before any PO, meetings are minuted with a COI declaration, and finalised documents are locked against edits.' },
+          { text: 'Yes — urgency overrides the paperwork.', correct: false, feedback: 'Genuine emergencies still require documentation and MD/FC approval. Skipping the signed matrix is not permitted.' },
+        ],
+      },
+      {
         situation: 'A highly specialised software service is genuinely only available from one vendor. You want to skip the quotes. Can you?',
         options: [
           { text: 'Yes — just buy it; there is only one supplier anyway.', correct: false, feedback: 'Single-sourcing is allowed in this case, but never without process. You still need justification and approval.' },
           { text: 'Write a justification, consult the TEC first, then get MD approval before committing.', correct: true, feedback: 'Correct. Single-sourcing (sole supplier, continuity, or emergency) requires written justification, TEC consultation, and MD approval, all documented in the procurement file.' },
           { text: 'Ask a friend in another team to approve it quietly.', correct: false, feedback: 'Never. Approvals must follow the authority levels — TEC then MD — and be documented and auditable.' },
-        ],
-      },
-      {
-        situation: 'In a TEC meeting, one of the bidding companies is owned by a committee member’s spouse. What should happen?',
-        options: [
-          { text: 'Nothing — the member can still vote, they’ll be fair.', correct: false, feedback: 'That is a clear conflict of interest. Staying in the room and voting undermines the integrity of the whole process.' },
-          { text: 'The member declares the conflict and recuses themselves; it is noted in the minutes.', correct: true, feedback: 'Correct. Staff make annual conflict-of-interest declarations, and TEC members must declare and recuse on any item they are connected to — recorded in the minutes.' },
-          { text: 'Cancel the entire tender.', correct: false, feedback: 'No need. The conflicted member simply recuses; the TEC can proceed impartially with its remaining members (minimum of 4).' },
         ],
       },
     ],
@@ -6197,21 +6268,27 @@ COURSES.push({
     { q: 'ECA’s fiscal year runs:', options: ['1 July – 30 June', '1 January – 31 December', '1 April – 31 March', 'It varies by donor'], answer: 1 },
     { q: 'The dual reporting currency for ECA financial statements is the:', options: ['US dollar', 'Euro', 'Kenyan shilling', 'British pound'], answer: 1 },
     { q: 'Every ECA bank account needs a minimum of how many authorised signatories?', options: ['One', 'Two', 'Three', 'Five'], answer: 1 },
+    { q: 'In co-financing, a single cost or contribution may be claimed under:', options: ['As many projects as you like', 'Only one project, donor or funding source', 'Two projects maximum', 'Any project with budget left'], answer: 1 },
+    { q: 'Staff working on multiple projects must allocate their salary cost based on:', options: ['Which project has more budget', 'Actual effort recorded on approved timesheets', 'A flat 50/50 split', 'The Country Manager’s preference'], answer: 1 },
+    { q: 'How much of a project budget is retained for NS (network support/management)?', options: ['1%', '2%', '5%', '10%'], answer: 1 },
     { q: 'Within how many days of returning must you submit your travel expense report?', options: ['3 days', '7 days', '14 days', '30 days'], answer: 1 },
     { q: 'Economy class is mandatory EXCEPT when:', options: ['You are tired', 'The flight is over 8 hours, or for medical/contractual reasons', 'You booked late', 'A colleague is flying business'], answer: 1 },
     { q: 'How far in advance should flights normally be booked?', options: ['3 days', '1 week', '3 weeks', '3 months'], answer: 2 },
     { q: 'The Daily Subsistence Allowance (DSA) in Kenya is:', options: ['KES 500/day', 'KES 2,000/day', 'KES 10,000/day', 'Whatever you spend'], answer: 1 },
-    { q: 'Accommodation on official travel is:', options: ['Paid from your DSA', 'Paid directly by ECA to the hotel', 'Never covered', 'Claimed in cash on return'], answer: 1 },
     { q: 'Which expense is NOT reimbursed by Solidaridad?', options: ['A business lunch', 'Alcohol and minibar items (except water)', 'A taxi to a meeting', 'An eligible visa fee'], answer: 1 },
     { q: 'Foreign-currency expenses are converted using:', options: ['Any rate you like', 'The Oanda rate on the date of the expense', 'Last year’s rate', 'The airport kiosk rate'], answer: 1 },
     { q: 'A purchase of EUR 8,000 requires:', options: ['A direct purchase, no quotes', 'At least 3 written quotes and TEC authorisation', 'An open public tender', 'Only the Country Manager’s nod'], answer: 1 },
     { q: 'Contracts over EUR 100,000 must use:', options: ['Prudent shopping', '3 verbal quotes', 'An open tender process', 'Petty cash'], answer: 2 },
     { q: 'Splitting one large purchase into smaller orders to stay under a threshold is:', options: ['Smart budgeting', 'A procurement breach that defeats the controls', 'Fine if urgent', 'Allowed under EUR 500'], answer: 1 },
-    { q: 'Single-sourcing a supplier requires:', options: ['Nothing if there is only one supplier', 'Written justification, TEC consultation, and MD approval', 'Just the PM’s email', 'A coin toss'], answer: 1 },
-    { q: 'Every payment request must include, in order:', options: ['Only an invoice', 'Delivery note, local purchase order, invoices/receipts, supporting quotations', 'A WhatsApp message', 'The supplier’s logo'], answer: 1 },
+    { q: 'Before a Purchase Order is authorised, the TEC evaluation matrix must be:', options: ['Drafted only', 'Fully signed (and documents then locked)', 'Emailed to the supplier', 'Approved verbally'], answer: 1 },
+    { q: 'When a supplier requests a change of bank details, you should:', options: ['Update and pay immediately', 'Apply two-step verification — official letter plus a phone call to a known contact', 'Ask a colleague’s opinion and pay', 'Ignore it'], answer: 1 },
+    { q: 'Every payment file must include, in order:', options: ['Only an invoice', 'Delivery note, local purchase order, invoices/receipts, supporting quotations', 'A WhatsApp message', 'The supplier’s logo'], answer: 1 },
+    { q: 'No funds may be disbursed without:', options: ['A verbal request', 'An approved requisition, Purchase Order and/or signed contract', 'A friendly reminder', 'The supplier’s thank-you note'], answer: 1 },
+    { q: 'Supporting documents for transactions should be:', options: ['Kept on a personal laptop', 'Uploaded and retained in the central Google Drive with a full audit trail', 'Printed and taken home', 'Deleted after payment'], answer: 1 },
+    { q: 'Bank reconciliations should be performed:', options: ['Once a year', 'Monthly', 'Only before an audit', 'Never'], answer: 1 },
     { q: 'Who gives final authorisation for payments each week?', options: ['Any line manager', 'The Office Manager', 'The Managing Director (on Friday)', 'The supplier'], answer: 2 },
     { q: 'An item must go on the fixed-asset register if it is worth more than:', options: ['EUR 100', 'EUR 700', 'EUR 5,000', 'EUR 10,000'], answer: 1 },
-    { q: 'Petty cash runs on an imprest basis, meaning:', options: ['You can spend freely', 'Cash plus receipts must always equal the float', 'It replaces procurement', 'Only the MD can touch it'], answer: 1 },
+    { q: 'Financial records must be kept for at least:', options: ['1 year', '3 years', '7 years', 'Forever'], answer: 2 },
     { q: 'If a donor’s rules are stricter than ECA policy, you should:', options: ['Ignore the donor', 'Follow the donor’s rules', 'Average the two', 'Ask the supplier'], answer: 1 },
   ],
 });

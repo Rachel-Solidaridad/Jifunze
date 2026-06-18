@@ -6615,7 +6615,11 @@ export default function App() {
       completedAt: justCompleted,
     });
 
-    if (justCompleted) {
+    // Certify only when the course is 100% complete (every lesson + the
+    // interactive + a passed quiz) AND the quiz was passed at >= 80%.
+    // nextPct === 100 already implies a passed quiz, but we re-check both
+    // conditions explicitly so the rule can't be weakened by accident.
+    if (justCompleted && nextPct === 100 && quizPassed(course, next[courseId])) {
       const quizScore = next[courseId].quiz?.score || 0;
       issueCertificateIfFirstTime(userUid, course, quizScore);
     }

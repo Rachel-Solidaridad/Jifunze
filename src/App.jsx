@@ -41,6 +41,14 @@ const YELLOW = '#FFC800';
 const GREY = '#D9D9C3';
 const BLACK = '#000000';
 
+// Quiz pass/attempt policy. A certificate is only issued when the learner
+// scores at or above QUIZ_PASS_PCT. Below that they must retake. A quiz may
+// be attempted at most MAX_QUIZ_ATTEMPTS times in a row; after that the
+// learner must wait QUIZ_COOLDOWN_MS (one month) before trying again.
+const QUIZ_PASS_PCT = 80;
+const MAX_QUIZ_ATTEMPTS = 3;
+const QUIZ_COOLDOWN_MS = 30 * 24 * 60 * 60 * 1000;
+
 // Wraps a branded commodity SVG so it can be used wherever a course `icon`
 // component is expected (same { size, className } API as the lucide icons).
 // Rendered as a black silhouette to match the icon treatment on the yellow
@@ -6441,13 +6449,24 @@ async function issueCertificateIfFirstTime(uid, course, score) {
   }
 }
 
+// A quiz only counts as done once it is PASSED (>= QUIZ_PASS_PCT). For
+// backward compatibility with progress saved before the pass rule existed
+// (which has no `passed` flag), we derive pass/fail from the stored score.
+function quizPassed(course, p = {}) {
+  const q = p?.quiz;
+  if (!q) return false;
+  if (typeof q.passed === 'boolean') return q.passed;
+  const total = course?.quiz?.length || 0;
+  return total > 0 && (q.score || 0) / total >= QUIZ_PASS_PCT / 100;
+}
+
 function computeCompletion(course, p = {}) {
   if (!course) return 0;
   const totalSteps = course.lessons.length + 2;
   let done = 0;
   course.lessons.forEach(l => { if (p[`lesson-${l.id}`]) done++; });
   if (p.interactive) done++;
-  if (p.quiz) done++;
+  if (quizPassed(course, p)) done++;
   return Math.round((done / totalSteps) * 100);
 }
 
@@ -6823,10 +6842,8 @@ export default function App() {
           {view === 'quiz' && activeCourse && (
             <QuizView
               course={activeCourse}
-              onComplete={(score) => {
-                updateProgress(activeCourse.id, 'quiz', { score, completed: true });
-                setView('course');
-              }}
+              quizProgress={progress[activeCourse.id]?.quiz}
+              onSubmit={(quizObj) => updateProgress(activeCourse.id, 'quiz', quizObj)}
               onBack={() => setView('course')}
             />
           )}
@@ -7910,9 +7927,12 @@ function CourseView({ course, progress, completion, onStartLesson, onStartIntera
               <div className="text-xs uppercase tracking-widest text-gray-500">Test yourself</div>
               <div className="font-extrabold uppercase tracking-tight">Final Quiz</div>
             </div>
-            {progress.quiz && <CheckCircle2 size={20} className="ml-auto" style={{ color: '#16a34a' }} />}
+            {quizPassed(course, progress) && <CheckCircle2 size={20} className="ml-auto" style={{ color: '#16a34a' }} />}
           </div>
-          <p className="mt-3 text-sm text-gray-700">{course.quiz.length} questions {progress.quiz ? `· Score: ${progress.quiz.score}/${course.quiz.length}` : ''}</p>
+          <p className="mt-3 text-sm text-gray-700">
+            {course.quiz.length} questions · pass mark {QUIZ_PASS_PCT}%
+            {progress.quiz ? ` · last score ${Math.round((progress.quiz.score / course.quiz.length) * 100)}%${quizPassed(course, progress) ? ' (passed)' : ' (not passed yet)'}` : ''}
+          </p>
         </button>
       </div>
     </div>
@@ -8464,11 +8484,64 @@ function CountryCommodityGame({ data, onComplete }) {
 }
 
 // ===== Quiz View =====
-function QuizView({ course, onComplete, onBack }) {
+function QuizView({ course, quizProgress, onSubmit, onBack }) {
+  const total = course.quiz.length;
+  const priorAttempts = quizProgress?.attempts || 0;
+  const priorLock = quizProgress?.lockedUntil || 0;
+  const now = Date.now();
+  const cooldownActive = priorLock && now < priorLock;
+  const startAttempts = (priorLock && now >= priorLock) ? 0 : priorAttempts;
+  const alreadyPassed = !!quizProgress?.passed;
+
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState({});
   const [showResult, setShowResult] = useState(false);
   const [finished, setFinished] = useState(false);
+  const [attemptsUsed, setAttemptsUsed] = useState(startAttempts);
+  const [result, setResult] = useState(null);
+
+  const fmtDate = (ms) => new Date(ms).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  const BackLink = () => (
+    <button onClick={onBack} className="text-sm font-bold uppercase tracking-wider mb-4 inline-flex items-center gap-1 hover:underline">
+      <ChevronLeft size={16} /> Back to {course.title}
+    </button>
+  );
+
+  // Already passed — no need to retake.
+  if (alreadyPassed && !finished) {
+    const pct = Math.round(((quizProgress?.score || 0) / total) * 100);
+    return (
+      <div className="max-w-2xl">
+        <BackLink />
+        <div className="p-8 border-2 border-black rounded text-center" style={{ backgroundColor: YELLOW }}>
+          <Trophy size={48} className="mx-auto" />
+          <h2 className="text-3xl font-extrabold uppercase mt-4 tracking-tight">Quiz Passed</h2>
+          <p className="text-lg font-bold mt-2">You scored {pct}% — at or above the {QUIZ_PASS_PCT}% pass mark. Your certificate is unlocked.</p>
+          <button onClick={onBack} className="mt-6 px-6 py-3 bg-black text-white font-extrabold uppercase tracking-wider rounded">
+            Back to course →
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Locked out after using all attempts — must wait for the cooldown.
+  if (cooldownActive && !finished) {
+    return (
+      <div className="max-w-2xl">
+        <BackLink />
+        <div className="p-8 border-2 border-black rounded text-center" style={{ backgroundColor: GREY }}>
+          <Lock size={44} className="mx-auto" />
+          <h2 className="text-3xl font-extrabold uppercase mt-4 tracking-tight">Quiz Locked</h2>
+          <p className="text-lg font-bold mt-3">You have used all {MAX_QUIZ_ATTEMPTS} attempts. You can retake this quiz from {fmtDate(priorLock)}.</p>
+          <p className="text-sm mt-2 text-gray-700">Use the time to review the modules — you need {QUIZ_PASS_PCT}% to pass.</p>
+          <button onClick={onBack} className="mt-6 px-6 py-3 bg-black text-white font-extrabold uppercase tracking-wider rounded">
+            Back to course →
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const current = course.quiz[idx];
 
@@ -8478,32 +8551,76 @@ function QuizView({ course, onComplete, onBack }) {
     setShowResult(true);
   };
 
+  const score = Object.entries(answers).filter(([qi, ai]) => course.quiz[qi].answer === ai).length;
+
+  const finish = () => {
+    const pct = Math.round((score / total) * 100);
+    const passed = pct >= QUIZ_PASS_PCT;
+    const thisAttempt = attemptsUsed + 1;
+    const lockedUntil = (!passed && thisAttempt >= MAX_QUIZ_ATTEMPTS) ? Date.now() + QUIZ_COOLDOWN_MS : null;
+    setAttemptsUsed(thisAttempt);
+    setResult({ pct, passed, attempt: thisAttempt, lockedUntil });
+    onSubmit({ score, completed: passed, passed, attempts: thisAttempt, lockedUntil });
+    setFinished(true);
+  };
+
   const next = () => {
-    if (idx < course.quiz.length - 1) {
+    if (idx < total - 1) {
       setIdx(idx + 1);
       setShowResult(false);
     } else {
-      setFinished(true);
+      finish();
     }
   };
 
-  const score = Object.entries(answers).filter(([qi, ai]) => course.quiz[qi].answer === ai).length;
+  const retry = () => {
+    setIdx(0);
+    setAnswers({});
+    setShowResult(false);
+    setFinished(false);
+    setResult(null);
+  };
 
-  if (finished) {
-    const pct = Math.round((score / course.quiz.length) * 100);
+  if (finished && result) {
+    const { pct, passed, attempt, lockedUntil } = result;
+    const attemptsLeft = MAX_QUIZ_ATTEMPTS - attempt;
     return (
       <div className="max-w-2xl">
-        <button onClick={onBack} className="text-sm font-bold uppercase tracking-wider mb-4 inline-flex items-center gap-1 hover:underline">
-          <ChevronLeft size={16} /> Back to {course.title}
-        </button>
-        <div className="p-8 border-2 border-black rounded text-center" style={{ backgroundColor: pct >= 60 ? YELLOW : GREY }}>
+        <BackLink />
+        <div className="p-8 border-2 border-black rounded text-center" style={{ backgroundColor: passed ? YELLOW : GREY }}>
           <Trophy size={48} className="mx-auto" />
-          <h2 className="text-3xl font-extrabold uppercase mt-4 tracking-tight">Quiz Complete!</h2>
-          <p className="text-5xl font-extrabold mt-4">{score} / {course.quiz.length}</p>
-          <p className="text-lg font-bold mt-2">{pct}% — {pct >= 80 ? 'Excellent!' : pct >= 60 ? 'Well done!' : 'Keep learning!'}</p>
-          <button onClick={() => onComplete(score)} className="mt-6 px-6 py-3 bg-black text-white font-extrabold uppercase tracking-wider rounded">
-            Finish →
-          </button>
+          <h2 className="text-3xl font-extrabold uppercase mt-4 tracking-tight">{passed ? 'Quiz Passed!' : 'Not Quite Yet'}</h2>
+          <p className="text-5xl font-extrabold mt-4">{score} / {total}</p>
+          <p className="text-lg font-bold mt-2">{pct}% — you need {QUIZ_PASS_PCT}% to pass.</p>
+          {passed && (
+            <>
+              <p className="text-sm mt-3 text-gray-800">Well done — your certificate for this course is now unlocked.</p>
+              <button onClick={onBack} className="mt-6 px-6 py-3 bg-black text-white font-extrabold uppercase tracking-wider rounded">
+                Finish →
+              </button>
+            </>
+          )}
+          {!passed && attemptsLeft > 0 && (
+            <>
+              <p className="text-sm mt-3 text-gray-800">You have {attemptsLeft} of {MAX_QUIZ_ATTEMPTS} attempts left. Review the modules and try again.</p>
+              <div className="mt-6 flex gap-3 justify-center flex-wrap">
+                <button onClick={retry} className="px-6 py-3 bg-black text-white font-extrabold uppercase tracking-wider rounded inline-flex items-center gap-2">
+                  <RotateCcw size={16} /> Try Again
+                </button>
+                <button onClick={onBack} className="px-6 py-3 border-2 border-black font-extrabold uppercase tracking-wider rounded">
+                  Back to course
+                </button>
+              </div>
+            </>
+          )}
+          {!passed && attemptsLeft <= 0 && (
+            <>
+              <p className="text-sm mt-3 text-gray-800">That was attempt {MAX_QUIZ_ATTEMPTS} of {MAX_QUIZ_ATTEMPTS}. You can retake this quiz from {fmtDate(lockedUntil)}.</p>
+              <button onClick={onBack} className="mt-6 px-6 py-3 bg-black text-white font-extrabold uppercase tracking-wider rounded">
+                Back to course →
+              </button>
+            </>
+          )}
         </div>
       </div>
     );
@@ -8514,7 +8631,7 @@ function QuizView({ course, onComplete, onBack }) {
       <button onClick={onBack} className="text-sm font-bold uppercase tracking-wider mb-4 inline-flex items-center gap-1 hover:underline">
         <ChevronLeft size={16} /> Back to {course.title}
       </button>
-      <p className="text-sm uppercase tracking-widest text-gray-500">Quiz · Question {idx + 1} of {course.quiz.length}</p>
+      <p className="text-sm uppercase tracking-widest text-gray-500">Quiz · Question {idx + 1} of {course.quiz.length} · Attempt {attemptsUsed + 1} of {MAX_QUIZ_ATTEMPTS} · pass {QUIZ_PASS_PCT}%</p>
       <h1 className="text-2xl font-extrabold tracking-tight mt-2">{current.q}</h1>
       <Swoosh w={120} />
 

@@ -6370,8 +6370,13 @@ const CLUSTERS = [
   },
   {
     name: 'Innovation & Strategic Transformation',
-    blurb: 'Climate, finance, gender, and the digital tools driving systems change.',
-    courseIds: ['climate', 'finance', 'gender', 'digital'],
+    blurb: 'Finance, gender, and the digital tools driving systems change.',
+    courseIds: ['finance', 'gender', 'digital'],
+  },
+  {
+    name: 'Nature-Based Solutions',
+    blurb: 'Ecosystem-based adaptation, regenerative landscapes, agroforestry, and carbon markets across our agriculture, mining, and industry work.',
+    courseIds: ['climate'],
   },
   {
     name: 'Commodities',

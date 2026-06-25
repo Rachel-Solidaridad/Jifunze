@@ -7842,7 +7842,11 @@ function quizPassed(course, p = {}) {
 }
 
 function computeCompletion(course, p = {}) {
-  if (!course) return 0;
+  // Placeholders and any malformed courses without a lessons array are
+  // never started — return 0 instead of crashing on course.lessons.length.
+  // The catalog calls courseCompletion() for every card to show progress,
+  // including for "Coming soon" placeholder cards.
+  if (!course || !Array.isArray(course.lessons)) return 0;
   const totalSteps = course.lessons.length + 2;
   let done = 0;
   course.lessons.forEach(l => { if (p[`lesson-${l.id}`]) done++; });

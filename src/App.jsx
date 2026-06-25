@@ -9456,6 +9456,693 @@ COURSES.push(
 );
 
 
+// ===== MSME Growth Accelerator =====
+// Six full courses built from the Agribusiness Enterprise Accelerator
+// "Business Growth" module. Designed for a blended audience: the core
+// content speaks to the MSME owner ("your business"), while "Coaching
+// MSMEs" callouts equip Solidaridad field teams to facilitate the
+// sessions and mentor enterprises through each stage of growth.
+COURSES.push(
+  {
+    id: 'msme-growth-fundamentals',
+    title: 'Business Growth Fundamentals',
+    subtitle: 'Phases, strategies & leadership',
+    category: 'MSME Growth',
+    icon: TrendingUp,
+    duration: '25 min',
+    description: 'The five phases every enterprise moves through — existence, survival, success, take-off, and resource maturity — the strategies to navigate each, the common mistakes to avoid, and how leaders and coaches steer growth.',
+    lessons: [
+      {
+        id: 'mgf-what-is-growth',
+        title: 'What Business Growth Means',
+        content: [
+          { type: 'p', text: 'Business growth is the process of expanding an enterprise. It is rarely just one thing — it shows up as more revenue, a larger customer base, greater market share, or higher output. Growth is driven by the owner, the team, and external forces that support the enterprise.' },
+          { type: 'list', items: [
+            'Enlarging the customer base',
+            'Boosting revenue and profit',
+            'Increasing the output of goods or services',
+            'Growing market share',
+            'Expanding into new products, markets, or regions',
+          ]},
+          { type: 'highlight', text: 'Growth is not an accident. It is the result of deliberate strategy, a capable team, sufficient funding, and a relentless focus on the customer.' },
+          { type: 'callout', title: 'Coaching MSMEs', text: 'Start a session by asking the enterprise to brainstorm the different ways their business could grow, then share their top three. This surfaces how they think about growth before you introduce the framework — and gives you a baseline to coach against.' },
+        ],
+      },
+      {
+        id: 'mgf-five-phases',
+        title: 'The Five Phases of Growth',
+        content: [
+          { type: 'p', text: 'Most businesses evolve through five recognisable phases. Not every business passes through all of them, and the time spent in each varies with the industry, size, and economy — but knowing the phase tells you what to prioritise.' },
+          { type: 'pathway', title: '1 · EXISTENCE', text: 'The survival-focused start. The business is establishing its place in the market and generating enough revenue to cover expenses. Key challenges: a viable product, attracting first customers, and managing cash flow. Most businesses fail here.' },
+          { type: 'pathway', title: '2 · SURVIVAL', text: 'The business has proven it can attract customers. The focus shifts to covering all costs and reaching profitability. Key challenges: customer loyalty, managing expenses, and staying competitive.' },
+          { type: 'pathway', title: '3 · SUCCESS', text: 'Profitability is achieved. Attention turns to expanding the business and growing market share through new offerings, more customers, and scaling operations.' },
+          { type: 'pathway', title: '4 · TAKE-OFF', text: 'A period of rapid growth. Key challenges: managing the pace of growth, hiring and training people, and maintaining quality control as volumes rise.' },
+          { type: 'pathway', title: '5 · RESOURCE MATURITY', text: 'The focus is optimising operations and maximising profitability while staying competitive — controlling costs and continuing to innovate so the business does not stagnate.' },
+          { type: 'callout', title: 'Coaching MSMEs', text: 'Ask each enterprise to place itself on this map and justify the placement. The conversation matters more than the label — it reveals what they believe their biggest constraint is right now.' },
+        ],
+      },
+      {
+        id: 'mgf-strategies',
+        title: 'Strategies for Navigating Each Phase',
+        content: [
+          { type: 'p', text: 'Every phase brings its own challenges, so each needs its own strategy. These seven moves apply across the journey and become more important as the business scales.' },
+          { type: 'list', items: [
+            'Develop a growth plan — clear goals, market research, financial projections, marketing and operational plans',
+            'Focus on core competencies — invest in what you do best and what sets you apart',
+            'Build a strong team — hire the right skills, and add capacity as the workload grows',
+            'Monitor cash flow — keep enough capital to fund growth; secure funding before you need it',
+            'Leverage technology — streamline processes, raise efficiency, improve the customer experience',
+            'Develop strategic partnerships — access new markets, customers, and resources faster',
+            'Stay customer-focused — listen to feedback and adapt as you scale',
+          ]},
+          { type: 'highlight', text: 'Successful navigation = careful planning + a capable team + sufficient funding + a customer-centric approach.' },
+        ],
+      },
+      {
+        id: 'mgf-mistakes',
+        title: 'Common Mistakes & How to Avoid Them',
+        content: [
+          { type: 'p', text: 'The same mistakes sink businesses again and again during growth. Naming them helps an enterprise — and its coach — spot the warning signs early.' },
+          { type: 'list', items: [
+            'Overextending too quickly — expand only when the resources, cash, and people are in place',
+            'Neglecting cash flow — build a cash-flow plan, monitor it, and act when it tightens',
+            'Failing to adapt — track market trends and be willing to pivot',
+            'Ignoring customer needs — understand pain points and deliver experiences that exceed expectations',
+            'Poor leadership — invest in leadership development and capable managers',
+            'Lack of focus — prioritise; do not try to be everything to everyone',
+            'Not investing in technology — the right tools keep you competitive and efficient',
+          ]},
+          { type: 'callout', title: 'Coaching MSMEs', text: 'Most owners can recite the strategies but still fall into these traps. Use real examples from the enterprise\'s own history — "tell me about a time cash got tight" — to make the lesson concrete rather than theoretical.' },
+        ],
+      },
+      {
+        id: 'mgf-leadership',
+        title: 'Leadership Across the Phases',
+        content: [
+          { type: 'p', text: 'As a business grows, leadership must adapt. Across every phase, effective leaders build strong relationships with customers, employees, investors, and partners, adapt to changing conditions, and take calculated risks.' },
+          { type: 'pathway', title: 'START-UP', text: 'Develop and execute a clear business plan, build a strong team, establish a culture, and communicate a compelling vision.' },
+          { type: 'pathway', title: 'GROWTH', text: 'Scale the business while protecting culture and values. Ensure the business is well-capitalised and has a plan to manage risk.' },
+          { type: 'pathway', title: 'MATURITY', text: 'Optimise operations, control costs, and keep innovating to stay ahead. Keep employees engaged and the culture strong.' },
+          { type: 'pathway', title: 'DECLINE', text: 'Manage costs, streamline operations, and find opportunities to pivot. Be willing to make hard decisions — restructure or divest non-core assets.' },
+          { type: 'highlight', text: 'Leadership is the single biggest variable in how well a business navigates each phase.' },
+        ],
+      },
+      {
+        id: 'mgf-measuring',
+        title: 'Measuring Progress in Each Phase',
+        content: [
+          { type: 'p', text: 'You can only manage what you measure — but the right metric changes with the phase. Pick indicators that align with the goal of that stage and track them consistently.' },
+          { type: 'pathway', title: 'STARTUP METRICS', text: 'Funding raised, time to launch, customer acquisition rate, early-customer feedback, speed of product development.' },
+          { type: 'pathway', title: 'GROWTH METRICS', text: 'Revenue growth rate, customer acquisition cost (CAC), customer lifetime value (LTV), gross margin, market share, net promoter score (NPS).' },
+          { type: 'pathway', title: 'MATURITY METRICS', text: 'Revenue growth, profit margin, customer and employee retention, market share, product-line expansion rate, brand reputation.' },
+          { type: 'pathway', title: 'DECLINE METRICS', text: 'Cash flow and burn rate, cost-reduction rate, revenue-decline rate, pivot success rate, time-to-market for new offerings.' },
+          { type: 'callout', title: 'Coaching MSMEs', text: 'Help the enterprise pick one or two KPIs that fit its current phase and set up a simple, repeatable way to track them — a notebook, a phone spreadsheet, or a wall chart. Consistency beats sophistication.' },
+        ],
+      },
+    ],
+    interactive: {
+      type: 'match-value',
+      title: 'Match the Signal to the Growth Phase',
+      pairs: [
+        { value: 'EXISTENCE', behaviour: 'The business is fighting to attract its first customers and cover basic expenses.' },
+        { value: 'SURVIVAL', behaviour: 'Sales are coming, but the focus is on covering all costs and reaching profitability.' },
+        { value: 'SUCCESS', behaviour: 'Profitable and stable — now expanding offerings and chasing market share.' },
+        { value: 'TAKE-OFF', behaviour: 'Demand is surging; the priority is hiring fast and holding quality steady.' },
+        { value: 'RESOURCE MATURITY', behaviour: 'A large, established business optimising operations and controlling costs to protect profit.' },
+      ],
+    },
+    quiz: [
+      { q: 'What is the primary goal of business growth?', options: ['To increase the number of customers', 'To increase the company\'s profit', 'To decrease expenses', 'To maintain the status quo'], answer: 1 },
+      { q: 'Which is the FIRST phase of business growth?', options: ['Survival', 'Success', 'Existence', 'Take-off'], answer: 2 },
+      { q: 'At which phase do most businesses fail?', options: ['Existence', 'Success', 'Take-off', 'Resource maturity'], answer: 0 },
+      { q: 'Which is a strategy for navigating growth?', options: ['Ignore cash flow', 'Focus on core competencies', 'Try to serve everyone', 'Avoid all partnerships'], answer: 1 },
+      { q: 'A common mistake during growth is:', options: ['Monitoring cash flow', 'Overextending too quickly', 'Investing in the right technology', 'Staying customer-focused'], answer: 1 },
+      { q: 'In the decline phase, effective leaders should:', options: ['Hope for a turnaround', 'Manage costs and find opportunities to pivot', 'Ignore the market', 'Stop measuring performance'], answer: 1 },
+      { q: 'Customer Acquisition Cost (CAC) is most relevant in which phase?', options: ['Existence', 'Growth', 'Decline', 'It is never useful'], answer: 1 },
+      { q: 'Burn rate and pivot success rate are signals of which phase?', options: ['Startup', 'Maturity', 'Decline', 'Take-off'], answer: 2 },
+      { q: 'Successful navigation of growth requires all EXCEPT:', options: ['Careful planning', 'A capable team', 'Ignoring customers', 'Sufficient funding'], answer: 2 },
+      { q: 'Why does the right metric change with the phase?', options: ['Metrics never matter', 'Each phase has a different priority and goal', 'To confuse competitors', 'Because investors demand it'], answer: 1 },
+    ],
+  },
+  {
+    id: 'msme-success-factors',
+    title: 'Success Factors for Growth',
+    subtitle: 'Goals, customers, talent & resources',
+    category: 'MSME Growth',
+    icon: Target,
+    duration: '20 min',
+    description: 'The building blocks that take a business to the next level: clear goals and plans, a well-understood customer base, competitive advantage, the right talent, and resource mobilisation for sustainability.',
+    lessons: [
+      {
+        id: 'msf-what-drives-success',
+        title: 'What Makes a Business Succeed',
+        content: [
+          { type: 'p', text: 'The going-concern principle assumes a business will keep operating into the foreseeable future. Whether it actually does depends on a mix of factors — leadership and governance style, innovation and creativity, and the discipline to keep improving.' },
+          { type: 'p', text: 'When mapping what makes them successful, businesses should look beyond profit and market share to the things that lead to profit and market share — the underlying drivers. The health of every organisation differs, so the way each measures success differs too.' },
+          { type: 'callout', title: 'Coaching MSMEs', text: 'Ask the owner: "What makes your business successful?" If the only answer is "profit," dig deeper — profit is an outcome, not a driver. Coach them toward the behaviours and capabilities that produce it.' },
+        ],
+      },
+      {
+        id: 'msf-goals-plans',
+        title: 'Goals & Plans for Growth',
+        content: [
+          { type: 'p', text: 'The starting point is a clear business goal — it defines the objectives of the business and its reason for existing. It is the driving force behind every decision.' },
+          { type: 'list', items: [
+            'Examples of goals: become market leader, expand to new regions, reach a revenue target',
+            'A good plan turns the goal into market research, financial projections, marketing, and operations',
+            'Once set, the business should be run in line with this mission and vision',
+            'Effective goals are specific, measurable, and time-bound',
+          ]},
+          { type: 'highlight', text: 'A goal without a plan is a wish. A plan without a goal is busywork.' },
+        ],
+      },
+      {
+        id: 'msf-customers',
+        title: 'Knowing & Keeping Your Customer Base',
+        content: [
+          { type: 'p', text: 'Of equal importance is understanding the customers you are targeting — their unique tastes and preferences. Do a deep dive on the target market, identify the gaps, and design creative ways to close them.' },
+          { type: 'list', items: [
+            'Profile your target customer: who they are, what they need, what they value',
+            'Find the gap competitors are not filling — that becomes your value proposition',
+            'A clear, differentiated value proposition is your unique selling point',
+            'Retaining existing customers is cheaper than winning new ones',
+          ]},
+        ],
+      },
+      {
+        id: 'msf-competition',
+        title: 'Competition & Competitive Advantage',
+        content: [
+          { type: 'p', text: 'Understanding the competition — what they do differently and what share of the market they hold — is critical. Market analysis is what keeps a business from being caught off-guard.' },
+          { type: 'highlight', text: 'Always be proactive, not reactive, in business.' },
+          { type: 'list', items: [
+            'Track what competitors offer, charge, and promise',
+            'Identify where you can do better — quality, price, service, or focus',
+            'Turn that edge into a clear position in the customer\'s mind',
+          ]},
+        ],
+      },
+      {
+        id: 'msf-people-resources',
+        title: 'People & Resource Mobilisation',
+        content: [
+          { type: 'p', text: 'Identify, attract, and retain talent with the skills and expertise to deliver the strategy. Frequent training and capacity-building keep the team up to speed with emerging trends.' },
+          { type: 'p', text: 'Resilience and sustainability also depend on resource mobilisation. A feasible sustainability strategy, with a clear implementation matrix, must sit alongside the growth plan — and fundraising is central to financing it.' },
+          { type: 'callout', title: 'Coaching MSMEs', text: 'Many small enterprises treat training and fundraising as luxuries for "later." Reframe them as growth infrastructure: without the right skills and a way to mobilise resources, the growth plan stays on paper.' },
+        ],
+      },
+    ],
+    interactive: {
+      type: 'scenario',
+      title: 'Applying the Success Factors',
+      scenarios: [
+        {
+          situation: 'A youth-led dairy enterprise is growing fast but the owner makes every decision personally and the team has no defined goals.',
+          options: [
+            { text: 'Tell them growth proves the approach works — change nothing.', correct: false, feedback: 'Founder-dependence is a classic ceiling. Without shared goals, growth stalls when the owner is stretched thin.' },
+            { text: 'Help them set clear, shared business goals and build a capable team to deliver them.', correct: true, feedback: 'Correct. Clear goals plus the right talent are core success factors — they let the business scale beyond the founder.' },
+            { text: 'Advise them to slow down and stop taking new customers.', correct: false, feedback: 'The problem is not demand — it is structure. Fix the goals and team, not the growth.' },
+          ],
+        },
+        {
+          situation: 'A produce trader has loyal customers but a new competitor opens nearby with lower prices.',
+          options: [
+            { text: 'Immediately drop prices to match, whatever it costs.', correct: false, feedback: 'A price war can erode margins fast. First understand your edge — you may compete on quality or service instead.' },
+            { text: 'Analyse the competitor, then sharpen the value proposition around what makes you different.', correct: true, feedback: 'Correct. Market analysis plus a clear competitive advantage is more durable than reflexive price-cutting.' },
+            { text: 'Ignore the competitor — loyal customers never leave.', correct: false, feedback: 'Loyalty is not permanent. Being reactive too late is how businesses get caught off-guard.' },
+          ],
+        },
+      ],
+    },
+    quiz: [
+      { q: 'The going-concern principle assumes a business will:', options: ['Close within a year', 'Keep operating into the foreseeable future', 'Never need finance', 'Always make a profit'], answer: 1 },
+      { q: 'The starting point for business success is:', options: ['A loan', 'A clear business goal', 'A bigger office', 'More staff'], answer: 1 },
+      { q: 'A business\'s unique selling point comes from:', options: ['Copying competitors exactly', 'Closing a gap competitors are not filling', 'Lowering quality', 'Ignoring customers'], answer: 1 },
+      { q: 'In business, you should be:', options: ['Reactive, not proactive', 'Proactive, not reactive', 'Neither', 'Only reactive to losses'], answer: 1 },
+      { q: 'Why invest in training and capacity-building?', options: ['It is a luxury for later', 'To keep the team up to speed with emerging trends', 'It has no effect on growth', 'Only large firms need it'], answer: 1 },
+      { q: 'Fundraising and resource mobilisation primarily lead to:', options: ['Wasted time', 'Financial sustainability', 'Fewer customers', 'Lower quality'], answer: 1 },
+      { q: 'Defining success should focus on:', options: ['Only profit', 'The drivers that lead to profit and market share', 'Only office size', 'Competitor opinions'], answer: 1 },
+      { q: 'Effective business goals are:', options: ['Vague and flexible', 'Specific, measurable, and time-bound', 'Secret from the team', 'Never written down'], answer: 1 },
+    ],
+  },
+  {
+    id: 'msme-growth-opportunities',
+    title: 'Growth Opportunities & Finance',
+    subtitle: 'Avenues, sustainability & funding',
+    category: 'MSME Growth',
+    icon: DollarSign,
+    duration: '25 min',
+    description: 'Where growth comes from: avenues to expand, sustainable (ESG) strategies, how to mobilise resources, the main sources of finance, and how to build a lasting competitive advantage.',
+    lessons: [
+      {
+        id: 'mgo-avenues',
+        title: 'Avenues for Business Growth',
+        content: [
+          { type: 'p', text: 'Growth opportunities vary by business and industry, but most fall into a handful of well-tested avenues. The art is choosing the ones that fit your resources and market.' },
+          { type: 'list', items: [
+            'Expand product or service offerings — add lines that complement what you sell or reach new markets',
+            'Enter new markets — geographically, domestically or internationally',
+            'Build brand awareness — marketing and advertising to attract new customers',
+            'Enhance the customer experience — better service, easier payment, smoother ordering',
+            'Invest in technology — streamline operations, cut costs, raise efficiency',
+            'Form strategic partnerships — share resources and reach new customers',
+            'Acquire or merge — gain access to new markets, capabilities, or technologies',
+          ]},
+        ],
+      },
+      {
+        id: 'mgo-sustainable',
+        title: 'Sustainable Business Strategies',
+        content: [
+          { type: 'p', text: 'Sustainable strategies put environmental, social, and governance (ESG) factors at the heart of long-term growth. They create value not just for owners but for customers, employees, suppliers, and the wider community.' },
+          { type: 'list', items: [
+            'Environmental sustainability — renewable energy, less waste and emissions, circular principles',
+            'Social responsibility — fair and safe working conditions, diversity, community support',
+            'Governance and ethics — transparency, accountability, compliance',
+            'Innovation and technology — new products and models that solve social or environmental problems',
+            'Collaboration and partnerships — work with government, NGOs, and others toward shared goals',
+            'Supply-chain sustainability, energy efficiency, water conservation, and waste reduction',
+          ]},
+          { type: 'callout', title: 'Coaching MSMEs', text: 'For agribusiness MSMEs, sustainability is often also a market requirement — buyers increasingly demand it. Frame ESG not as a cost but as access to better markets and finance.' },
+        ],
+      },
+      {
+        id: 'mgo-resource-mobilisation',
+        title: 'Resource Mobilisation',
+        content: [
+          { type: 'p', text: 'Resource mobilisation is acquiring and allocating the resources a business needs to reach its goals. Businesses mobilise three main kinds:' },
+          { type: 'pathway', title: 'FINANCIAL RESOURCES', text: 'Capital raised through bank loans, shares or bonds, or alternatives like crowdfunding and impact investing.' },
+          { type: 'pathway', title: 'HUMAN RESOURCES', text: 'Recruiting and training people with the right skills, or partnering with others who bring expertise.' },
+          { type: 'pathway', title: 'MATERIAL RESOURCES', text: 'Equipment, raw materials, facilities, ICT, and the supply chains that keep operations running.' },
+          { type: 'highlight', text: 'Mobilising resources is only half the job — allocate them against your priorities, then monitor and adjust.' },
+        ],
+      },
+      {
+        id: 'mgo-finance-sources',
+        title: 'Sources of Finance',
+        content: [
+          { type: 'p', text: 'The right financing depends on the stage of the business, how much capital is needed, the risk appetite of investors, and the goals of the business.' },
+          { type: 'list', items: [
+            'Equity financing — selling shares for ownership; from private investors, venture capital, or an IPO',
+            'Debt financing — borrowing that is repaid with interest; from banks, credit unions, or bonds',
+            'Crowdfunding — raising small amounts from many people, often online (equity- or rewards-based)',
+            'Grants — funding from government or foundations for aligned projects',
+            'Angel investors — high-net-worth individuals funding early-stage businesses, often with mentorship',
+            'Venture capitalists — professional investors funding high-growth businesses, often taking an active role',
+            'Bootstrapping — funding from personal savings or the revenue the business itself generates',
+          ]},
+          { type: 'callout', title: 'Coaching MSMEs', text: 'Walk an enterprise through the trade-offs: equity dilutes ownership, debt must be repaid on schedule, grants come with conditions and reporting. Match the source to the stage and the risk the owner can carry.' },
+        ],
+      },
+      {
+        id: 'mgo-competitive-advantage',
+        title: 'Building Competitive Advantage',
+        content: [
+          { type: 'p', text: 'Competitive advantage is the ability to outperform rivals in a market. It can take several forms — and a business should be deliberate about which one it pursues.' },
+          { type: 'list', items: [
+            'Differentiation — unique products or services seen as better, through innovation, design, or branding',
+            'Cost leadership — lower costs than rivals while keeping acceptable quality (economies of scale, process improvement)',
+            'Niche focus — serving a specific segment or specialised need that rivals cannot easily replicate',
+            'Customer service — meeting or exceeding expectations and building strong relationships',
+            'Branding — a strong, distinct identity that resonates with customers',
+          ]},
+          { type: 'highlight', text: 'You cannot be the cheapest AND the most premium AND everything to everyone. Choose your advantage and build around it.' },
+        ],
+      },
+    ],
+    interactive: {
+      type: 'scenario',
+      title: 'Choosing the Right Finance',
+      scenarios: [
+        {
+          situation: 'A women-led horticulture cooperative needs working capital for one season, has reliable buyers, but does not want to give up any ownership.',
+          options: [
+            { text: 'Seek a seasonal loan (debt financing) sized to the harvest cycle.', correct: true, feedback: 'Correct. Debt keeps ownership intact and fits a predictable, short-term need with a clear repayment source.' },
+            { text: 'Sell equity to an outside investor.', correct: false, feedback: 'Equity dilutes ownership permanently — heavy-handed for a short-term, seasonal need they can repay.' },
+            { text: 'Do nothing and self-fund from next season\'s sales.', correct: false, feedback: 'That delays the very season they need capital for. The financing gap is exactly the problem to solve.' },
+          ],
+        },
+        {
+          situation: 'A youth agritech start-up has a bold idea, no revenue yet, and high uncertainty but huge upside.',
+          options: [
+            { text: 'Take a large bank loan immediately.', correct: false, feedback: 'Banks rarely lend to pre-revenue, high-risk ventures — and fixed repayments could sink it before it earns.' },
+            { text: 'Pursue angel investors or a grant suited to early-stage, high-risk innovation.', correct: true, feedback: 'Correct. Angels and grants are built for early-stage risk and often bring mentorship and patient capital.' },
+            { text: 'Bootstrap forever and never seek outside support.', correct: false, feedback: 'Bootstrapping is low-risk but can starve a high-potential idea of the capital it needs to scale.' },
+          ],
+        },
+      ],
+    },
+    quiz: [
+      { q: 'Which is an avenue for business growth?', options: ['Cutting all marketing', 'Entering new markets', 'Reducing product range to one item', 'Ignoring technology'], answer: 1 },
+      { q: 'ESG stands for:', options: ['Earnings, Sales, Growth', 'Environmental, Social, and Governance', 'Equity, Stock, Grants', 'Energy, Supply, Goods'], answer: 1 },
+      { q: 'Which is NOT one of the three main resource types?', options: ['Financial', 'Human', 'Material', 'Imaginary'], answer: 3 },
+      { q: 'Equity financing involves:', options: ['Borrowing repaid with interest', 'Selling ownership shares for capital', 'A government grant', 'Using personal savings only'], answer: 1 },
+      { q: 'Bootstrapping means funding the business through:', options: ['Bank loans', 'Personal savings or its own revenue', 'Selling bonds', 'Venture capital'], answer: 1 },
+      { q: 'A sustainable business strategy:', options: ['Focuses only on short-term profit', 'Has a positive impact on environment and society', 'Avoids all investment', 'Ignores governance'], answer: 1 },
+      { q: 'Cost leadership means:', options: ['Charging the highest price', 'Lower costs than rivals at acceptable quality', 'Ignoring efficiency', 'Serving only premium customers'], answer: 1 },
+      { q: 'Grants typically come from:', options: ['Personal credit cards', 'Government agencies or foundations', 'Customer deposits', 'Supplier invoices'], answer: 1 },
+      { q: 'After mobilising resources, a business must:', options: ['Ignore them', 'Allocate them against priorities and monitor', 'Spend them all at once', 'Hide them from the team'], answer: 1 },
+      { q: 'A durable competitive advantage requires you to:', options: ['Be everything to everyone', 'Choose an advantage and build around it', 'Always be cheapest and most premium', 'Copy every competitor'], answer: 1 },
+    ],
+  },
+  {
+    id: 'msme-customer-retention',
+    title: 'Customer Acquisition & Retention',
+    subtitle: 'Loyalty, communication & metrics',
+    category: 'MSME Growth',
+    icon: Users,
+    duration: '25 min',
+    description: 'Why keeping customers is cheaper than winning them, the six steps to building loyalty, the communication strategies that retain customers, and the metrics — CRR, churn, repeat-purchase, CLV — that tell you how you are doing.',
+    lessons: [
+      {
+        id: 'mcr-why-retention',
+        title: 'Why Retention Matters',
+        content: [
+          { type: 'p', text: 'Customer retention is the ability to keep customers over time. It captures everything after the first purchase — satisfaction, repeat behaviour, engagement, and the emotional tie to a brand — and it is the clearest signal of loyalty.' },
+          { type: 'highlight', text: 'A Bain & Company study found that increasing customer loyalty by just 5% can raise profits by anywhere from 25% to 95%.' },
+          { type: 'callout', text: 'Acquiring a new customer costs far more than retaining an existing one. Retained customers also become brand advocates who bring in others through word of mouth.' },
+          { type: 'callout', title: 'Coaching MSMEs', text: 'Open with a reflection: ask the owner about a business that kept their loyalty, and one that lost it. The contrast turns retention from an abstract metric into a felt experience they can design for.' },
+        ],
+      },
+      {
+        id: 'mcr-six-steps',
+        title: 'Six Steps to Loyal Customers',
+        content: [
+          { type: 'p', text: 'Loyalty is built deliberately, with the people and resources you already have. It takes time, effort, and patience — and it follows a repeatable cycle.' },
+          { type: 'pathway', title: '1 · FIND OUT WHAT CUSTOMERS WANT', text: 'Ask about their desires, goals, and why they choose you. Talk to enough customers to see the patterns and build customer profiles.' },
+          { type: 'pathway', title: '2 · TELL CUSTOMERS WHAT TO EXPECT', text: 'Know what you do better than anyone, match it to what customers want, and turn the overlap into a clear brand promise.' },
+          { type: 'pathway', title: '3 · MAKE IT EASY TO GIVE FEEDBACK', text: 'Invite honest feedback through many channels, and have employees own this step to build closer ties.' },
+          { type: 'pathway', title: '4 · PAY CLOSE ATTENTION', text: 'Monitor comments and reviews, close the gap between promise and delivery, and notice what customers are not saying.' },
+          { type: 'pathway', title: '5 · ACT ON WHAT YOU HEAR', text: 'Use the feedback, decide what to act on, thank customers, and tell them how their input was used.' },
+          { type: 'pathway', title: '6 · DO IT ALL AGAIN', text: 'Repeat the cycle continuously. Like any skill, the more you practise it, the better you get.' },
+        ],
+      },
+      {
+        id: 'mcr-communication',
+        title: 'Communication Strategies',
+        content: [
+          { type: 'p', text: 'Communication retains customers because it builds trust, strengthens relationships, and creates a positive image. When you communicate well, you show customers you value them.' },
+          { type: 'list', items: [
+            'Regular communication — stay in touch by email, social media, or phone',
+            'Personalisation — use names, history, and interests to make customers feel understood',
+            'Clear, concise messaging — avoid jargon and confusion',
+            'Proactive communication — share promotions, releases, and news before customers ask',
+            'Listen and respond — address feedback and concerns promptly and professionally',
+            'Provide relevant information — guides and resources that help customers get value',
+            'Use multiple channels — meet customers where it is convenient for them',
+          ]},
+        ],
+      },
+      {
+        id: 'mcr-metrics',
+        title: 'Measuring & Analysing Retention',
+        content: [
+          { type: 'p', text: 'You cannot improve retention you do not measure. Four metrics tell most of the story:' },
+          { type: 'list', items: [
+            'Customer Retention Rate (CRR) — the % of customers who keep doing business with you over a period',
+            'Churn Rate — the rate at which customers stop doing business with you',
+            'Repeat Purchase Rate — the % of customers who buy again',
+            'Customer Lifetime Value (CLV) — total revenue a customer generates over their lifetime',
+          ]},
+          { type: 'p', text: 'Turn the numbers into action: segment customers to see which are most valuable or at risk, analyse feedback for where to improve, and spot trends. Then address pain points, improve support, offer loyalty rewards, and raise product quality.' },
+          { type: 'highlight', text: 'Retention is more cost-effective than acquisition — a loyal customer base is a growth engine, not just a number.' },
+        ],
+      },
+    ],
+    interactive: {
+      type: 'scenario',
+      title: 'Retention Decisions',
+      scenarios: [
+        {
+          situation: 'A regular customer of an agro-input shop has not bought anything in three months — unusual for them.',
+          options: [
+            { text: 'Wait and see if they come back on their own.', correct: false, feedback: 'Silence is a churn signal. Proactive outreach is one of the cheapest ways to win a customer back.' },
+            { text: 'Reach out personally to check in, understand why, and offer relevant help.', correct: true, feedback: 'Correct. Proactive, personalised communication shows you value them and surfaces the real reason before they leave for good.' },
+            { text: 'Remove them from your records as a lost customer.', correct: false, feedback: 'Writing them off forfeits a relationship that is far cheaper to recover than to replace.' },
+          ],
+        },
+        {
+          situation: 'A customer leaves a public complaint about a late delivery.',
+          options: [
+            { text: 'Ignore it so it does not draw attention.', correct: false, feedback: 'Unanswered complaints damage your image and signal to others that feedback goes nowhere.' },
+            { text: 'Respond promptly and professionally, fix the issue, and follow up.', correct: true, feedback: 'Correct. Listening and acting on feedback turns a complaint into a demonstration of how much you value customers.' },
+            { text: 'Argue publicly that the customer is wrong.', correct: false, feedback: 'Defensiveness erodes trust. The goal is to close the gap between promise and delivery, not to win the argument.' },
+          ],
+        },
+      ],
+    },
+    quiz: [
+      { q: 'Increasing customer loyalty by 5% can raise profits by:', options: ['1-2%', '5-10%', '25-95%', 'It has no effect'], answer: 2 },
+      { q: 'Compared with retaining customers, acquiring new ones is:', options: ['Cheaper', 'About the same', 'Much more expensive', 'Always free'], answer: 2 },
+      { q: 'The FIRST of the six steps to loyalty is:', options: ['Tell customers what to expect', 'Find out what customers want', 'Do it all again', 'Act on feedback'], answer: 1 },
+      { q: 'Churn rate measures:', options: ['How many customers buy again', 'The rate at which customers stop doing business with you', 'Total lifetime revenue', 'Number of new customers'], answer: 1 },
+      { q: 'Customer Lifetime Value (CLV) is:', options: ['The cost of one advert', 'Total revenue a customer generates over their lifetime', 'The number of complaints', 'A type of loan'], answer: 1 },
+      { q: 'Personalisation in communication means:', options: ['Sending the same message to everyone', 'Using names, history, and interests', 'Avoiding all contact', 'Using technical jargon'], answer: 1 },
+      { q: 'Proactive communication means:', options: ['Only replying when asked', 'Sharing news and promotions before customers ask', 'Never contacting customers', 'Ignoring feedback'], answer: 1 },
+      { q: 'When a loyal customer goes quiet, you should:', options: ['Write them off', 'Reach out proactively to understand why', 'Raise their prices', 'Do nothing'], answer: 1 },
+      { q: 'A high Customer Retention Rate (CRR) indicates:', options: ['Customers are leaving', 'Strong loyalty and engagement', 'Poor product quality', 'High acquisition costs'], answer: 1 },
+      { q: 'The sixth step, "do it all again," emphasises that retention is:', options: ['A one-time task', 'A continuous, repeated cycle', 'Only for big firms', 'Unnecessary'], answer: 1 },
+    ],
+  },
+  {
+    id: 'msme-continuous-improvement',
+    title: 'Continuous Business Improvement',
+    subtitle: 'PDCA, KPIs & performance',
+    category: 'MSME Growth',
+    icon: RotateCcw,
+    duration: '25 min',
+    description: 'How the best businesses never settle: the benefits and key elements of continuous improvement, the barriers that block it, how to build KPIs and measure performance, and the Plan-Do-Check-Act cycle for an improvement plan that actually gets used.',
+    lessons: [
+      {
+        id: 'mci-why',
+        title: 'Why Continuous Improvement',
+        content: [
+          { type: 'p', text: 'Improving processes continuously saves time, cuts costs, and raises quality. Continuous Process Improvement (CPI) applies to any business — every business has processes for orders, hiring, reporting, or launching a product, and each can be improved.' },
+          { type: 'list', items: [
+            'Increased productivity — more output without more people',
+            'Shorter delivery times — get products and services to customers faster',
+            'Improved quality — fewer mistakes, better reputation',
+            'Increased innovation — better ways of doing things, not just less waste',
+            'Lowered costs — less labour, less waste, better use of materials',
+            'Better customer service — anticipate and meet what customers value',
+            'Higher employee satisfaction — and lower staff turnover',
+          ]},
+          { type: 'callout', title: 'Coaching MSMEs', text: 'Improvement must involve the people doing the work and the customers using it. A change imposed from the top without the frontline rarely sticks — coach owners to ask their team and customers where the friction is.' },
+        ],
+      },
+      {
+        id: 'mci-elements',
+        title: 'Key Elements & Barriers',
+        content: [
+          { type: 'p', text: 'For improvement to take hold, five elements must be present:' },
+          { type: 'pathway', title: 'GOAL ALIGNMENT', text: 'Improvements serve clear, shared business goals — so everyone makes decisions that move the business forward.' },
+          { type: 'pathway', title: 'EMPLOYEE ENGAGEMENT', text: 'It is every employee\'s job to spot and act on improvements. Improvement comes from the bottom up as well as the top down.' },
+          { type: 'pathway', title: 'CONTROL', text: 'Plan, document, and manage improvement work so it is not random or lost.' },
+          { type: 'pathway', title: 'TRANSPARENCY', text: 'Open communication lets teams build on past wins and learn from failures.' },
+          { type: 'pathway', title: 'RECOGNITION', text: 'Recognise and reward the people who drive improvement — people need interesting work, recognition, and to know what is going on.' },
+          { type: 'callout', text: 'Common barriers: a leadership mentality that resists change, gaps in knowledge and capability, weak stakeholder alignment, "business as usual" crowding out improvement, over-engineered systems, and poor data to base decisions on.' },
+        ],
+      },
+      {
+        id: 'mci-kpis',
+        title: 'Performance Measurement & KPIs',
+        content: [
+          { type: 'p', text: 'A performance measurement system gathers, analyses, and reports data so a business can see how it is doing and make good decisions. Good metrics tell you whether you are meeting goals, whether customers are satisfied, and where processes need to change.' },
+          { type: 'highlight', text: 'A performance measure is a number plus a unit. The number says how much; the unit says what — and it is always tied to a goal.' },
+          { type: 'p', text: 'To build KPIs for your business — and remember, not every metric matters:' },
+          { type: 'list', items: [
+            'Figure out your business goals (financial or non-financial)',
+            'Decide what to measure to track progress toward each goal',
+            'Set specific, measurable, time-bound targets',
+            'Monitor and collect data consistently',
+            'Review and adjust KPIs so they stay relevant',
+            'Communicate KPIs and involve the team in tracking them',
+          ]},
+        ],
+      },
+      {
+        id: 'mci-pdca',
+        title: 'The PDCA Improvement Cycle',
+        content: [
+          { type: 'p', text: 'A continuous business improvement plan keeps a company efficient, effective, and profitable over time. The most-used tool for it is the Plan-Do-Check-Act (PDCA) cycle.' },
+          { type: 'pathway', title: 'PLAN', text: 'Identify an opportunity and plan the change — define goals, find the gap, set targets.' },
+          { type: 'pathway', title: 'DO', text: 'Implement the change on a small scale first.' },
+          { type: 'pathway', title: 'CHECK', text: 'Use data to analyse the results and decide whether the change made a difference.' },
+          { type: 'pathway', title: 'ACT', text: 'If it worked, roll it out more widely and keep evaluating. If it did not, begin the cycle again.' },
+          { type: 'callout', title: 'Case: Kula Korner Agrovet', text: 'Poor scheduling and communication were costing Ksh 980,000 in extra spend. They planned a fix, shared it with stakeholders, implemented and tracked it — and saved Ksh 850,000 in a year, cutting excess spend by 85%. Then they celebrated and recognised the people who moved the needle.' },
+          { type: 'highlight', text: 'Do not wait for the "perfect" plan. A plan only improves once it is used — review and adjust as you go.' },
+        ],
+      },
+    ],
+    interactive: {
+      type: 'scenario',
+      title: 'Improving Performance',
+      scenarios: [
+        {
+          situation: 'An agro-processing MSME wants to change its whole production line at once based on a manager\'s hunch.',
+          options: [
+            { text: 'Roll out the full change immediately to save time.', correct: false, feedback: 'A big, unproven change is high-risk. PDCA says test on a small scale before scaling.' },
+            { text: 'Pilot the change on one line, check the data, then scale if it works.', correct: true, feedback: 'Correct. Plan-Do-Check-Act de-risks improvement by testing small and scaling only what the data supports.' },
+            { text: 'Do nothing because change is risky.', correct: false, feedback: 'Standing still is its own risk — competitors improve. The answer is disciplined testing, not avoidance.' },
+          ],
+        },
+        {
+          situation: 'A business sets a goal to "improve customer service" but has no way to tell if it is working.',
+          options: [
+            { text: 'Trust their gut on whether service feels better.', correct: false, feedback: 'Without measurement you cannot manage. A goal needs a KPI — a number and a unit tied to it.' },
+            { text: 'Define a KPI such as average response time and track it consistently.', correct: true, feedback: 'Correct. A measurable KPI turns a vague goal into something you can monitor, review, and improve.' },
+            { text: 'Abandon the goal as too hard to measure.', correct: false, feedback: 'Most goals can be measured with the right KPI. Dropping it forfeits the improvement entirely.' },
+          ],
+        },
+      ],
+    },
+    quiz: [
+      { q: 'Continuous Process Improvement (CPI) applies to:', options: ['Only factories', 'Any business with processes', 'Only large firms', 'Only service businesses'], answer: 1 },
+      { q: 'Which is a benefit of continuous improvement?', options: ['Higher costs', 'More mistakes', 'Increased productivity', 'Slower delivery'], answer: 2 },
+      { q: 'Whose job is it to look for improvements?', options: ['Only the owner', 'Only managers', 'Every employee', 'Only consultants'], answer: 2 },
+      { q: 'A performance measure is made up of:', options: ['A number and a unit', 'A guess and a hope', 'Two opinions', 'A name only'], answer: 0 },
+      { q: 'When building KPIs, you should remember that:', options: ['Every metric matters equally', 'Not every metric matters — pick the ones tied to goals', 'KPIs never change', 'Targets should be vague'], answer: 1 },
+      { q: 'The PDCA cycle stands for:', options: ['Plan, Do, Check, Act', 'Profit, Debt, Cash, Assets', 'Plan, Deliver, Close, Audit', 'Prepare, Decide, Care, Adjust'], answer: 0 },
+      { q: 'In PDCA, you first implement a change:', options: ['Across the whole business', 'On a small scale', 'Without any plan', 'Only after a year'], answer: 1 },
+      { q: 'If a tested change does not work, you should:', options: ['Force it anyway', 'Begin the cycle again', 'Stop all improvement', 'Blame the staff'], answer: 1 },
+      { q: 'A barrier to continuous improvement is:', options: ['Clear goals', 'Good data', '"Business as usual" crowding out improvement', 'Recognising contributors'], answer: 2 },
+      { q: 'The Kula Korner Agrovet case shows the value of:', options: ['Never changing anything', 'Planning, implementing, tracking — then celebrating success', 'Ignoring stakeholders', 'Waiting for a perfect plan'], answer: 1 },
+    ],
+  },
+  {
+    id: 'msme-product-development',
+    title: 'Product Development & Diversification',
+    subtitle: 'From idea to launch & beyond',
+    category: 'MSME Growth',
+    icon: Sparkles,
+    duration: '30 min',
+    description: 'How businesses create and expand what they sell: the difference between development and diversification, market research, generating and screening ideas, taking a concept to launch, the types of diversification, and managing the product portfolio.',
+    lessons: [
+      {
+        id: 'mpd-meaning',
+        title: 'Development vs Diversification',
+        content: [
+          { type: 'p', text: 'Product development is creating new products or improving existing ones to meet customer needs and grow market share. Product diversification is expanding the portfolio by adding products that are different from what you already sell — to spread risk and reach new customers.' },
+          { type: 'list', items: [
+            'Meeting changing customer needs and staying ahead of competitors',
+            'Entering new markets and expanding revenue streams',
+            'Spreading risk so you do not depend on one product or market',
+            'Driving innovation and building brand equity',
+            'Creating upsell and cross-sell opportunities with existing customers',
+            'Improving operational efficiency and attracting investment and talent',
+          ]},
+          { type: 'callout', title: 'Coaching MSMEs', text: 'For a smallholder enterprise, diversification can be a resilience strategy: a second product line cushions the blow when one crop or market has a bad season. Frame it in terms of reducing the risk they already feel.' },
+        ],
+      },
+      {
+        id: 'mpd-market-research',
+        title: 'Market Research & Customer Needs',
+        content: [
+          { type: 'p', text: 'Market research gathers and analyses information about a market — its size, growth, customers, and competition — so you can make informed decisions. The first job is understanding what customers actually need and want.' },
+          { type: 'list', items: [
+            'Surveys — ask existing or potential customers about preferences and pain points',
+            'Focus groups — small-group discussions that reveal deeper, emotional drivers',
+            'Observation — watch how customers behave in a shop or while using a product',
+            'Sales data — purchase history and trends show real buying behaviour',
+            'Social media — monitor opinions and attitudes',
+            'Customer feedback and interviews — direct insight into experiences and motivations',
+            'Customer personas and competitor analysis — understand segments and spot market gaps',
+          ]},
+          { type: 'highlight', text: 'The steps of research: define the objective, choose a method, design the instrument, collect data, analyse it, then interpret and report the findings.' },
+        ],
+      },
+      {
+        id: 'mpd-idea-screening',
+        title: 'Generating & Screening Ideas',
+        content: [
+          { type: 'p', text: 'Idea generation produces new and innovative ideas; idea screening evaluates which are worth pursuing. Both should be customer-focused and data-driven.' },
+          { type: 'list', items: [
+            'Generate ideas: market research, brainstorming, customer feedback, observing trends, repurposing products',
+            'Collaboration, reverse engineering, looking outside your industry, and SWOT analysis',
+            'Structured formats: hackathons and innovation workshops',
+          ]},
+          { type: 'p', text: 'Then screen each idea against clear criteria before you invest:' },
+          { type: 'list', items: [
+            'Feasibility — does it make sense technically, financially, and operationally?',
+            'Market potential — is there a real need and a target market?',
+            'Competitive landscape — how will it differ from what already exists?',
+            'Risks — what could go wrong, and how would you mitigate it?',
+            'ROI — is the potential return worth the investment?',
+          ]},
+        ],
+      },
+      {
+        id: 'mpd-concept-to-launch',
+        title: 'From Concept to Launch',
+        content: [
+          { type: 'p', text: 'Once an idea passes screening, it moves through a disciplined path from concept to market.' },
+          { type: 'pathway', title: 'CONCEPT', text: 'Define the intended customer, the unique selling proposition, and the key features that meet their needs.' },
+          { type: 'pathway', title: 'PROTOTYPE', text: 'Build a prototype to test functionality, gather feedback, and refine — iterating until it is right.' },
+          { type: 'pathway', title: 'DESIGN & TEST', text: 'Develop the design, then test and validate against performance, quality, and safety requirements.' },
+          { type: 'pathway', title: 'MARKETING & PRICING', text: 'Define the target audience and USP, set objectives and budget; understand costs and value to choose a pricing strategy.' },
+          { type: 'pathway', title: 'LAUNCH', text: 'Set launch goals, build a launch team, generate buzz, make the product available, then monitor and adjust.' },
+          { type: 'callout', text: 'Pricing strategies include cost-plus, value-based, and penetration pricing — choose the one that fits your goals and customers, and adjust as conditions change.' },
+        ],
+      },
+      {
+        id: 'mpd-diversification-types',
+        title: 'Diversification Strategies & Types',
+        content: [
+          { type: 'p', text: 'Diversification expands the portfolio into new products, markets, or categories. There are several recognised types — the right one depends on your goals, resources, and how related the new offering is to what you already do.' },
+          { type: 'list', items: [
+            'Horizontal — add new products related to existing ones (a pet-food maker adds pet toys)',
+            'Vertical — add products at a different stage of the value chain (a raw-material producer makes finished goods)',
+            'Concentric — related products aimed at a different customer segment (an athletic-shoe maker adds dress shoes)',
+            'Conglomerate — unrelated products in a new industry entirely',
+            'Limited — closely related products, expanded only to a small extent',
+          ]},
+          { type: 'highlight', text: 'Strategy steps: research the market, define the target audience, build a product strategy, invest in R&D, test and validate, then launch, promote, monitor, and adjust.' },
+        ],
+      },
+      {
+        id: 'mpd-portfolio',
+        title: 'Managing the Product Portfolio',
+        content: [
+          { type: 'p', text: 'A growing business ends up managing several products at once. Portfolio management means regularly assessing performance and deciding what to introduce, maintain, or retire.' },
+          { type: 'list', items: [
+            'Assess product performance — sales, revenue, profitability, customer satisfaction',
+            'Stars — high growth, high market share',
+            'Cash cows — low growth, high market share',
+            'Question marks — high growth, low market share',
+            'Dogs — low growth, low market share',
+          ]},
+          { type: 'p', text: 'Develop a product roadmap aligned to strategy, allocate resources to the highest-potential products, balance risk and reward across the portfolio, monitor competition, and prioritise innovation.' },
+          { type: 'callout', title: 'Coaching MSMEs', text: 'Help owners be honest about their "dogs." Loyalty to a product that no longer earns its keep ties up scarce cash and attention. Retiring it can free resources for a star.' },
+        ],
+      },
+    ],
+    interactive: {
+      type: 'match-value',
+      title: 'Match the Diversification Type to the Example',
+      pairs: [
+        { value: 'HORIZONTAL', behaviour: 'A maize-flour miller starts selling packaged porridge blends to its existing customers.' },
+        { value: 'VERTICAL', behaviour: 'A coffee farmer cooperative begins roasting and packaging its own beans instead of only selling cherries.' },
+        { value: 'CONCENTRIC', behaviour: 'A maker of farmer work boots launches a smart-casual shoe line for urban buyers.' },
+        { value: 'CONGLOMERATE', behaviour: 'A cleaning-products company moves into the entertainment business — an unrelated industry.' },
+        { value: 'LIMITED', behaviour: 'A baby-formula maker adds baby food, but stops short of clothing or toys.' },
+      ],
+    },
+    quiz: [
+      { q: 'Product development is best described as:', options: ['Closing the business', 'Creating new or improved products to meet customer needs', 'Cutting all products', 'Raising prices only'], answer: 1 },
+      { q: 'A key purpose of product diversification is to:', options: ['Focus on one product only', 'Reduce risk by expanding into new products or markets', 'Cut all costs', 'Avoid customers'], answer: 1 },
+      { q: 'Which is NOT a stage in the product development process?', options: ['Idea screening', 'Product design and development', 'Product launch', 'Closing the business'], answer: 3 },
+      { q: 'Idea screening evaluates ideas against criteria such as:', options: ['Feasibility, market potential, ROI', 'The owner\'s mood', 'Office decor', 'Staff lunch preferences'], answer: 0 },
+      { q: 'A prototype is built mainly to:', options: ['Replace the final product forever', 'Test functionality and gather feedback before full investment', 'Avoid talking to customers', 'Skip testing'], answer: 1 },
+      { q: 'Horizontal diversification means adding products that are:', options: ['Unrelated, in a new industry', 'Related to existing products', 'Only at a different value-chain stage', 'Never sold to existing customers'], answer: 1 },
+      { q: 'Conglomerate diversification involves:', options: ['Closely related products', 'Products unrelated to existing ones', 'Only price changes', 'Only marketing'], answer: 1 },
+      { q: 'In portfolio management, a "cash cow" is:', options: ['High growth, high share', 'Low growth, high market share', 'Low growth, low share', 'High growth, low share'], answer: 1 },
+      { q: 'Market research steps begin by:', options: ['Launching first', 'Defining the research objective', 'Setting the price', 'Hiring staff'], answer: 1 },
+      { q: 'A wise reason to retire a "dog" product is to:', options: ['Punish the team', 'Free up cash and attention for higher-potential products', 'Confuse customers', 'Avoid innovation'], answer: 1 },
+    ],
+  },
+);
+
+
 // ===== Course clusters (catalog grouping) =====
 const CLUSTERS = [
   {
@@ -9539,6 +10226,11 @@ const CLUSTERS = [
         ],
       },
     ],
+  },
+  {
+    name: 'MSME Growth Accelerator',
+    blurb: 'Equipping our teams to accelerate micro, small, and medium enterprises — business and financial literacy from growth phases and finance to customers, continuous improvement, and product development.',
+    courseIds: ['msme-growth-fundamentals', 'msme-success-factors', 'msme-growth-opportunities', 'msme-customer-retention', 'msme-continuous-improvement', 'msme-product-development'],
   },
   {
     name: 'Commodities',

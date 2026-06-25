@@ -6356,6 +6356,47 @@ COURSES.push({
 // All commodity courses are now full courses (no placeholders remain).
 
 
+// ===== Nature-Based Solutions placeholder courses =====
+// Five sub-clusters of upcoming NbS courses. Each renders as a locked
+// "Coming soon" card in the catalog until its content is written.
+COURSES.push(
+  // Cluster 1 — Climate Change Fundamentals
+  { id: 'nbs-ghgs',                  title: 'Greenhouse Gases (GHGs)',                category: 'Climate & NRM', icon: CloudRain,   placeholder: true, description: 'The greenhouse gases that drive climate change — CO2, methane, nitrous oxide and the others — and how they behave in the atmosphere.' },
+  { id: 'nbs-what-are-ghgs',         title: 'What Are GHGs?',                          category: 'Climate & NRM', icon: Sparkles,    placeholder: true, description: 'A beginner-friendly primer on what greenhouse gases are, why they matter, and how they fit the wider climate story.' },
+  { id: 'nbs-emission-sources',      title: 'Sources of Emissions',                    category: 'Climate & NRM', icon: TrendingUp,  placeholder: true, description: 'Where emissions come from across agriculture, mining, industry, transport and land use — and how the picture differs in East and Central Africa.' },
+  { id: 'nbs-carbon-cycle',          title: 'The Carbon Cycle',                        category: 'Climate & NRM', icon: RotateCcw,   placeholder: true, description: 'How carbon moves between atmosphere, plants, soils and oceans — the foundation for understanding mitigation and sequestration.' },
+  { id: 'nbs-emissions-mrv',         title: 'Measuring & Reporting Emissions',         category: 'Climate & NRM', icon: BarChart3,   placeholder: true, description: 'Practical introduction to greenhouse-gas inventories, MRV systems and the metrics buyers and donors increasingly require.' },
+  { id: 'nbs-climate-impacts',       title: 'Climate Change Impacts',                  category: 'Climate & NRM', icon: AlertTriangle, placeholder: true, description: 'How a warming climate is reshaping rainfall, soils, pests, livelihoods and ecosystems across our ECA programmes.' },
+
+  // Cluster 2 — Climate Mitigation Solutions
+  { id: 'nbs-agroforestry-sequestration', title: 'Agroforestry for Carbon Sequestration', category: 'Climate & NRM', icon: TreePalm,   placeholder: true, description: 'Designing tree-on-farm systems that lock carbon in biomass and soil while diversifying smallholder income.' },
+  { id: 'nbs-biochar',                    title: 'Biochar Production & Application',      category: 'Climate & NRM', icon: Leaf,       placeholder: true, description: 'Producing biochar from on-farm prunings and crop residues, applying it to soils, and the climate-and-yield evidence behind the practice.' },
+  { id: 'nbs-biocomposting',              title: 'Biocomposting & Organic Waste Management', category: 'Climate & NRM', icon: Sparkles,   placeholder: true, description: 'Turning organic waste and agro-byproducts into compost — cutting methane emissions and returning nutrients to the soil.' },
+  { id: 'nbs-carbon-markets',             title: 'Carbon Markets & Climate-Smart Practices', category: 'Climate & NRM', icon: DollarSign, placeholder: true, description: 'How carbon markets, payment-for-ecosystem-services schemes, and climate-smart practices add up to bankable mitigation pathways.' },
+
+  // Cluster 3 — Sustainable Land and Soil Management
+  { id: 'nbs-agroforestry-systems',  title: 'Agroforestry Systems',                    category: 'Climate & NRM', icon: TreePalm,    placeholder: true, description: 'The main agroforestry systems used across ECA — alley cropping, boundary planting, shade trees, silvopasture — and where each fits.' },
+  { id: 'nbs-soil-health',           title: 'Soil Health Management',                  category: 'Climate & NRM', icon: MapPin,      placeholder: true, description: 'Building and protecting soil organic matter, structure, biology and fertility as the foundation of productive, climate-resilient farms.' },
+  { id: 'nbs-biochar-soil',          title: 'Biochar for Soil Improvement',            category: 'Climate & NRM', icon: Leaf,        placeholder: true, description: 'Using biochar to improve soil water-holding capacity, nutrient retention and microbial life — and what the Mabale tea pilot taught us.' },
+  { id: 'nbs-composting',            title: 'Composting & Nutrient Cycling',           category: 'Climate & NRM', icon: RotateCcw,   placeholder: true, description: 'Building compost from farm residues, manures and household organics to close the nutrient loop and reduce reliance on inorganic fertiliser.' },
+  { id: 'nbs-regenerative-ag',       title: 'Regenerative Agriculture Practices',      category: 'Climate & NRM', icon: Leaf,        placeholder: true, description: 'Cover cropping, minimum tillage, rotations, integrated livestock and other regenerative practices that rebuild ecosystem function on working farms.' },
+
+  // Cluster 4 — Climate Adaptation and Resilience
+  { id: 'nbs-resilient-livelihoods', title: 'Climate-Resilient Livelihoods',           category: 'Climate & NRM', icon: Shield,      placeholder: true, description: 'Designing livelihood strategies that hold up under more extreme rainfall, droughts and shocks — from on-farm diversification to off-farm income.' },
+  { id: 'nbs-diversified-farming',   title: 'Diversified Farming Systems',             category: 'Climate & NRM', icon: Layers,      placeholder: true, description: 'Why diverse cropping and livestock systems out-perform monocultures under climate stress, and how to support the shift on smallholder farms.' },
+  { id: 'nbs-drought-flood-resilience', title: 'Drought & Flood Resilience',           category: 'Climate & NRM', icon: CloudRain,   placeholder: true, description: 'Practical drought-coping (rainwater harvesting, drought-tolerant varieties) and flood-coping (drainage, raised beds, riparian buffers) measures.' },
+  { id: 'nbs-community-adaptation',  title: 'Community Adaptation Strategies',         category: 'Climate & NRM', icon: Users,       placeholder: true, description: 'How communities themselves plan, prioritise and govern climate adaptation — and how programmes can back rather than supplant local strategies.' },
+  { id: 'nbs-risk-resilience-planning', title: 'Risk Management & Resilience Planning', category: 'Climate & NRM', icon: ShieldAlert, placeholder: true, description: 'Risk assessment, contingency planning, and embedding resilience into project design, M&E and budgeting.' },
+
+  // Cluster 5 — Integrated Climate-Smart Agriculture
+  { id: 'nbs-csa-principles',                title: 'Climate-Smart Agriculture Principles', category: 'Climate & NRM', icon: Lightbulb,  placeholder: true, description: 'The three CSA pillars — adaptation, mitigation, productivity — and how Solidaridad applies them across ECA value chains.' },
+  { id: 'nbs-agroforestry-triple-win',       title: 'Agroforestry as a Triple-Win Solution', category: 'Climate & NRM', icon: TreePalm,   placeholder: true, description: 'How agroforestry delivers all three CSA pillars at once — yield, climate adaptation and emissions mitigation — with field examples from coffee, cocoa and tea.' },
+  { id: 'nbs-biochar-compost-integration',   title: 'Biochar & Compost Integration',         category: 'Climate & NRM', icon: Sparkles,   placeholder: true, description: 'Combining biochar with composting and integrated fertilisation for healthier soils, lower input costs and a smaller carbon footprint.' },
+  { id: 'nbs-resilient-enterprises',         title: 'Resilient Farming Enterprises',         category: 'Climate & NRM', icon: TrendingUp, placeholder: true, description: 'Turning climate-smart practices into viable farm enterprises — costing, financing, market linkage and the business case for resilience.' },
+  { id: 'nbs-climate-livelihood-monitoring', title: 'Monitoring Climate & Livelihood Outcomes', category: 'Climate & NRM', icon: ClipboardCheck, placeholder: true, description: 'Indicators, tools and routines for tracking both climate and livelihood outcomes — so programmes can show real adaptation and mitigation impact.' },
+);
+
+
 // ===== Course clusters (catalog grouping) =====
 const CLUSTERS = [
   {
@@ -6377,6 +6418,63 @@ const CLUSTERS = [
     name: 'Nature-Based Solutions',
     blurb: 'Ecosystem-based adaptation, regenerative landscapes, agroforestry, and carbon markets across our agriculture, mining, and industry work.',
     courseIds: ['climate'],
+    subClusters: [
+      {
+        name: 'Climate Change Fundamentals',
+        focus: 'Understanding climate change and emissions.',
+        courseIds: [
+          'nbs-ghgs',
+          'nbs-what-are-ghgs',
+          'nbs-emission-sources',
+          'nbs-carbon-cycle',
+          'nbs-emissions-mrv',
+          'nbs-climate-impacts',
+        ],
+      },
+      {
+        name: 'Climate Mitigation Solutions',
+        focus: 'Reducing or removing carbon emissions.',
+        courseIds: [
+          'nbs-agroforestry-sequestration',
+          'nbs-biochar',
+          'nbs-biocomposting',
+          'nbs-carbon-markets',
+        ],
+      },
+      {
+        name: 'Sustainable Land & Soil Management',
+        focus: 'Improving land productivity and ecosystem health.',
+        courseIds: [
+          'nbs-agroforestry-systems',
+          'nbs-soil-health',
+          'nbs-biochar-soil',
+          'nbs-composting',
+          'nbs-regenerative-ag',
+        ],
+      },
+      {
+        name: 'Climate Adaptation & Resilience',
+        focus: 'Coping with climate risks.',
+        courseIds: [
+          'nbs-resilient-livelihoods',
+          'nbs-diversified-farming',
+          'nbs-drought-flood-resilience',
+          'nbs-community-adaptation',
+          'nbs-risk-resilience-planning',
+        ],
+      },
+      {
+        name: 'Integrated Climate-Smart Agriculture',
+        focus: 'Combining mitigation, adaptation, and productivity.',
+        courseIds: [
+          'nbs-csa-principles',
+          'nbs-agroforestry-triple-win',
+          'nbs-biochar-compost-integration',
+          'nbs-resilient-enterprises',
+          'nbs-climate-livelihood-monitoring',
+        ],
+      },
+    ],
   },
   {
     name: 'Commodities',
@@ -7343,13 +7441,19 @@ function CatalogPage({ courses, activeCategory, setActiveCategory, searchQuery, 
   const courseById = Object.fromEntries(courses.map(c => [c.id, c]));
   const clustersToShow = CLUSTERS.filter(cl => activeCategory === 'All' || cl.name === activeCategory);
 
-  const sections = clustersToShow.map(cluster => ({
-    ...cluster,
-    courses: cluster.courseIds
-      .map(id => courseById[id])
-      .filter(Boolean)
-      .filter(matchesSearch),
-  })).filter(s => s.courses.length > 0);
+  const resolveCourses = (ids) => (ids || [])
+    .map(id => courseById[id])
+    .filter(Boolean)
+    .filter(matchesSearch);
+
+  const sections = clustersToShow.map(cluster => {
+    const topCourses = resolveCourses(cluster.courseIds);
+    const subClusters = (cluster.subClusters || [])
+      .map(sc => ({ ...sc, courses: resolveCourses(sc.courseIds) }))
+      .filter(sc => sc.courses.length > 0);
+    const allCourses = [...topCourses, ...subClusters.flatMap(sc => sc.courses)];
+    return { ...cluster, courses: topCourses, subClusters, allCourses };
+  }).filter(s => s.allCourses.length > 0);
 
   const clusterPills = ['All', ...CLUSTERS.map(c => c.name)];
 
@@ -7386,23 +7490,45 @@ function CatalogPage({ courses, activeCategory, setActiveCategory, searchQuery, 
               <div className="flex items-baseline justify-between flex-wrap gap-x-4 gap-y-1">
                 <h2 className="text-xl md:text-2xl font-extrabold tracking-tight uppercase">{section.name}</h2>
                 <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-                  {section.courses.filter(c => !c.placeholder).length} live · {section.courses.filter(c => c.placeholder).length} coming soon
+                  {section.allCourses.filter(c => !c.placeholder).length} live · {section.allCourses.filter(c => c.placeholder).length} coming soon
                 </span>
               </div>
               <Swoosh w={96} />
               {section.blurb ? (
                 <p className="mt-3 text-sm text-gray-600 max-w-3xl">{section.blurb}</p>
               ) : null}
-              <div className="mt-5 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                {section.courses.map(course => (
-                  <CourseCard
-                    key={course.id}
-                    course={course}
-                    progress={courseCompletion(course.id)}
-                    onClick={() => onSelectCourse(course)}
-                  />
-                ))}
-              </div>
+              {section.courses.length > 0 ? (
+                <div className="mt-5 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                  {section.courses.map(course => (
+                    <CourseCard
+                      key={course.id}
+                      course={course}
+                      progress={courseCompletion(course.id)}
+                      onClick={() => onSelectCourse(course)}
+                    />
+                  ))}
+                </div>
+              ) : null}
+              {section.subClusters.map(sub => (
+                <div key={sub.name} className={section.courses.length > 0 ? 'mt-10' : 'mt-6'}>
+                  <h3 className="text-base md:text-lg font-extrabold tracking-tight uppercase text-gray-800">
+                    {sub.name}
+                  </h3>
+                  {sub.focus ? (
+                    <p className="mt-1 text-sm text-gray-600 max-w-3xl">{sub.focus}</p>
+                  ) : null}
+                  <div className="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {sub.courses.map(course => (
+                      <CourseCard
+                        key={course.id}
+                        course={course}
+                        progress={courseCompletion(course.id)}
+                        onClick={() => onSelectCourse(course)}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
             </section>
           ))}
         </div>

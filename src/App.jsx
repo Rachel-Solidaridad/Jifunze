@@ -6617,18 +6617,18 @@ COURSES.push(
 
   {
     id: 'gesi-ease',
-    title: 'EA$E — Enhancing Accountability & Social Engagement',
+    title: 'EA$E — Economic and Social Empowerment',
     subtitle: 'Savings, accountability and social engagement through VSLAs',
     category: 'Gender',
     icon: Target,
     duration: '50 min',
-    description: 'A six-module working summary of the EA$E (Enhancing Accountability and Social Engagement) methodology as applied in the Bundibugyo cocoa programme — anchored in the FVO Bundibugyo GALS & VSLA Performance Report (Solidaridad ECA, ICAM Chocolate Uganda, Netherlands Enterprise Agency / FVO; Jan 2026). Covers VSLA formation and governance (26 groups, 810 members, 764 active), savings and loan discipline (UGX 162.5 million mobilised, 100% repayment in 58% of groups), 409 Income-Generating Activities, formalisation gaps (100% of groups lack bank accounts, 0% access PDM), and collective marketing. **Note on terminology**: this course adopts "Enhancing Accountability and Social Engagement" as the EA$E expansion per the current programme framing. Some earlier Solidaridad materials (and the existing Bundibugyo and Gold courses on this platform) use "Economic and Social Empowerment" — staff may want to standardise the expansion across all courses.',
+    description: 'A six-module working summary of the EA$E (Economic and Social Empowerment) methodology as applied in the Bundibugyo cocoa programme — anchored in the FVO Bundibugyo GALS & VSLA Performance Report (Solidaridad ECA, ICAM Chocolate Uganda, Netherlands Enterprise Agency / FVO; Jan 2026). Covers VSLA formation and governance (26 groups, 810 members, 764 active), savings and loan discipline (UGX 162.5 million mobilised, 100% repayment in 58% of groups), 409 Income-Generating Activities, formalisation gaps (100% of groups lack bank accounts, 0% access PDM), and collective marketing.',
     lessons: [
       {
         id: 'ease-fundamentals',
         title: 'Module 1 — EA$E Fundamentals & the Savings Cycle',
         content: [
-          { type: 'p', text: 'EA$E in this programme means Enhancing Accountability and Social Engagement — a methodology that uses Village Savings and Loans Associations (VSLAs) as the entry point for community-level financial discipline, transparent governance, and household economic empowerment. The methodology pairs naturally with GALS (see the GALS course) — joint household visioning needs a joint savings vehicle to land. This module covers the basics: what EA$E is, what a VSLA actually does, and the cycle that drives the model.' },
+          { type: 'p', text: 'EA$E stands for Economic and Social Empowerment — a methodology that uses Village Savings and Loans Associations (VSLAs) as the entry point for community-level financial discipline, transparent governance, and household economic empowerment. The methodology pairs naturally with GALS (see the GALS course) — joint household visioning needs a joint savings vehicle to land. This module covers the basics: what EA$E is, what a VSLA actually does, and the cycle that drives the model.' },
           { type: 'h', text: 'EA$E in one paragraph' },
           { type: 'p', text: 'EA$E builds community-managed financial groups in which members save weekly, lend to each other from the accumulated savings, and share out the principal plus interest at the end of an annual cycle. The accountability layer comes from group-level constitutions, elected officers, transparent record-keeping, and social-fund support for member emergencies. The social-engagement layer comes from the weekly meeting itself — a recurring forum for collective decision-making that builds soft infrastructure beyond the financial outcomes.' },
           { type: 'h', text: 'The savings-share-loan-payout cycle' },

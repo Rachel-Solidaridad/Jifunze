@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Search, X, Award, BookOpen, Clock, Calendar } from 'lucide-react';
 import { ROLES, ROLE_LABELS, ROLE_OPTIONS, canChangeRoles } from '../auth/roles';
-import { setUserRole } from './queries';
+import { setUserRole, quizPct, quizPassed, QUIZ_PASS_PCT } from './queries';
 
 const YELLOW = '#FFC800';
 
@@ -222,6 +222,9 @@ function UserDetailDrawer({ user, courses, progress, certificates, computeComple
               <div className="mt-3 space-y-2">
                 {enrolled.map(({ course, p }) => {
                   const pct = computeCompletion(course, p);
+                  const quizTotal = course.quiz?.length || 0;
+                  const quizScorePct = quizPct(p.quiz?.score, course);
+                  const quizDidPass = quizPassed(p.quiz, course);
                   return (
                     <div key={course.id} className="border border-gray-200 rounded-lg p-3">
                       <div className="flex items-center justify-between gap-3">
@@ -232,7 +235,15 @@ function UserDetailDrawer({ user, courses, progress, certificates, computeComple
                         <div className="h-full" style={{ width: `${pct}%`, backgroundColor: YELLOW }} />
                       </div>
                       <div className="mt-2 flex items-center gap-4 text-[11px] text-gray-500">
-                        {p.quiz?.score != null ? <span>Quiz: {p.quiz.score}%</span> : null}
+                        {p.quiz?.score != null ? (
+                          <span>
+                            Quiz: {p.quiz.score}/{quizTotal} ({quizScorePct}%)
+                            {' · '}
+                            <span style={{ fontWeight: 700, color: quizDidPass ? '#15803d' : '#b91c1c' }}>
+                              {quizDidPass ? 'Pass' : `Below ${QUIZ_PASS_PCT}%`}
+                            </span>
+                          </span>
+                        ) : null}
                         {p.completedAt?.toDate ? (
                           <span>Completed {timeAgo(p.completedAt)}</span>
                         ) : p.lastActiveAt?.toDate ? (

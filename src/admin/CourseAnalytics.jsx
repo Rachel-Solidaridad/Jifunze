@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { X } from 'lucide-react';
-import { getCourseStats } from './queries';
+import { getCourseStats, quizPct, quizPassed, QUIZ_PASS_PCT } from './queries';
 
 const YELLOW = '#FFC800';
 const GREY = '#D9D9C3';
@@ -102,6 +102,8 @@ function CourseDrillDown({ course, allProgress, computeCompletion, onClose }) {
         uid,
         pct: computeCompletion(course, p),
         score: p.quiz?.score,
+        scorePct: quizPct(p.quiz?.score, course),
+        quizPassed: quizPassed(p.quiz, course),
         lastActiveAt: p.lastActiveAt,
         completedAt: p.completedAt,
       });
@@ -146,7 +148,15 @@ function CourseDrillDown({ course, allProgress, computeCompletion, onClose }) {
                     <div className="h-full" style={{ width: `${l.pct}%`, backgroundColor: l.pct === 100 ? '#000' : YELLOW }} />
                   </div>
                   <div className="mt-2 flex items-center gap-3 text-[11px] text-gray-500">
-                    {l.score != null ? <span>Quiz: {l.score}%</span> : null}
+                    {l.score != null ? (
+                      <span>
+                        Quiz: {l.score}/{course.quiz?.length || 0} ({l.scorePct}%)
+                        {' · '}
+                        <span style={{ fontWeight: 700, color: l.quizPassed ? '#15803d' : '#b91c1c' }}>
+                          {l.quizPassed ? 'Pass' : `Below ${QUIZ_PASS_PCT}%`}
+                        </span>
+                      </span>
+                    ) : null}
                     {l.completedAt?.toDate
                       ? <span>Completed {timeAgo(l.completedAt)}</span>
                       : l.lastActiveAt?.toDate ? <span>Active {timeAgo(l.lastActiveAt)}</span> : null}

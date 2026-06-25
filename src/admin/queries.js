@@ -9,6 +9,25 @@ import {
 import { db } from '../firebase';
 import { ROLES, normalizeRole } from '../auth/roles';
 
+// --- Quiz scoring ---
+// Quiz scores are stored as a raw COUNT of correct answers, not a percentage.
+// Convert to a true percent using the course's question count. Mirrors the
+// pass rule and conversion used in App.jsx (QUIZ_PASS_PCT / quizPassed).
+export const QUIZ_PASS_PCT = 80;
+
+export function quizPct(score, course) {
+  const total = course?.quiz?.length || 0;
+  if (!total || score == null) return null;
+  return Math.round((score / total) * 100);
+}
+
+export function quizPassed(quiz, course) {
+  if (!quiz) return false;
+  if (typeof quiz.passed === 'boolean') return quiz.passed;
+  const pct = quizPct(quiz.score, course);
+  return pct != null && pct >= QUIZ_PASS_PCT;
+}
+
 // --- Users ---
 
 export async function listAllUsers() {
@@ -161,8 +180,9 @@ export function getCourseStats(course, allProgress, computeCompletion) {
     enrolled++;
     const pct = computeCompletion(course, p);
     if (pct === 100) completed++;
-    if (p.quiz?.score != null) {
-      totalScore += p.quiz.score;
+    const scorePct = quizPct(p.quiz?.score, course);
+    if (scorePct != null) {
+      totalScore += scorePct;
       scoreCount++;
     }
   }

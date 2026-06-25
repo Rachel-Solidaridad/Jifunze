@@ -9456,7 +9456,7 @@ COURSES.push(
 );
 
 
-// ===== MSME Growth Accelerator =====
+// ===== MSME Growth =====
 // Six full courses built from the Agribusiness Enterprise Accelerator
 // "Business Growth" module. Designed for a blended audience: the core
 // content speaks to the MSME owner ("your business"), while "Coaching
@@ -10228,8 +10228,8 @@ const CLUSTERS = [
     ],
   },
   {
-    name: 'MSME Growth Accelerator',
-    blurb: 'Equipping our teams to accelerate micro, small, and medium enterprises — business and financial literacy from growth phases and finance to customers, continuous improvement, and product development.',
+    name: 'MSME Growth',
+    blurb: 'Equipping our teams to support micro, small, and medium enterprises — business and financial literacy from growth phases and finance to customers, continuous improvement, and product development.',
     courseIds: ['msme-growth-fundamentals', 'msme-success-factors', 'msme-growth-opportunities', 'msme-customer-retention', 'msme-continuous-improvement', 'msme-product-development'],
   },
   {

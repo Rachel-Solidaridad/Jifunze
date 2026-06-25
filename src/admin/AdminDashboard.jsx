@@ -124,6 +124,7 @@ export default function AdminDashboard({ currentRole, currentUid, courses, compu
         {tab === 'courses' && (
           <CourseAnalytics
             loading={loading}
+            users={users}
             courses={courses}
             allProgress={allProgress}
             computeCompletion={computeCompletion}

@@ -19,9 +19,14 @@ function timeAgo(ts) {
   return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 }
 
-export default function CourseAnalytics({ loading, courses, allProgress, computeCompletion }) {
+export default function CourseAnalytics({ loading, users, courses, allProgress, computeCompletion }) {
   const [selectedId, setSelectedId] = useState(null);
   const liveCourses = useMemo(() => courses.filter(c => !c.placeholder), [courses]);
+  const userMap = useMemo(() => {
+    const m = {};
+    for (const u of users || []) m[u.uid] = u;
+    return m;
+  }, [users]);
 
   const rows = useMemo(() => {
     return liveCourses
@@ -74,6 +79,7 @@ export default function CourseAnalytics({ loading, courses, allProgress, compute
       {selected ? (
         <CourseDrillDown
           course={selected}
+          userMap={userMap}
           allProgress={allProgress}
           computeCompletion={computeCompletion}
           onClose={() => setSelectedId(null)}
@@ -92,14 +98,17 @@ function Metric({ label, value }) {
   );
 }
 
-function CourseDrillDown({ course, allProgress, computeCompletion, onClose }) {
+function CourseDrillDown({ course, userMap, allProgress, computeCompletion, onClose }) {
   const learners = useMemo(() => {
     const list = [];
     for (const uid of Object.keys(allProgress)) {
       const p = allProgress[uid]?.[course.id];
       if (!p) continue;
+      const u = userMap?.[uid];
       list.push({
         uid,
+        name: u?.displayName || '',
+        email: u?.email || '',
         pct: computeCompletion(course, p),
         score: p.quiz?.score,
         scorePct: quizPct(p.quiz?.score, course),
@@ -110,7 +119,7 @@ function CourseDrillDown({ course, allProgress, computeCompletion, onClose }) {
     }
     list.sort((a, b) => b.pct - a.pct);
     return list;
-  }, [course, allProgress, computeCompletion]);
+  }, [course, userMap, allProgress, computeCompletion]);
 
   return (
     <div className="fixed inset-0 z-40 flex justify-end" onClick={onClose}>
@@ -141,8 +150,15 @@ function CourseDrillDown({ course, allProgress, computeCompletion, onClose }) {
               {learners.map(l => (
                 <li key={l.uid} className="border border-gray-200 rounded-lg p-3">
                   <div className="flex items-center justify-between gap-3">
-                    <div className="text-xs font-mono text-gray-700 truncate">{l.uid.slice(0, 12)}…</div>
-                    <div className="text-xs font-bold">{l.pct}%</div>
+                    <div className="min-w-0">
+                      <div className="text-sm font-semibold text-gray-900 truncate">
+                        {l.name || l.email || `${l.uid.slice(0, 12)}…`}
+                      </div>
+                      {l.name && l.email ? (
+                        <div className="text-[11px] text-gray-500 truncate">{l.email}</div>
+                      ) : null}
+                    </div>
+                    <div className="text-xs font-bold shrink-0">{l.pct}%</div>
                   </div>
                   <div className="mt-2 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                     <div className="h-full" style={{ width: `${l.pct}%`, backgroundColor: l.pct === 100 ? '#000' : YELLOW }} />

@@ -95,6 +95,28 @@ export async function getAllCertificates() {
   }
 }
 
+// --- Achievements (badges) ---
+
+export async function getAllAchievements() {
+  try {
+    const snap = await getDocs(collectionGroup(db, 'achievements'));
+    const out = [];
+    snap.forEach(d => {
+      // achievements live at /users/{uid}/achievements/{achievementId}
+      const parentUid = d.ref.parent.parent?.id;
+      out.push({
+        uid: parentUid,
+        achievementId: d.id,
+        ...d.data(),
+      });
+    });
+    return out;
+  } catch (e) {
+    console.error('getAllAchievements failed', e);
+    return [];
+  }
+}
+
 // --- Assignments ---
 
 export async function listAllAssignments() {

@@ -5,6 +5,8 @@ import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp, query, order
 import { auth, googleProvider, ALLOWED_DOMAIN, db } from './firebase';
 import { ROLES, isSeedAdmin, normalizeRole, canViewAdminDashboard, isAdmin } from './auth/roles';
 import { listAssignmentsForUser } from './admin/queries';
+import { awardEligibleBadges, buildBadgeCatalogue, tierFor } from './achievements/awards';
+const AchievementsPage = lazy(() => import('./achievements/AchievementsPage'));
 // Branded Solidaridad commodity glyphs, used for the commodity courses.
 import soyIcon from './assets/commodities/soy.svg';
 import coffeeIcon from './assets/commodities/coffee.svg';
@@ -9427,11 +9429,479 @@ COURSES.push(
   },
 
   // Cluster 3 — Sustainable Land and Soil Management
-  { id: 'nbs-agroforestry-systems',  title: 'Agroforestry Systems',                    category: 'Climate & NRM', icon: TreePalm,    placeholder: true, description: 'The main agroforestry systems used across ECA — alley cropping, boundary planting, shade trees, silvopasture — and where each fits.' },
-  { id: 'nbs-soil-health',           title: 'Soil Health Management',                  category: 'Climate & NRM', icon: MapPin,      placeholder: true, description: 'Building and protecting soil organic matter, structure, biology and fertility as the foundation of productive, climate-resilient farms.' },
-  { id: 'nbs-biochar-soil',          title: 'Biochar for Soil Improvement',            category: 'Climate & NRM', icon: Leaf,        placeholder: true, description: 'Using biochar to improve soil water-holding capacity, nutrient retention and microbial life — and what the Mabale tea pilot taught us.' },
-  { id: 'nbs-composting',            title: 'Composting & Nutrient Cycling',           category: 'Climate & NRM', icon: RotateCcw,   placeholder: true, description: 'Building compost from farm residues, manures and household organics to close the nutrient loop and reduce reliance on inorganic fertiliser.' },
-  { id: 'nbs-regenerative-ag',       title: 'Regenerative Agriculture Practices',      category: 'Climate & NRM', icon: Leaf,        placeholder: true, description: 'Cover cropping, minimum tillage, rotations, integrated livestock and other regenerative practices that rebuild ecosystem function on working farms.' },
+  {
+    id: 'nbs-agroforestry-systems',
+    title: 'Agroforestry Systems',
+    subtitle: 'Shade, boundaries & silvopasture',
+    category: 'Climate & NRM',
+    icon: TreePalm,
+    duration: '30 min',
+    description: 'The main agroforestry systems used across ECA and where each fits — grounded in the Harvesting Carbon Coffee Project tree-survival study (Solidaridad Uganda, 200 farmers across Mityana, Wakiso, Sheema and Rwampara, June 2026). Covers shade-tree systems, why trees die, and the establishment and aftercare that actually keep them alive.',
+    lessons: [
+      {
+        id: 'nbs-afs-systems',
+        title: 'What Agroforestry Is & The Main Systems',
+        content: [
+          { type: 'p', text: 'Agroforestry is the deliberate integration of trees with crops or livestock on the same land. Done well it raises productivity, restores soil, stores carbon, and buffers farms against climate stress — all at once. A handful of systems cover most of what we promote across ECA.' },
+          { type: 'pathway', title: 'SHADE-TREE SYSTEMS', text: 'Trees grown over a perennial crop — the dominant model for coffee and cocoa. Shade moderates temperature, protects soil, and the trees themselves store carbon and can yield fruit, fodder or timber.' },
+          { type: 'pathway', title: 'BOUNDARY & ALLEY PLANTING', text: 'Trees along plot boundaries or in rows between crops (alley cropping). Defines land, supplies poles and fodder, breaks wind, and the leaf litter feeds the soil between the rows.' },
+          { type: 'pathway', title: 'SILVOPASTURE', text: 'Trees combined with pasture and livestock. Shade for animals, fodder from the trees, manure cycling nutrients back, and deep roots holding the soil on grazing land.' },
+          { type: 'pathway', title: 'WOODLOTS & RIPARIAN BUFFERS', text: 'Dedicated tree blocks for fuel and timber that take pressure off natural forest, and tree strips along rivers and wetlands that filter run-off and stabilise banks.' },
+          { type: 'highlight', text: 'One principle runs through all of them: the tree is not competing with the farm — it is infrastructure for the farm.' },
+        ],
+      },
+      {
+        id: 'nbs-afs-harvesting-carbon',
+        title: 'Shade Trees in Coffee — The Harvesting Carbon Project',
+        content: [
+          { type: 'p', text: 'The Harvesting Carbon Coffee Project distributes shade-tree seedlings to smallholder coffee farmers in Uganda, linking agroforestry to future carbon revenue. A June 2026 baseline study surveyed 200 beneficiary farmers to find out how many trees actually survive — and why.' },
+          { type: 'stat', number: '200', label: 'Farmers surveyed across two regions', detail: 'Central (Mityana, Wakiso) and Southwestern (Sheema, Rwampara) — 100 farmers each. 66.5% male, 33.5% female.' },
+          { type: 'h', text: 'The shade species distributed' },
+          { type: 'list', items: [
+            'Albizia coriaria (Mugavu / Omusisa) — a nitrogen-fixing native shade tree',
+            'Ficus mucuso (Mukunyu) — fast-growing native fig',
+            'Ficus natalensis (Mutuuba / Omutooma) — traditional bark-cloth and shade fig',
+            'Calliandra — a fast leguminous fodder and soil-improvement shrub',
+          ]},
+          { type: 'callout', text: 'Why measure survival at all? A tree that dies in its first dry season stores no carbon, casts no shade, and costs the project a seedling. Survival — not seedlings distributed — is the real unit of agroforestry success.' },
+          { type: 'p', text: 'Healthy growth was visible where farmers watered, mulched, weeded, applied manure, and protected seedlings from livestock, on favourable soils and using the recommended species. Most surviving trees showed few signs of pests or disease.' },
+        ],
+      },
+      {
+        id: 'nbs-afs-mortality',
+        title: 'Why Trees Die — Survival & Mortality',
+        content: [
+          { type: 'p', text: 'The study\'s most useful output is the list of what kills seedlings. Every cause on it is something extension and aftercare can address.' },
+          { type: 'list', items: [
+            'Prolonged drought and excessive heat — the dominant cause, tied to moisture deficit',
+            'Livestock grazing and trampling — widely reported damage',
+            'Poor planting and inadequate watering after planting',
+            'Poor handling of seedlings between distribution and planting',
+            'Termite attacks and other pest infestations',
+          ]},
+          { type: 'callout', title: 'The Ficus natalensis problem', text: 'Many farmers gave Ficus natalensis a low preference because they believed it harbours coffee pests. Whether or not the link is real, perception drives adoption — so species choice and farmer sensitisation matter as much as agronomy.' },
+          { type: 'stat', number: '~80%', label: 'Reported limited gap-filling', detail: 'Most farmers did not replace dead seedlings, so early mortality compounds into permanently thin tree cover unless gap-filling is actively promoted.' },
+          { type: 'highlight', text: 'Drought, livestock, poor planting, termites — none of these are mysteries. They are a training and aftercare checklist.' },
+        ],
+      },
+      {
+        id: 'nbs-afs-aftercare',
+        title: 'Establishment & Aftercare That Works',
+        content: [
+          { type: 'p', text: 'The same study points straight to what keeps trees alive. Treat these as the standard package whenever seedlings are distributed.' },
+          { type: 'list', items: [
+            'Plant at the start of a reliable rainy season — timing is the cheapest survival insurance',
+            'Mulch around the seedling to conserve soil moisture through dry spells',
+            'Water during establishment, especially in the first dry season',
+            'Weed and apply manure to give the young tree a competitive start',
+            'Protect from livestock — physical guards plus community grazing by-laws where damage clusters',
+            'Manage termites and pests early through detection and control',
+            'Prune, pollard and coppice mature trees to manage shade and renew growth',
+            'Gap-fill promptly — distribute replacement seedlings of the recommended size for dead ones',
+          ]},
+          { type: 'callout', text: 'Match the system to the context: shade trees over coffee and cocoa, boundary and alley planting on open cropland, silvopasture on grazing land, woodlots and riparian buffers where fuel demand or water protection is the priority.' },
+          { type: 'highlight', text: 'Survival is made, not distributed. Right species, right season, mulch, water, protect, gap-fill — that is the whole game.' },
+        ],
+      },
+    ],
+    interactive: {
+      type: 'match-value',
+      title: 'Match the Agroforestry System to the Situation',
+      pairs: [
+        { value: 'SHADE-TREE SYSTEM', behaviour: 'A coffee smallholder wants cooler microclimate and carbon income over the same plot.' },
+        { value: 'BOUNDARY & ALLEY PLANTING', behaviour: 'A farmer on open cropland needs poles, a windbreak, and leaf litter between crop rows.' },
+        { value: 'SILVOPASTURE', behaviour: 'A livestock keeper wants shade for animals and fodder while holding soil on grazing land.' },
+        { value: 'RIPARIAN BUFFER', behaviour: 'A community wants to filter run-off and stabilise the banks of a stream crossing the farms.' },
+      ],
+    },
+    quiz: [
+      { q: 'Agroforestry is best described as:', options: ['Replacing crops with forest', 'Deliberately integrating trees with crops or livestock', 'Clearing trees for more cropland', 'Growing trees only in plantations'], answer: 1 },
+      { q: 'The Harvesting Carbon baseline surveyed how many farmers?', options: ['20', '200', '2,000', '50'], answer: 1 },
+      { q: 'Which is a shade species distributed by the project?', options: ['Eucalyptus only', 'Albizia coriaria (Mugavu)', 'Pine', 'Maize'], answer: 1 },
+      { q: 'The dominant cause of seedling death was:', options: ['Too much fertiliser', 'Prolonged drought and excessive heat', 'Over-watering', 'Excess shade'], answer: 1 },
+      { q: 'Why did many farmers give Ficus natalensis low preference?', options: ['It grows too slowly', 'They believed it harbours coffee pests', 'It needs no water', 'It produces no shade'], answer: 1 },
+      { q: 'About 80% of farmers reported limited:', options: ['Watering', 'Gap-filling (replacing dead seedlings)', 'Harvesting', 'Pruning'], answer: 1 },
+      { q: 'The cheapest survival insurance is:', options: ['Planting in the dry season', 'Planting at the start of a reliable rainy season', 'Skipping mulch', 'Avoiding manure'], answer: 1 },
+      { q: 'Silvopasture combines trees with:', options: ['Coffee', 'Pasture and livestock', 'Rice paddies', 'Riverbanks only'], answer: 1 },
+      { q: 'The real unit of agroforestry success is:', options: ['Seedlings distributed', 'Seedlings that survive', 'Number of species', 'Hectares cleared'], answer: 1 },
+      { q: 'A riparian buffer is used to:', options: ['Shade coffee', 'Filter run-off and stabilise river banks', 'Feed livestock', 'Produce charcoal'], answer: 1 },
+    ],
+  },
+  {
+    id: 'nbs-soil-health',
+    title: 'Soil Health Management',
+    subtitle: 'The living foundation',
+    category: 'Climate & NRM',
+    icon: MapPin,
+    duration: '25 min',
+    description: 'Soil is the foundation of every productive, climate-resilient farm — and across East Africa it is under threat. This course covers the four pillars of soil health, what degrades soil, and the practices that rebuild organic matter, structure, biology and fertility on a smallholding.',
+    lessons: [
+      {
+        id: 'nbs-sh-foundation',
+        title: 'Why Soil Health Is the Foundation',
+        content: [
+          { type: 'p', text: 'Healthy soil is alive. A teaspoon can hold billions of microorganisms that cycle nutrients, build structure, and feed plants. When soil health declines, every other investment — seed, fertiliser, irrigation — delivers less. When it improves, the whole farm becomes more productive and more resilient.' },
+          { type: 'stat', number: 'Over 40%', label: 'Of East African soils are degraded', detail: 'Erosion, nutrient mining and loss of organic matter undermine yields and make farms far more vulnerable to drought and flood.' },
+          { type: 'list', items: [
+            'Healthy soil holds more water — a buffer against erratic rainfall',
+            'It releases nutrients steadily, cutting reliance on bought fertiliser',
+            'It resists erosion, keeping topsoil and carbon on the farm',
+            'It supports the biology that suppresses pests and disease',
+          ]},
+          { type: 'highlight', text: 'You are not growing crops. You are growing soil — the crops follow.' },
+        ],
+      },
+      {
+        id: 'nbs-sh-pillars',
+        title: 'The Four Pillars of Soil Health',
+        content: [
+          { type: 'p', text: 'Soil health rests on four interacting properties. Manage all four, not just fertility.' },
+          { type: 'value', title: 'ORGANIC MATTER', text: 'Decomposed plant and animal material — the engine of fertility, water-holding and structure. Built by compost, manure, mulch, cover crops and tree litter; destroyed by burning residues and bare-soil tillage.' },
+          { type: 'value', title: 'STRUCTURE', text: 'How soil particles bind into crumbs with pore space for air, water and roots. Good structure resists compaction and erosion. Protected by cover, roots and minimum tillage.' },
+          { type: 'value', title: 'BIOLOGY', text: 'The microbes, fungi and earthworms that cycle nutrients and bind soil. Fed by organic matter and living roots; harmed by over-tillage and broad-spectrum chemicals.' },
+          { type: 'value', title: 'FERTILITY & pH', text: 'The supply and balance of nutrients, and a pH in the crop\'s window. Managed by integrated nutrient management — organic inputs first, targeted mineral inputs to fill the gap.' },
+          { type: 'callout', text: 'These pillars reinforce each other. Organic matter builds structure, structure protects biology, biology releases fertility. Push one and the others follow.' },
+        ],
+      },
+      {
+        id: 'nbs-sh-degradation',
+        title: 'What Degrades Soil — and How to Stop It',
+        content: [
+          { type: 'p', text: 'Most soil degradation on smallholdings comes from a few avoidable practices. Naming them is the first step to reversing them.' },
+          { type: 'list', items: [
+            'Burning crop residues — destroys organic matter and the carbon it holds',
+            'Continuous cropping without rotation or rest — mines nutrients faster than they return',
+            'Excessive tillage — breaks structure, exposes carbon, accelerates erosion',
+            'Leaving soil bare — sun, wind and rain strip topsoil and dry it out',
+            'Over-reliance on inorganic fertiliser alone — feeds the crop but starves the soil biology',
+          ]},
+          { type: 'callout', text: 'Bare, burned, over-tilled soil is the default in many places — and it is a slow withdrawal from a bank account no one is paying back into. Every practice in the next lesson is a deposit.' },
+        ],
+      },
+      {
+        id: 'nbs-sh-building',
+        title: 'Building Soil Health on a Smallholding',
+        content: [
+          { type: 'p', text: 'Rebuilding soil health does not require new land or big money — it requires changing how the existing land is treated. These practices, covered in depth across the other courses in this cluster, work together.' },
+          { type: 'list', items: [
+            'Keep the soil covered — mulch and cover crops protect against sun, rain and erosion',
+            'Add organic matter — compost, manure and biochar feed the soil, not just the crop',
+            'Disturb the soil less — minimum tillage protects structure and biology',
+            'Rotate and diversify crops — different roots and residues build different strengths',
+            'Integrate trees and livestock — agroforestry litter and managed manure cycle nutrients',
+            'Manage fertility in an integrated way — organic inputs first, targeted mineral inputs to fill the gap',
+          ]},
+          { type: 'callout', title: 'Reading your soil', text: 'You can monitor without a lab: a dark crumbly topsoil that holds together when moist, earthworms when you dig, water that soaks in rather than running off, and roots that spread freely all signal improving health. A simple pH test keeps fertility decisions honest.' },
+          { type: 'highlight', text: 'Cover it, feed it, disturb it less, diversify it. Four habits turn a withdrawal into a deposit.' },
+        ],
+      },
+    ],
+    interactive: {
+      type: 'spelling-sort',
+      title: 'Soil-Building vs. Soil-Degrading Practices',
+      pairs: [
+        { correct: 'Mulching bare soil', incorrect: 'Burning crop residues' },
+        { correct: 'Adding compost and manure', incorrect: 'Inorganic fertiliser alone' },
+        { correct: 'Minimum tillage', incorrect: 'Repeated deep tillage' },
+        { correct: 'Crop rotation', incorrect: 'Continuous monocropping' },
+        { correct: 'Cover cropping', incorrect: 'Leaving soil bare' },
+        { correct: 'Integrating tree litter', incorrect: 'Clearing all vegetation' },
+      ],
+    },
+    quiz: [
+      { q: 'Roughly what share of East African soils are degraded?', options: ['Under 5%', 'Over 40%', 'Exactly 100%', 'None'], answer: 1 },
+      { q: 'Which is a pillar of soil health?', options: ['Bare ground', 'Organic matter', 'Residue burning', 'Compaction'], answer: 1 },
+      { q: 'Soil organic matter is built by:', options: ['Burning residues', 'Compost, manure, mulch and cover crops', 'Deep tillage', 'Leaving soil bare'], answer: 1 },
+      { q: 'Good soil structure provides:', options: ['No pore space', 'Pore space for air, water and roots', 'More compaction', 'Less water'], answer: 1 },
+      { q: 'Soil biology is harmed by:', options: ['Organic matter', 'Living roots', 'Over-tillage and broad-spectrum chemicals', 'Mulch'], answer: 2 },
+      { q: 'Which practice DEGRADES soil?', options: ['Mulching', 'Burning crop residues', 'Cover cropping', 'Composting'], answer: 1 },
+      { q: 'Integrated nutrient management means:', options: ['Mineral fertiliser only', 'Organic inputs first, targeted mineral inputs to fill the gap', 'No nutrients at all', 'Burning for ash'], answer: 1 },
+      { q: 'Healthy soil helps against erratic rainfall because it:', options: ['Repels water', 'Holds more water', 'Dries faster', 'Erodes more'], answer: 1 },
+      { q: 'A simple field sign of improving soil is:', options: ['No earthworms', 'Run-off instead of infiltration', 'Earthworms and dark crumbly topsoil', 'Pale compacted crust'], answer: 2 },
+      { q: 'The four pillars are organic matter, structure, biology and:', options: ['Fertility & pH', 'Tillage depth', 'Bare cover', 'Burning'], answer: 0 },
+    ],
+  },
+  {
+    id: 'nbs-biochar-soil',
+    title: 'Biochar for Soil Improvement',
+    subtitle: 'Water, nutrients & microbes',
+    category: 'Climate & NRM',
+    icon: Leaf,
+    duration: '25 min',
+    description: 'How biochar improves soil — water-holding capacity, nutrient retention and microbial habitat — and the one rule that decides whether it helps or hurts. Grounded in what the Mabale Growers Tea Factory biochar pilot in Western Uganda taught us about results and variability. (For making biochar, see Biochar Production & Application.)',
+    lessons: [
+      {
+        id: 'nbs-bcs-how',
+        title: 'How Biochar Improves Soil',
+        content: [
+          { type: 'p', text: 'Biochar is charcoal made from biomass and buried in soil as a permanent amendment. Unlike fertiliser, it is not a nutrient — it is a structure that makes the soil work better, and it stays for decades to centuries. It improves soil in three main ways.' },
+          { type: 'value', title: 'WATER-HOLDING CAPACITY', text: 'Biochar is highly porous, acting like a sponge that holds water in the root zone and releases it slowly. On sandy or drought-prone soils this directly buffers crops against erratic rainfall.' },
+          { type: 'value', title: 'NUTRIENT RETENTION (CEC)', text: 'Its high cation-exchange capacity grips nutrients that would otherwise leach away, keeping them available to roots — which is also why it must be charged before use (next lesson).' },
+          { type: 'value', title: 'MICROBIAL HABITAT', text: 'The pore network is housing for soil microbes and fungi. A thriving microbial community cycles nutrients and supports the biology pillar of soil health.' },
+          { type: 'callout', text: 'Biochar does not feed the crop — it builds the house the crop lives in. Water storage, nutrient holding, microbial habitat: structure, not fertiliser.' },
+        ],
+      },
+      {
+        id: 'nbs-bcs-inoculation',
+        title: 'The Inoculation Rule — Charge Before You Bury',
+        content: [
+          { type: 'p', text: 'This is the single most important lesson, and the one most often skipped. Raw biochar straight from the kiln is alkaline and nutrient-empty. Bury it raw and its hunger for nutrients pulls nitrogen out of the soil that the crop needs — yields drop, and farmers blame the biochar.' },
+          { type: 'list', items: [
+            'Pre-load (inoculate) biochar with fertiliser, manure or compost BEFORE applying it',
+            'Charged biochar arrives in the soil already nutrient-rich, so it gives rather than takes',
+            'For acid-loving crops like tea, buffer the alkalinity — the Mabale pilot used sulphate-based fertiliser to hold soil at pH 4.5-5.5',
+            'Never apply raw, uninoculated biochar to a growing crop',
+          ]},
+          { type: 'callout', text: 'Inoculate before application, never after. Once biochar is in the ground it will take from whatever is around it. Charge it first and that problem disappears.' },
+          { type: 'highlight', text: 'Raw biochar steals nitrogen. Charged biochar delivers it. Same material, opposite result — the difference is one step.' },
+        ],
+      },
+      {
+        id: 'nbs-bcs-results',
+        title: 'Reading the Results — Variability Is the Data',
+        content: [
+          { type: 'p', text: 'The Mabale tea pilot applied inoculated biochar across 9 plots, each paired with a matched control. The average Year 1 result was a clear gain — but the spread between sites is the real lesson.' },
+          { type: 'stat', number: '+14.56%', label: 'Average Year 1 greenleaf yield vs control', detail: 'A meaningful first-cycle gain — but an average that hides a wide range.' },
+          { type: 'stat', number: '+62.84%', label: 'Best site (Kyakatara)', detail: 'The upside case where soil and management lined up.' },
+          { type: 'stat', number: '-14.58%', label: 'Worst site (Mitoma)', detail: 'The biochar plot under-performed its control — a reminder that site matters.' },
+          { type: 'list', items: [
+            'Baseline fertility — biochar adds more on poor soils than already-rich ones',
+            'Soil organic matter, drainage and rainfall all shift the response',
+            'Inoculation quality — a missed step can wreck a plot',
+            'Most soil amendments need several cycles to stabilise — Year 1 is not the verdict',
+          ]},
+          { type: 'callout', text: 'Quote the average AND the range. Credibility lives in the spread — pretending every plot gains +14.6% is how you lose a farmer\'s trust the first time their plot doesn\'t.' },
+        ],
+      },
+      {
+        id: 'nbs-bcs-fit',
+        title: 'When Biochar Helps Most',
+        content: [
+          { type: 'p', text: 'Biochar is not a cure-all. It pays off most where the soil constraints it addresses are real, and it should always go in with a plan to measure.' },
+          { type: 'list', items: [
+            'Sandy or low-organic-matter soils that struggle to hold water and nutrients',
+            'Drought-prone fields where extra moisture storage changes the season',
+            'High-input crops where nutrient retention cuts a recurring fertiliser bill',
+            'Sites where a free feedstock (prunings, husks, residues) makes production cheap',
+          ]},
+          { type: 'callout', title: 'Always pair with a control', text: 'Recommend biochar with a matched control plot of equal area and management on the same farm. Without it, a good or bad season gets wrongly credited to the biochar. No control, no evidence.' },
+          { type: 'highlight', text: 'Right soil, charged first, paired with a control, judged over years not months. That is biochar done responsibly.' },
+        ],
+      },
+    ],
+    interactive: {
+      type: 'scenario',
+      title: 'Biochar Decisions',
+      scenarios: [
+        {
+          situation: 'A farmer is excited to spread fresh biochar straight from the kiln onto her growing maize.',
+          options: [
+            { text: 'Encourage her — fresh biochar is most potent.', correct: false, feedback: 'Raw biochar immobilises soil nitrogen and can cut yield. It must be charged first.' },
+            { text: 'Have her inoculate it with manure or compost first, then apply.', correct: true, feedback: 'Correct. Charging biochar before burial means it delivers nutrients instead of stealing them.' },
+            { text: 'Tell her biochar never works on maize.', correct: false, feedback: 'Biochar can help many crops — the issue is the missing inoculation step, not the crop.' },
+          ],
+        },
+        {
+          situation: 'One demonstration plot showed a biochar yield gain; an extension officer wants to promise every farmer the same percentage.',
+          options: [
+            { text: 'Promise the headline gain to drive adoption.', correct: false, feedback: 'Mabale ranged from +63% to -15% across sites. Over-promising destroys credibility on the first plot that underperforms.' },
+            { text: 'Share the average and the range, and pair each rollout with a control plot.', correct: true, feedback: 'Correct. Honesty about variability plus matched controls is what makes the practice scalable.' },
+            { text: 'Drop biochar because results vary.', correct: false, feedback: 'Variability is expected and informative — the answer is honest framing and good site selection, not abandonment.' },
+          ],
+        },
+      ],
+    },
+    quiz: [
+      { q: 'Biochar improves soil mainly as a:', options: ['Fast-release fertiliser', 'Structure (water, nutrients, microbes)', 'Pesticide', 'Herbicide'], answer: 1 },
+      { q: 'Biochar holds water because it is:', options: ['Dense and solid', 'Highly porous like a sponge', 'Water-repellent', 'Made of plastic'], answer: 1 },
+      { q: 'High cation-exchange capacity lets biochar:', options: ['Leach nutrients away', 'Grip and retain nutrients', 'Kill microbes', 'Lower yields'], answer: 1 },
+      { q: 'Raw, uninoculated biochar applied to a crop will:', options: ['Always boost yield', 'Temporarily immobilise soil nitrogen', 'Do nothing', 'Add nitrogen instantly'], answer: 1 },
+      { q: 'To fix this, you should:', options: ['Apply more raw biochar', 'Charge (inoculate) it before applying', 'Burn it again', 'Avoid all crops'], answer: 1 },
+      { q: 'For acid-loving tea, Mabale buffered pH using:', options: ['Plain urea', 'Sulphate-based fertiliser', 'Lime', 'Wood ash'], answer: 1 },
+      { q: 'Mabale\'s average Year 1 yield gain was about:', options: ['+1%', '+14.6%', '+63%', '-15%'], answer: 1 },
+      { q: 'The wide per-site range (+63% to -15%) tells us:', options: ['Biochar never works', 'Site and management strongly affect results', 'Controls are unnecessary', 'Results are fake'], answer: 1 },
+      { q: 'Biochar helps MOST on:', options: ['Already rich soils', 'Sandy, low-organic-matter, drought-prone soils', 'Flooded paddies', 'Paved ground'], answer: 1 },
+      { q: 'Every biochar rollout should be paired with:', options: ['A bigger kiln', 'A matched control plot', 'More urea', 'A new crop'], answer: 1 },
+    ],
+  },
+  {
+    id: 'nbs-composting',
+    title: 'Composting & Nutrient Cycling',
+    subtitle: 'Closing the nutrient loop',
+    category: 'Climate & NRM',
+    icon: RotateCcw,
+    duration: '25 min',
+    description: 'Turning farm residues, manures and household organics into compost to close the nutrient loop and cut reliance on inorganic fertiliser. Grounded in Solidaridad ECA\'s accelerated coffee-pulp composting work at Mubuku (Starbucks C.A.F.E. Practices), with the Superagric and Indigenous Microorganisms (IMO) recipes.',
+    lessons: [
+      {
+        id: 'nbs-comp-why',
+        title: 'Why Compost — Closing the Loop',
+        content: [
+          { type: 'p', text: 'Every harvest removes nutrients from the soil. Composting returns them: it converts crop residues, manure and household organics into a stable soil amendment that rebuilds organic matter and feeds the soil biology. Instead of a one-way export of fertility, the farm runs a loop.' },
+          { type: 'list', items: [
+            'Recycles nutrients back to the soil, cutting the inorganic fertiliser bill',
+            'Builds soil organic matter, structure and water-holding capacity',
+            'Diverts organic waste — like coffee pulp — from rotting in heaps and emitting methane',
+            'Turns a disposal problem into a free input',
+          ]},
+          { type: 'callout', title: 'The coffee-pulp problem', text: 'A coffee washing station can produce several tonnes of pulp a day. Dumped in a heap it goes anaerobic — rotting without oxygen, releasing methane (a potent greenhouse gas) and acidic leachate. Composted with air, the same biomass becomes a soil amendment and releases far less methane.' },
+          { type: 'highlight', text: 'Waste is just a resource in the wrong place. Compost puts it back where it belongs — in the soil.' },
+        ],
+      },
+      {
+        id: 'nbs-comp-process',
+        title: 'The Composting Process & C:N Balance',
+        content: [
+          { type: 'p', text: 'Composting is controlled aerobic decomposition — microbes breaking down organic matter WITH oxygen. Get four things right and they do the work for you: the right mix of materials, air, moisture, and time.' },
+          { type: 'value', title: 'GREENS + BROWNS (C:N)', text: 'Balance nitrogen-rich "greens" (fresh pulp, manure, weeds, kitchen waste) with carbon-rich "browns" (dry leaves, straw, husks). Too much green goes slimy and smelly; too much brown stalls. Roughly equal volumes is a safe start.' },
+          { type: 'value', title: 'AIR (AEROBIC)', text: 'Turn the pile regularly so oxygen reaches the microbes. Air is what keeps decomposition aerobic — producing CO2 and heat instead of methane and stench.' },
+          { type: 'value', title: 'MOISTURE', text: 'Damp like a wrung-out sponge — not dry, not waterlogged. Too dry and microbes stall; too wet and the pile goes anaerobic.' },
+          { type: 'value', title: 'HEAT & TIME', text: 'A working pile heats up as microbes multiply. Heat speeds decomposition and kills weed seeds and pathogens. Maturity is reached when it cools, darkens and smells earthy.' },
+          { type: 'callout', text: 'Smell is your dashboard. Earthy and mild means aerobic and healthy. Sour, rotten or ammonia means the pile has gone anaerobic or out of balance — turn it and add browns.' },
+        ],
+      },
+      {
+        id: 'nbs-comp-accelerated',
+        title: 'Accelerated Composting — The Mubuku Pilot',
+        content: [
+          { type: 'p', text: 'Left alone, coffee pulp can take many months to break down. The Mubuku pilot (Starbucks C.A.F.E. Practices, Solidaridad ECA) tested two microbial accelerators that cut that to weeks, so washing stations can keep up with daily pulp throughput.' },
+          { type: 'value', title: 'RECIPE A — SUPERAGRIC', text: 'A commercial compost accelerator. Dilution 1 litre Superagric to 20 litres non-chlorinated water, treating about 1-1.5 tonnes of pulp. Matures in about 5 weeks — roughly one-sixth of natural decomposition time. The faster of the two.' },
+          { type: 'value', title: 'RECIPE B — IMO (Indigenous Microorganisms)', text: 'A locally-cultured microbial inoculant. Slightly slower at about 6 weeks, but lower-cost and available where commercial accelerators do not reach. Best for cooperative-scale sites without a supply contract.' },
+          { type: 'callout', text: 'Use non-chlorinated water. Chlorine kills the very microbes the accelerator depends on — one of the most common ways a pile fails. Honour the dose, too: 1 litre treats 1-1.5 tonnes, not 3.' },
+          { type: 'highlight', text: 'Superagric for speed and supply, IMO for cost and local availability. Mubuku validated both so each site can choose by budget and access.' },
+        ],
+      },
+      {
+        id: 'nbs-comp-quality',
+        title: 'Quality, Maturity & Application',
+        content: [
+          { type: 'p', text: 'Immature compost can scorch crops and rob the soil of nitrogen as it finishes decomposing. Apply it only when it is ready, and apply it well.' },
+          { type: 'list', items: [
+            'Maturity signs: dark colour, mild earthy (fruity) smell, crumbly texture, cooled pile',
+            'Pile management: build 45-60 cm tall, keep moist, turn every few days for aeration',
+            'Apply to the root zone and mulch — do not leave compost drying in the sun',
+            'Never apply raw, hot or sour compost directly to a growing crop',
+          ]},
+          { type: 'callout', text: 'The same accelerated-composting principle stretches beyond coffee pulp — to cocoa husk, banana residue, weeds, manure and household organics. Wherever organic waste piles up, the loop can be closed.' },
+          { type: 'highlight', text: 'Balanced mix, kept airy and damp, accelerated if you need speed, applied only when mature. Free fertility, closed loop, less methane.' },
+        ],
+      },
+    ],
+    interactive: {
+      type: 'match-value',
+      title: 'Compost: Get the Pile Right',
+      pairs: [
+        { value: 'GREEN (nitrogen-rich)', behaviour: 'Fresh coffee pulp, animal manure, green weeds, kitchen scraps.' },
+        { value: 'BROWN (carbon-rich)', behaviour: 'Dry leaves, straw, husks and woody trimmings.' },
+        { value: 'SUPERAGRIC RECIPE', behaviour: '1L to 20L non-chlorinated water, treats ~1.5 t pulp, matures in ~5 weeks.' },
+        { value: 'IMO RECIPE', behaviour: 'Locally-cultured microbes, lower cost, matures in ~6 weeks where commercial accelerators are scarce.' },
+        { value: 'ANAEROBIC FAILURE', behaviour: 'A sour, rotten-smelling, waterlogged pile that needs turning and more browns.' },
+      ],
+    },
+    quiz: [
+      { q: 'Composting helps the farm mainly by:', options: ['Removing all nutrients', 'Returning nutrients and building organic matter', 'Increasing fertiliser bills', 'Drying the soil'], answer: 1 },
+      { q: 'Dumped coffee pulp in a heap goes anaerobic and releases:', options: ['Oxygen', 'Methane', 'Nitrogen gas only', 'Nothing'], answer: 1 },
+      { q: 'Composting is decomposition that is:', options: ['Anaerobic (no air)', 'Aerobic (with air)', 'Frozen', 'Chemical-only'], answer: 1 },
+      { q: '"Greens" in a compost pile are:', options: ['Carbon-rich dry material', 'Nitrogen-rich fresh material', 'Plastic', 'Stones'], answer: 1 },
+      { q: 'Correct compost moisture is like:', options: ['A dry bone', 'A wrung-out sponge', 'A flooded bucket', 'Powder'], answer: 1 },
+      { q: 'The Superagric dilution is:', options: ['1L to 2L water', '1L to 20L non-chlorinated water', '1L to 200L water', 'Undiluted'], answer: 1 },
+      { q: 'Superagric matures pulp in about:', options: ['5 days', '5 weeks', '5 months', '5 years'], answer: 1 },
+      { q: 'IMO compared with Superagric is:', options: ['Faster and pricier', 'Slightly slower but lower-cost and locally available', 'Identical', 'Useless'], answer: 1 },
+      { q: 'Why use non-chlorinated water?', options: ['Chlorine speeds composting', 'Chlorine kills the microbes the accelerator needs', 'It is cheaper', 'No reason'], answer: 1 },
+      { q: 'Mature compost smells:', options: ['Sour and rotten', 'Mild and earthy', 'Like ammonia', 'Of chlorine'], answer: 1 },
+    ],
+  },
+  {
+    id: 'nbs-regenerative-ag',
+    title: 'Regenerative Agriculture Practices',
+    subtitle: 'Rebuilding ecosystem function',
+    category: 'Climate & NRM',
+    icon: Leaf,
+    duration: '25 min',
+    description: 'Regenerative agriculture goes beyond sustaining the farm to actively rebuilding it — soil, water cycle, biodiversity and carbon. This course covers the core principles, the practices that deliver them (cover cropping, minimum tillage, rotations, integrated livestock), and how to support a smallholder through the transition.',
+    lessons: [
+      {
+        id: 'nbs-ra-what',
+        title: 'What Regenerative Agriculture Is',
+        content: [
+          { type: 'p', text: 'Sustainable farming aims to do no further harm. Regenerative farming aims to leave the land better each season — rebuilding soil organic matter, restoring the water cycle, increasing biodiversity, and drawing carbon back into the ground. It is less a fixed recipe than a set of principles applied to each context.' },
+          { type: 'value', title: 'MINIMISE SOIL DISTURBANCE', text: 'Less tillage protects soil structure, the fungal networks, and the carbon held in the ground.' },
+          { type: 'value', title: 'KEEP THE SOIL COVERED', text: 'Living plants or mulch shield soil from sun, rain and erosion and feed the biology below.' },
+          { type: 'value', title: 'KEEP LIVING ROOTS IN THE GROUND', text: 'Roots feed soil microbes year-round; bare fallow starves them. Cover crops fill the gaps between cash crops.' },
+          { type: 'value', title: 'MAXIMISE DIVERSITY', text: 'Diverse crops, rotations and integrated trees and livestock build resilience the way a natural ecosystem does.' },
+          { type: 'highlight', text: 'Work with natural systems, not against them — that single idea is the heart of regenerative agriculture.' },
+        ],
+      },
+      {
+        id: 'nbs-ra-practices',
+        title: 'The Core Practices',
+        content: [
+          { type: 'p', text: 'The principles become real through a handful of practices that smallholders can adopt incrementally. Most reinforce each other and link to the other courses in this cluster.' },
+          { type: 'pathway', title: 'COVER CROPPING', text: 'Grow legumes or grasses between main crops to protect and feed the soil, fix nitrogen, and smother weeds rather than leaving fields bare.' },
+          { type: 'pathway', title: 'MINIMUM / NO TILLAGE', text: 'Plant with the least soil disturbance possible to preserve structure, biology and carbon, and to cut erosion.' },
+          { type: 'pathway', title: 'CROP ROTATION & DIVERSITY', text: 'Alternate crop families to break pest and disease cycles, balance nutrient demands, and spread risk across the season.' },
+          { type: 'pathway', title: 'INTEGRATED LIVESTOCK', text: 'Manage grazing and cycle manure back to the land so animals build fertility instead of degrading it.' },
+          { type: 'pathway', title: 'ORGANIC INPUTS & AGROFORESTRY', text: 'Compost, manure, biochar and tree litter feed the soil; integrated trees add shade, roots, litter and carbon.' },
+          { type: 'callout', text: 'No farmer needs to adopt all of these at once. Start with the one or two that fit the constraint the farm feels most — bare soil, erosion, a high fertiliser bill — and build from there.' },
+        ],
+      },
+      {
+        id: 'nbs-ra-why',
+        title: 'Why It Works — Soil, Water, Carbon',
+        content: [
+          { type: 'p', text: 'Regenerative practices are not just virtuous — they pay off in the things a farmer cares about: yield stability, lower input costs, and resilience to climate shocks.' },
+          { type: 'list', items: [
+            'Soil: rising organic matter rebuilds fertility and cuts the bought-fertiliser bill',
+            'Water: covered, structured soil absorbs and holds rain — buffering both drought and flood',
+            'Biodiversity: diverse systems suppress pests and reduce crop failure risk',
+            'Carbon: healthier soils and integrated trees pull carbon down, opening carbon-finance opportunities',
+            'Resilience: diversified, living systems bend rather than break under climate stress',
+          ]},
+          { type: 'callout', text: 'The same field that holds more water in a drought also drains better in a flood, because the fix for both is the same: living, covered, well-structured soil.' },
+        ],
+      },
+      {
+        id: 'nbs-ra-transition',
+        title: 'Transitioning a Smallholding',
+        content: [
+          { type: 'p', text: 'The shift to regenerative practice is a journey, not a switch. Soils take seasons to rebuild, and a poorly-managed transition can dip yields before they recover — so support and sequencing matter.' },
+          { type: 'list', items: [
+            'Start small — trial on one plot with a comparison, learn, then scale',
+            'Sequence sensibly — keep the soil covered and add organic matter early, reduce tillage as structure improves',
+            'Expect a transition period — soil biology and organic matter rebuild over several seasons',
+            'Pair practices — cover crops plus reduced tillage plus compost compound faster than any one alone',
+            'Track simple indicators — soil colour, infiltration, earthworms, input costs and yield stability',
+          ]},
+          { type: 'callout', title: 'Coaching the farmer', text: 'Frame regenerative agriculture in the farmer\'s own terms — a lower fertiliser bill, fields that survive the dry spell, soil that no longer washes away. The ecology follows the economics they can feel.' },
+          { type: 'highlight', text: 'Start small, keep it covered, disturb it less, diversify, and give it time. Regeneration is a direction of travel, not a single leap.' },
+        ],
+      },
+    ],
+    interactive: {
+      type: 'spelling-sort',
+      title: 'Regenerative vs. Conventional Practice',
+      pairs: [
+        { correct: 'Cover cropping', incorrect: 'Bare fallow between crops' },
+        { correct: 'Minimum tillage', incorrect: 'Repeated deep ploughing' },
+        { correct: 'Crop rotation & diversity', incorrect: 'Continuous monoculture' },
+        { correct: 'Cycling manure to the land', incorrect: 'Dumping or burning residues' },
+        { correct: 'Keeping living roots year-round', incorrect: 'Long bare fallow' },
+        { correct: 'Integrating trees and livestock', incorrect: 'Clearing all vegetation' },
+      ],
+    },
+    quiz: [
+      { q: 'Regenerative agriculture aims to:', options: ['Do no further harm only', 'Leave the land better each season', 'Maximise tillage', 'Remove all trees'], answer: 1 },
+      { q: 'Which is a core regenerative principle?', options: ['Maximise soil disturbance', 'Keep the soil covered', 'Keep soil bare', 'Burn all residues'], answer: 1 },
+      { q: 'Cover crops are grown to:', options: ['Leave fields bare', 'Protect and feed the soil between main crops', 'Increase erosion', 'Kill soil microbes'], answer: 1 },
+      { q: 'Minimum tillage protects:', options: ['Only weeds', 'Soil structure, biology and carbon', 'Erosion rates', 'Bare ground'], answer: 1 },
+      { q: 'Crop rotation helps by:', options: ['Repeating one crop forever', 'Breaking pest and disease cycles', 'Removing diversity', 'Raising input costs'], answer: 1 },
+      { q: 'Integrated livestock should:', options: ['Degrade the land', 'Cycle manure back to build fertility', 'Only compact soil', 'Replace all crops'], answer: 1 },
+      { q: 'Regenerative soils handle climate extremes because they:', options: ['Repel all water', 'Absorb and hold rain — buffering drought and flood', 'Dry out faster', 'Erode more'], answer: 1 },
+      { q: 'Healthier soils and integrated trees also:', options: ['Release more carbon', 'Pull carbon down, opening carbon-finance options', 'Have no climate effect', 'Reduce biodiversity'], answer: 1 },
+      { q: 'The transition to regenerative practice is:', options: ['Instant', 'A journey over several seasons', 'Impossible', 'Only for large farms'], answer: 1 },
+      { q: 'A sensible way to start is to:', options: ['Convert the whole farm overnight', 'Trial one plot with a comparison, then scale', 'Stop farming', 'Increase tillage first'], answer: 1 },
+    ],
+  },
 
   // Cluster 4 — Climate Adaptation and Resilience
   {
@@ -10517,6 +10987,19 @@ const CLUSTERS = [
 
 
 // ===== Storage helpers (Firestore-backed, per-user) =====
+async function loadAchievements(uid) {
+  if (!uid) return [];
+  try {
+    const snap = await getDocs(collection(db, 'users', uid, 'achievements'));
+    const out = [];
+    snap.forEach(d => out.push({ id: d.id, ...d.data() }));
+    return out;
+  } catch (e) {
+    console.error('loadAchievements failed', e);
+    return [];
+  }
+}
+
 async function loadProgress(uid) {
   if (!uid) return {};
   try {
@@ -10733,6 +11216,7 @@ export default function App() {
   const [userUid, setUserUid] = useState('');
   const [userRole, setUserRole] = useState(ROLES.LEARNER);
   const [myAssignments, setMyAssignments] = useState([]);
+  const [myAchievements, setMyAchievements] = useState([]);
   const [showNamePrompt, setShowNamePrompt] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [activeCategory, setActiveCategory] = useState('All');
@@ -10754,15 +11238,17 @@ export default function App() {
         // Hydrate per-user data in the background so Firestore round-trips
         // don't gate the first paint.
         (async () => {
-          const [p, storedName, userDoc, asgn] = await Promise.all([
+          const [p, storedName, userDoc, asgn, ach] = await Promise.all([
             loadProgress(uid),
             loadUserName(uid),
             loadOrInitUserDoc(uid, email),
             listAssignmentsForUser(uid).catch(() => []),
+            loadAchievements(uid),
           ]);
           setProgress(p);
           setUserRole(userDoc.role || ROLES.LEARNER);
           setMyAssignments(asgn);
+          setMyAchievements(ach);
           if (storedName) {
             setUserName(storedName);
           } else if (derived) {
@@ -10778,6 +11264,7 @@ export default function App() {
         setUserRole(ROLES.LEARNER);
         setProgress({});
         setMyAssignments([]);
+        setMyAchievements([]);
         setLoaded(true);
       }
     });
@@ -10822,6 +11309,30 @@ export default function App() {
       const quizScore = next[courseId].quiz?.score || 0;
       issueCertificateIfFirstTime(userUid, course, quizScore);
     }
+
+    // Badge awards — fire on any progress change (course-complete badges
+    // and milestones key off completion; mastery badges key off the quiz
+    // score even when the course isn't yet 100%). Best-effort: failures
+    // here must never break the course-complete UX.
+    const liveCoursesNow = COURSES.filter(c => !c.placeholder);
+    const completedNow = liveCoursesNow.filter(c => computeCompletion(c, next[c.id])).length;
+    const allCompleteNow = completedNow === liveCoursesNow.length;
+    const ctx = {
+      courseCompletion: (id) => {
+        const cc = COURSES.find(x => x.id === id);
+        return computeCompletion(cc, next[id]);
+      },
+      allCourses: COURSES,
+      allClusters: CLUSTERS,
+      progress: next,
+      allComplete: allCompleteNow,
+      achievementIds: new Set(myAchievements.map(a => a.id || a.achievementId)),
+    };
+    awardEligibleBadges(userUid, ctx).then(newIds => {
+      if (newIds && newIds.length) {
+        loadAchievements(userUid).then(setMyAchievements);
+      }
+    }).catch(() => {});
   };
 
   const courseCompletion = (courseId) => {
@@ -10883,6 +11394,7 @@ export default function App() {
           <SidebarItem icon={BarChart3} label="Dashboard" active={page === 'dashboard'} onClick={() => navigate('dashboard')} />
           <SidebarItem icon={BookMarked} label="Course Catalog" active={page === 'catalog'} onClick={() => navigate('catalog')} />
           <SidebarItem icon={Award} label="My Certificates" active={page === 'certificates'} onClick={() => navigate('certificates')} />
+          <SidebarItem icon={Trophy} label="Achievements" active={page === 'achievements'} onClick={() => navigate('achievements')} />
           <SidebarItem icon={MessageSquare} label="Community Forum" active={page === 'forum'} onClick={() => navigate('forum')} />
           {isAdmin(userRole) && (
             <SidebarItem icon={Shield} label="Admin" active={page === 'admin'} onClick={() => navigate('admin')} />
@@ -10957,7 +11469,23 @@ export default function App() {
               onSelectCourse={goToCourse}
               onGoToCatalog={() => navigate('catalog')}
               assignments={myAssignments}
+              achievements={myAchievements}
+              onGoToAchievements={() => navigate('achievements')}
             />
+          )}
+
+          {view === 'list' && page === 'achievements' && (
+            <Suspense fallback={<div className="py-16 text-center text-sm text-gray-500">Loading achievements…</div>}>
+              <AchievementsPage
+                userName={userName}
+                allCourses={COURSES}
+                allClusters={CLUSTERS}
+                courseCompletion={courseCompletion}
+                progress={progress}
+                achievements={myAchievements}
+                allComplete={completedCount === liveCourses.length && liveCourses.length > 0}
+              />
+            </Suspense>
           )}
 
           {view === 'list' && page === 'catalog' && (
@@ -11268,7 +11796,7 @@ function NamePrompt({ onSubmit }) {
 }
 
 // ===== Dashboard Page =====
-function DashboardPage({ userName, courses, courseCompletion, completedCount, inProgressCount, onSelectCourse, onGoToCatalog, assignments = [] }) {
+function DashboardPage({ userName, courses, courseCompletion, completedCount, inProgressCount, onSelectCourse, onGoToCatalog, assignments = [], achievements = [], onGoToAchievements }) {
   const inProgressCourses = courses.filter(c => {
     const p = courseCompletion(c.id);
     return p > 0 && p < 100;
@@ -11339,6 +11867,13 @@ function DashboardPage({ userName, courses, courseCompletion, completedCount, in
         <DashStatCard icon={Award} label="Certificates Earned" value={completedCount} />
       </div>
 
+      {achievements && achievements.length > 0 && (
+        <LatestAchievementsCard
+          achievements={achievements}
+          onGoToAchievements={onGoToAchievements}
+        />
+      )}
+
       {requiredCourses.length > 0 && (
         <div className="mt-10">
           <div className="flex items-center justify-between mb-5">
@@ -11400,6 +11935,70 @@ function DashboardPage({ userName, courses, courseCompletion, completedCount, in
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// Lucide names that show up on badges → component lookup (mirrors the
+// ICONS map in AchievementsPage). Keeping it small and local — the badge
+// catalogue stores icon names as strings.
+const BADGE_ICONS = { Award, Trophy, Layers, Sparkles, CheckCircle2, Globe };
+
+function LatestAchievementsCard({ achievements, onGoToAchievements }) {
+  const latest = [...achievements]
+    .sort((a, b) => {
+      const ta = a.awardedAt?.toDate?.()?.getTime() || 0;
+      const tb = b.awardedAt?.toDate?.()?.getTime() || 0;
+      return tb - ta;
+    })
+    .slice(0, 3);
+
+  if (latest.length === 0) return null;
+
+  return (
+    <div className="mt-6 bg-white border border-gray-200 rounded-2xl p-5">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="flex items-center gap-2">
+          <Trophy size={18} className="text-black" />
+          <h3 className="text-sm md:text-base font-extrabold uppercase tracking-wider">
+            Latest Achievements
+          </h3>
+        </div>
+        <button
+          onClick={onGoToAchievements}
+          className="text-xs font-bold uppercase tracking-wider text-gray-600 hover:text-black inline-flex items-center gap-1"
+        >
+          View all <ArrowRight size={14} />
+        </button>
+      </div>
+      <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {latest.map(a => {
+          const Icon = BADGE_ICONS[a.icon] || Award;
+          const date = a.awardedAt?.toDate?.();
+          const dateStr = date
+            ? date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+            : '';
+          return (
+            <div
+              key={a.id || a.achievementId}
+              className="flex items-center gap-3 p-3 rounded-xl border border-gray-100"
+            >
+              <div
+                className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0"
+                style={{ backgroundColor: '#FFC800' }}
+              >
+                <Icon size={22} className="text-black" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-sm font-extrabold tracking-tight truncate">{a.title}</div>
+                <div className="text-[11px] text-gray-500 truncate">
+                  {dateStr ? `Earned ${dateStr}` : 'Recently earned'}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

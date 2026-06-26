@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Users as UsersIcon, Activity, GraduationCap, Clock, Award, TrendingUp } from 'lucide-react';
+import { Users as UsersIcon, Activity, GraduationCap, Clock, Award, TrendingUp, Trophy } from 'lucide-react';
 import KpiCard from './charts/KpiCard';
 import EnrollmentBarChart from './charts/EnrollmentBarChart';
 import ActivityLineChart from './charts/ActivityLineChart';
@@ -19,7 +19,7 @@ function durationToHours(d) {
 }
 
 export default function PlatformOverview({
-  loading, users, allProgress, certificates, courses, computeCompletion,
+  loading, users, allProgress, certificates, achievements = [], courses, computeCompletion,
 }) {
   const liveCourses = useMemo(() => courses.filter(c => !c.placeholder), [courses]);
 
@@ -55,8 +55,9 @@ export default function PlatformOverview({
       totalHours,
       avgCompletion,
       certificatesIssued: certificates.length,
+      badgesIssued: achievements.length,
     };
-  }, [users, allProgress, certificates, liveCourses, computeCompletion]);
+  }, [users, allProgress, certificates, achievements, liveCourses, computeCompletion]);
 
   const dau = useMemo(() => buildDauSeries(users, 30), [users]);
 
@@ -90,6 +91,7 @@ export default function PlatformOverview({
         <KpiCard icon={Activity} label="Active (7 days)" value={stats.activeLast7} sublabel="signed in this week" />
         <KpiCard icon={GraduationCap} label="Enrollments" value={stats.enrollments} sublabel="across all live courses" />
         <KpiCard icon={Award} label="Certificates issued" value={stats.certificatesIssued} />
+        <KpiCard icon={Trophy} label="Badges issued" value={stats.badgesIssued} sublabel="across all learners" />
         <KpiCard icon={Clock} label="Learning hours" value={stats.totalHours.toFixed(1)} sublabel="platform-wide (estimated)" />
         <KpiCard icon={TrendingUp} label="Avg completion" value={`${stats.avgCompletion}%`} sublabel="across active enrollments" />
       </div>

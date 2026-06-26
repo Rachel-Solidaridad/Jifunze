@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Shield, BarChart3, Users as UsersIcon, BookOpen, ClipboardCheck, RefreshCw } from 'lucide-react';
-import { listAllUsers, getAllProgress, getAllCertificates, listAllAssignments } from './queries';
+import { listAllUsers, getAllProgress, getAllCertificates, listAllAssignments, getAllAchievements } from './queries';
 import PlatformOverview from './PlatformOverview';
 import UserManagement from './UserManagement';
 import CourseAnalytics from './CourseAnalytics';
@@ -23,21 +23,24 @@ export default function AdminDashboard({ currentRole, currentUid, courses, compu
   const [allProgress, setAllProgress] = useState({});
   const [certificates, setCertificates] = useState([]);
   const [assignments, setAssignments] = useState([]);
+  const [achievements, setAchievements] = useState([]);
 
   const load = async () => {
     setLoading(true);
     setError('');
     try {
       const us = await listAllUsers();
-      const [progress, certs, asgn] = await Promise.all([
+      const [progress, certs, asgn, ach] = await Promise.all([
         getAllProgress(us),
         getAllCertificates(),
         listAllAssignments(),
+        getAllAchievements(),
       ]);
       setUsers(us);
       setAllProgress(progress);
       setCertificates(certs);
       setAssignments(asgn);
+      setAchievements(ach);
     } catch (e) {
       console.error('Admin dashboard load failed', e);
       setError(e.message || 'Failed to load admin data. Check your role and Firestore rules.');
@@ -104,6 +107,7 @@ export default function AdminDashboard({ currentRole, currentUid, courses, compu
             users={users}
             allProgress={allProgress}
             certificates={certificates}
+            achievements={achievements}
             courses={courses}
             computeCompletion={computeCompletion}
           />
@@ -114,6 +118,7 @@ export default function AdminDashboard({ currentRole, currentUid, courses, compu
             users={users}
             allProgress={allProgress}
             certificates={certificates}
+            achievements={achievements}
             courses={courses}
             computeCompletion={computeCompletion}
             currentRole={currentRole}

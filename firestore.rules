@@ -76,6 +76,16 @@ service cloud.firestore {
         allow create: if signedInSolidaridad() && request.auth.uid == uid;
         allow update, delete: if false;
       }
+
+      // Achievements (badges) are also write-once: created when a learner
+      // becomes eligible (course-completion, mastery, cluster, master,
+      // milestone). Same shape as certificates; same audit-trail property.
+      match /achievements/{achievementId} {
+        allow read: if signedInSolidaridad()
+          && (request.auth.uid == uid || isManagerOrAdmin());
+        allow create: if signedInSolidaridad() && request.auth.uid == uid;
+        allow update, delete: if false;
+      }
     }
 
     // --- /assignments/{assignmentId} ------------------------------------------

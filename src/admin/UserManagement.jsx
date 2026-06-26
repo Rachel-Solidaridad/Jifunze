@@ -35,7 +35,7 @@ function roleBadge(role) {
 }
 
 export default function UserManagement({
-  loading, users, allProgress, certificates, courses,
+  loading, users, allProgress, certificates, achievements = [], courses,
   computeCompletion, currentRole, currentUid, onChanged,
 }) {
   const [search, setSearch] = useState('');
@@ -60,7 +60,8 @@ export default function UserManagement({
           hours += durationToHours(c.duration) * (pct / 100);
         }
         const certs = certificates.filter(c => c.uid === u.uid).length;
-        return { ...u, started, completed, hours, certs };
+        const badges = achievements.filter(a => a.uid === u.uid).length;
+        return { ...u, started, completed, hours, certs, badges };
       })
       .filter(u => {
         if (!q) return true;
@@ -124,6 +125,7 @@ export default function UserManagement({
                 <th className="px-4 py-3 text-right">Started</th>
                 <th className="px-4 py-3 text-right">Completed</th>
                 <th className="px-4 py-3 text-right">Hours</th>
+                <th className="px-4 py-3 text-right">Badges</th>
                 <th className="px-4 py-3 text-right">Last active</th>
               </tr>
             </thead>
@@ -163,6 +165,7 @@ export default function UserManagement({
                     <td className="px-4 py-3 text-right">{u.started}</td>
                     <td className="px-4 py-3 text-right">{u.completed}</td>
                     <td className="px-4 py-3 text-right">{u.hours.toFixed(1)}</td>
+                    <td className="px-4 py-3 text-right">{u.badges}</td>
                     <td className="px-4 py-3 text-right text-xs text-gray-600">{timeAgo(u.lastActiveAt)}</td>
                   </tr>
                 );

@@ -738,7 +738,7 @@ COURSES.push(
     subtitle: 'Real-world decision making',
     category: 'Ethics',
     icon: commodityIcon(ethicsIcon),
-    duration: '40 min',
+    duration: '25 min',
     description: 'Practice navigating real ethical dilemmas Solidaridad teams face in the field — from results reporting to private sector partnerships, carbon credits, and internal controls.',
     lessons: [
       {
@@ -871,7 +871,7 @@ COURSES.push(
     subtitle: 'Regenerative landscapes',
     category: 'Climate & NRM',
     icon: commodityIcon(climateIcon),
-    duration: '20 min',
+    duration: '15 min',
     description: 'Learn how Solidaridad embeds climate adaptation, mitigation, and nature-based solutions across agriculture, mining, and industry.',
     lessons: [
       {
@@ -968,7 +968,7 @@ COURSES.push(
     subtitle: 'Inclusive financial ecosystems',
     category: 'Access to Finance',
     icon: commodityIcon(financeIcon),
-    duration: '25 min',
+    duration: '20 min',
     description: 'Discover how Solidaridad mobilizes responsible finance for small-scale producers, MSMEs, and community enterprises across East & Central Africa.',
     lessons: [
       {
@@ -1508,7 +1508,7 @@ COURSES.push(
     subtitle: 'Evidence-based decision making',
     category: 'PMEL',
     icon: commodityIcon(pmelIcon),
-    duration: '20 min',
+    duration: '15 min',
     description: 'Learn how Solidaridad uses data, indicators, and adaptive management to drive evidence-based decisions across MASP IV.',
     lessons: [
       {
@@ -5827,7 +5827,7 @@ COURSES.push({
   subtitle: 'Anticipate, decide, act',
   category: 'Risk',
   icon: commodityIcon(riskIcon),
-  duration: '45 min',
+  duration: '30 min',
   description: 'Learn how Solidaridad ECA identifies, assesses, treats, and reports risks — from the three lines of defense to risk appetite, the likelihood-impact heat map, and your role as a first-line risk owner.',
   lessons: [
     {
@@ -7392,7 +7392,7 @@ COURSES.push(
     subtitle: 'The greenhouse effect and the three farm gases',
     category: 'Climate & NRM',
     icon: Sparkles,
-    duration: '30 min',
+    duration: '45 min',
     description: 'A beginner-friendly primer on greenhouse gases — what they are, how they trap heat, the three that dominate every Solidaridad ECA farm-level GHG study (CO2, CH4, N2O), and why the same three turn up in every project report from coffee at ETG to cocoa in Bundibugyo. Designed for staff who need a confident on-farm conversation about climate without a chemistry degree.',
     lessons: [
       {
@@ -7810,7 +7810,7 @@ COURSES.push(
     subtitle: 'How carbon moves between atmosphere, plants and soil',
     category: 'Climate & NRM',
     icon: RotateCcw,
-    duration: '30 min',
+    duration: '40 min',
     description: 'A working primer on how carbon moves between the atmosphere, plants, soil, biochar and the ocean — and how Solidaridad ECA projects (Mabale biochar, Harvesting Carbon agroforestry, Mubuku composting) deliberately route it from the fast atmospheric pool back into the slower soil and biomass pools. Designed for staff who need to explain sequestration, sinks, and the carbon ledger to farmers, donors and partners.',
     lessons: [
       {
@@ -9435,7 +9435,7 @@ COURSES.push(
     subtitle: 'Shade, boundaries & silvopasture',
     category: 'Climate & NRM',
     icon: TreePalm,
-    duration: '30 min',
+    duration: '20 min',
     description: 'The main agroforestry systems used across ECA and where each fits — grounded in the Harvesting Carbon Coffee Project tree-survival study (Solidaridad Uganda, 200 farmers across Mityana, Wakiso, Sheema and Rwampara, June 2026). Covers shade-tree systems, why trees die, and the establishment and aftercare that actually keep them alive.',
     lessons: [
       {
@@ -9533,7 +9533,7 @@ COURSES.push(
     subtitle: 'The living foundation',
     category: 'Climate & NRM',
     icon: MapPin,
-    duration: '25 min',
+    duration: '20 min',
     description: 'Soil is the foundation of every productive, climate-resilient farm — and across East Africa it is under threat. This course covers the four pillars of soil health, what degrades soil, and the practices that rebuild organic matter, structure, biology and fertility on a smallholding.',
     lessons: [
       {
@@ -9730,7 +9730,7 @@ COURSES.push(
     subtitle: 'Closing the nutrient loop',
     category: 'Climate & NRM',
     icon: RotateCcw,
-    duration: '25 min',
+    duration: '20 min',
     description: 'Turning farm residues, manures and household organics into compost to close the nutrient loop and cut reliance on inorganic fertiliser. Grounded in Solidaridad ECA\'s accelerated coffee-pulp composting work at Mubuku (Starbucks C.A.F.E. Practices), with the Superagric and Indigenous Microorganisms (IMO) recipes.',
     lessons: [
       {
@@ -9817,7 +9817,7 @@ COURSES.push(
     subtitle: 'Rebuilding ecosystem function',
     category: 'Climate & NRM',
     icon: Leaf,
-    duration: '25 min',
+    duration: '20 min',
     description: 'Regenerative agriculture goes beyond sustaining the farm to actively rebuilding it — soil, water cycle, biodiversity and carbon. This course covers the core principles, the practices that deliver them (cover cropping, minimum tillage, rotations, integrated livestock), and how to support a smallholder through the transition.',
     lessons: [
       {
@@ -10277,7 +10277,7 @@ COURSES.push(
     subtitle: 'Coping with too little and too much water',
     category: 'Climate & NRM',
     icon: CloudRain,
-    duration: '25 min',
+    duration: '20 min',
     description: 'Practical measures for the two faces of climate stress in ECA — drought-coping (rainwater harvesting, drought-tolerant varieties, soil moisture) and flood-coping (drainage, raised beds, riparian buffers). The same healthy soil that survives drought also drains a flood.',
     lessons: [
       {
@@ -10451,7 +10451,7 @@ COURSES.push(
     subtitle: 'From hazard to contingency',
     category: 'Climate & NRM',
     icon: ShieldAlert,
-    duration: '25 min',
+    duration: '15 min',
     description: 'How to assess climate risk, plan contingencies, and embed resilience into project design, M&E and budgeting — so resilience is built in from the start rather than bolted on after a shock. Uses the ICAM ESG risk approach from the Bundibugyo cocoa project.',
     lessons: [
       {
@@ -10525,7 +10525,7 @@ COURSES.push(
     subtitle: 'Adaptation, mitigation, productivity',
     category: 'Climate & NRM',
     icon: Lightbulb,
-    duration: '25 min',
+    duration: '15 min',
     description: 'The three pillars of Climate-Smart Agriculture — productivity, adaptation and mitigation — and how Solidaridad applies them across ECA value chains. This course is the integrating frame for the whole Nature-Based Solutions curriculum.',
     lessons: [
       {
@@ -10682,7 +10682,7 @@ COURSES.push(
     subtitle: 'Stacking soil amendments',
     category: 'Climate & NRM',
     icon: Sparkles,
-    duration: '25 min',
+    duration: '15 min',
     description: 'Combining biochar with composting and integrated fertilisation for healthier soils, lower input costs and a smaller carbon footprint. Why the two amendments are better together — and how co-composting solves biochar\'s biggest weakness.',
     lessons: [
       {
@@ -10837,7 +10837,7 @@ COURSES.push(
     subtitle: 'Proving real impact',
     category: 'Climate & NRM',
     icon: ClipboardCheck,
-    duration: '25 min',
+    duration: '15 min',
     description: 'Indicators, tools and routines for tracking both climate and livelihood outcomes — so programmes can show real adaptation and mitigation impact. Grounded in the Harvesting Carbon GHG assessment (Cool Farm Tool) and the discipline of credible measurement.',
     lessons: [
       {
@@ -11472,7 +11472,7 @@ COURSES.push(
     subtitle: 'From idea to launch & beyond',
     category: 'MSME Growth',
     icon: Sparkles,
-    duration: '30 min',
+    duration: '20 min',
     description: 'How businesses create and expand what they sell: the difference between development and diversification, market research, generating and screening ideas, taking a concept to launch, the types of diversification, and managing the product portfolio.',
     lessons: [
       {

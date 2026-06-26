@@ -90,6 +90,7 @@ const SidebarLogo = () => (
     <div className="flex flex-col items-start">
       <span className="font-extrabold text-2xl text-white tracking-tight leading-none">Jifunze</span>
       <Swoosh w={80} />
+      <span className="mt-0.5 text-[10px] text-gray-300 tracking-wide leading-none">By Solidaridad ECA</span>
     </div>
   </div>
 );
@@ -102,6 +103,9 @@ const Logo = ({ light = false }) => (
         Jifunze
       </span>
       <Swoosh w={80} />
+      <span className={`mt-0.5 text-[10px] tracking-wide leading-none ${light ? 'text-gray-300' : 'text-gray-600'}`}>
+        By Solidaridad ECA
+      </span>
     </div>
   </div>
 );
@@ -12408,6 +12412,7 @@ function LoginPage() {
             <div className="flex flex-col items-start">
               <span className="font-extrabold text-4xl tracking-tight leading-none text-black">Jifunze</span>
               <Swoosh w={120} />
+              <span className="mt-1 text-xs text-gray-600 tracking-wide leading-none">By Solidaridad ECA</span>
             </div>
           </div>
         </div>

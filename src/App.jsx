@@ -13413,6 +13413,493 @@ function ThreadDetail({ thread, userName, userUid, onBack }) {
 }
 
 
+// ===== Flash Polls & Micro-Debates =====
+// A low-friction engagement section that replaces the old community forum.
+// Polls/debates are admin-authored (Firestore, see src/admin/PollsDebatesAdmin),
+// votes are written here. Voter docs live in a PUBLIC subcollection
+// (polls|debates/{id}/voters/{uid}) so they power real participant avatars AND
+// act as the write-once one-vote guard. See firestore.rules for the +1 counter
+// invariant (mirrors the forum replyCount rule).
+
+const PRO_GREEN = '#16a34a';
+const CON_RED = '#dc2626';
+
+function PollAvatar({ name, size = 28 }) {
+  const letter = (name || '?').charAt(0).toUpperCase();
+  return (
+    <div
+      className="rounded-full flex items-center justify-center font-bold text-black border-2 border-white flex-shrink-0"
+      style={{ backgroundColor: YELLOW, width: size, height: size, fontSize: size * 0.45 }}
+      title={name || 'Participant'}
+    >
+      {letter}
+    </div>
+  );
+}
+
+function ParticipantStrip({ voters, total }) {
+  const shown = voters.slice(0, 8);
+  const count = typeof total === 'number' ? total : voters.length;
+  if (count === 0) {
+    return <div className="text-xs text-gray-400">Be the first to take part.</div>;
+  }
+  return (
+    <div className="flex items-center gap-3">
+      <div className="flex -space-x-2">
+        {shown.map(v => <PollAvatar key={v.id} name={v.name} />)}
+      </div>
+      <div className="text-xs font-bold text-gray-600">{count}+ Participated</div>
+    </div>
+  );
+}
+
+function useVoters(path) {
+  // path: ['polls', id] or ['debates', id]
+  const [voters, setVoters] = useState([]);
+  useEffect(() => {
+    const unsub = onSnapshot(
+      collection(db, path[0], path[1], 'voters'),
+      (snap) => setVoters(snap.docs.map(d => ({ id: d.id, ...d.data() }))),
+      (err) => console.error('voters subscribe failed', err),
+    );
+    return unsub;
+  }, [path[0], path[1]]);
+  return voters;
+}
+
+function FlashPollCard({ poll, userUid, userName }) {
+  const voters = useVoters(['polls', poll.id]);
+  const [voting, setVoting] = useState(false);
+  const myVote = voters.find(v => v.id === userUid)?.choice || null;
+  const isActive = poll.status === 'active';
+  const locked = !!myVote || !isActive || !userUid;
+  const total = poll.total || 0;
+
+  const vote = async (choice) => {
+    if (locked || voting) return;
+    setVoting(true);
+    try {
+      const batch = writeBatch(db);
+      batch.set(doc(db, 'polls', poll.id, 'voters', userUid), {
+        name: userName || 'Anonymous',
+        choice,
+        votedAt: serverTimestamp(),
+      });
+      batch.update(doc(db, 'polls', poll.id), {
+        [`count${choice}`]: increment(1),
+        total: increment(1),
+      });
+      await batch.commit();
+    } catch (e) {
+      console.error('poll vote failed', e);
+    } finally {
+      setVoting(false);
+    }
+  };
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-2xl p-6">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-xs uppercase tracking-widest font-bold text-gray-500">Flash Poll</span>
+        {!isActive && <span className="text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">Closed</span>}
+      </div>
+      <h2 className="mt-2 text-xl md:text-2xl font-extrabold tracking-tight leading-tight">{poll.question}</h2>
+
+      <div className="mt-5 space-y-2.5">
+        {(poll.options || []).map(opt => {
+          const count = poll[`count${opt.key}`] || 0;
+          const pct = total ? Math.round((count / total) * 100) : 0;
+          const mine = myVote === opt.key;
+          if (!locked) {
+            return (
+              <button
+                key={opt.key}
+                onClick={() => vote(opt.key)}
+                disabled={voting}
+                className="w-full text-left p-4 border-2 border-black rounded-lg font-bold hover:bg-gray-50 transition-colors disabled:opacity-50"
+              >
+                <span className="text-gray-500 mr-1">{opt.key}.</span> {opt.label}
+              </button>
+            );
+          }
+          return (
+            <div
+              key={opt.key}
+              className="relative w-full p-4 border-2 rounded-lg overflow-hidden"
+              style={{ borderColor: mine ? '#000' : '#e5e7eb' }}
+            >
+              <div className="absolute inset-0" style={{ width: `${pct}%`, backgroundColor: mine ? YELLOW : '#f3f4f6' }} />
+              <div className="relative flex items-center justify-between gap-2 font-bold">
+                <span className="truncate">
+                  <span className="text-gray-500 mr-1">{opt.key}.</span>{opt.label}
+                  {mine && <Check size={14} className="inline ml-1.5" />}
+                </span>
+                <span className="text-sm flex-shrink-0">{pct}%</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="mt-5 flex items-center justify-between gap-3 flex-wrap">
+        <ParticipantStrip voters={voters} total={total} />
+        {!userUid && <span className="text-xs text-gray-400">Sign in to vote.</span>}
+        {myVote && <span className="text-xs font-bold" style={{ color: '#15803d' }}>Voted ✓</span>}
+      </div>
+    </div>
+  );
+}
+
+function MicroDebateCard({ debate, userUid, userName, onOpen }) {
+  const voters = useVoters(['debates', debate.id]);
+  const [voting, setVoting] = useState(false);
+  const myStance = voters.find(v => v.id === userUid)?.side || null;
+  const isActive = debate.status === 'active';
+  const total = debate.total || 0;
+  const proPct = total ? Math.round(((debate.proCount || 0) / total) * 100) : 0;
+  const conPct = total ? 100 - proPct : 0;
+
+  const commit = async (side) => {
+    if (myStance || voting || !isActive || !userUid) return;
+    setVoting(true);
+    try {
+      const batch = writeBatch(db);
+      batch.set(doc(db, 'debates', debate.id, 'voters', userUid), {
+        name: userName || 'Anonymous',
+        side,
+        votedAt: serverTimestamp(),
+      });
+      batch.update(doc(db, 'debates', debate.id), {
+        [`${side}Count`]: increment(1),
+        total: increment(1),
+      });
+      await batch.commit();
+    } catch (e) {
+      console.error('debate stance failed', e);
+    } finally {
+      setVoting(false);
+    }
+  };
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-2xl p-6">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-xs uppercase tracking-widest font-bold text-gray-500">Micro-Debate</span>
+        {!isActive && <span className="text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">Closed</span>}
+      </div>
+      <h2 className="mt-2 text-xl md:text-2xl font-extrabold tracking-tight leading-tight">{debate.question}</h2>
+
+      {!myStance ? (
+        <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <button
+            onClick={() => commit('pro')}
+            disabled={voting || !isActive || !userUid}
+            className="p-5 rounded-xl text-left text-white disabled:opacity-60 transition-transform hover:translate-y-[-1px]"
+            style={{ backgroundColor: PRO_GREEN }}
+          >
+            <CheckCircle2 size={26} />
+            <div className="mt-2 font-extrabold leading-snug">PRO: {debate.proLabel}</div>
+          </button>
+          <button
+            onClick={() => commit('con')}
+            disabled={voting || !isActive || !userUid}
+            className="p-5 rounded-xl text-left text-white disabled:opacity-60 transition-transform hover:translate-y-[-1px]"
+            style={{ backgroundColor: CON_RED }}
+          >
+            <ShieldAlert size={26} />
+            <div className="mt-2 font-extrabold leading-snug">CON: {debate.conLabel}</div>
+          </button>
+        </div>
+      ) : (
+        <div className="mt-5">
+          <div className="flex items-center gap-3 text-sm font-bold">
+            <span style={{ color: PRO_GREEN }}>PRO {proPct}%</span>
+            <div className="flex-1 h-2.5 bg-gray-100 rounded-full overflow-hidden flex">
+              <div className="h-full" style={{ width: `${proPct}%`, backgroundColor: PRO_GREEN }} />
+              <div className="h-full" style={{ width: `${conPct}%`, backgroundColor: CON_RED }} />
+            </div>
+            <span style={{ color: CON_RED }}>CON {conPct}%</span>
+          </div>
+          <div className="mt-2 text-xs text-gray-500">
+            You picked <span className="font-bold" style={{ color: myStance === 'pro' ? PRO_GREEN : CON_RED }}>{myStance === 'pro' ? 'PRO' : 'CON'}</span>.
+          </div>
+        </div>
+      )}
+
+      <div className="mt-5 flex items-center justify-between gap-3 flex-wrap">
+        <ParticipantStrip voters={voters} total={total} />
+        <button
+          onClick={() => onOpen(debate)}
+          className="text-sm font-extrabold uppercase tracking-wider inline-flex items-center gap-1 hover:underline"
+        >
+          Open debate <ArrowRight size={15} />
+        </button>
+      </div>
+      {!userUid && <div className="mt-2 text-xs text-gray-400">Sign in to take a side.</div>}
+    </div>
+  );
+}
+
+function DebateDetail({ debate, userName, userUid, onBack }) {
+  const voters = useVoters(['debates', debate.id]);
+  const [args, setArgs] = useState([]);
+  const [loadingArgs, setLoadingArgs] = useState(true);
+  const [body, setBody] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const myStance = voters.find(v => v.id === userUid)?.side || null;
+  const isActive = debate.status === 'active';
+
+  useEffect(() => {
+    const q = query(collection(db, 'debates', debate.id, 'arguments'), orderBy('createdAt', 'asc'));
+    const unsub = onSnapshot(
+      q,
+      (snap) => { setArgs(snap.docs.map(d => ({ id: d.id, ...d.data() }))); setLoadingArgs(false); },
+      (err) => { console.error('arguments subscribe failed', err); setLoadingArgs(false); },
+    );
+    return unsub;
+  }, [debate.id]);
+
+  const commit = async (side) => {
+    if (myStance || !isActive || !userUid) return;
+    try {
+      const batch = writeBatch(db);
+      batch.set(doc(db, 'debates', debate.id, 'voters', userUid), {
+        name: userName || 'Anonymous', side, votedAt: serverTimestamp(),
+      });
+      batch.update(doc(db, 'debates', debate.id), {
+        [`${side}Count`]: increment(1), total: increment(1),
+      });
+      await batch.commit();
+    } catch (e) {
+      console.error('debate stance failed', e);
+    }
+  };
+
+  const post = async () => {
+    setError('');
+    if (!body.trim() || !userUid || !myStance) return;
+    setSubmitting(true);
+    try {
+      const batch = writeBatch(db);
+      batch.set(doc(collection(db, 'debates', debate.id, 'arguments')), {
+        side: myStance,
+        body: body.trim(),
+        authorUid: userUid,
+        authorName: userName || 'Anonymous',
+        createdAt: serverTimestamp(),
+      });
+      batch.update(doc(db, 'debates', debate.id), { argumentCount: increment(1) });
+      await batch.commit();
+      setBody('');
+    } catch (e) {
+      console.error('post argument failed', e);
+      setError('Could not post. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div>
+      <button onClick={onBack} className="text-sm font-bold uppercase tracking-wider mb-4 inline-flex items-center gap-1 hover:underline">
+        <ChevronLeft size={16} /> Back to Polls & Debates
+      </button>
+
+      <div className="bg-white border border-gray-200 rounded-lg p-6">
+        <span className="text-xs uppercase tracking-widest font-bold text-gray-500">Micro-Debate</span>
+        <h1 className="mt-2 text-2xl md:text-3xl font-extrabold tracking-tight leading-tight">{debate.question}</h1>
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm font-bold text-white">
+          <div className="p-3 rounded-lg" style={{ backgroundColor: PRO_GREEN }}>PRO: {debate.proLabel} · {debate.proCount || 0}</div>
+          <div className="p-3 rounded-lg" style={{ backgroundColor: CON_RED }}>CON: {debate.conLabel} · {debate.conCount || 0}</div>
+        </div>
+      </div>
+
+      <div className="mt-8">
+        <h2 className="text-lg font-extrabold tracking-tight uppercase">Arguments ({debate.argumentCount || args.length})</h2>
+        <Swoosh w={80} />
+        <div className="mt-4 space-y-3">
+          {loadingArgs && <div className="text-sm text-gray-500">Loading arguments…</div>}
+          {!loadingArgs && args.length === 0 && <div className="text-sm text-gray-500">No arguments yet — pick a side and make the first.</div>}
+          {args.map(a => (
+            <div key={a.id} className="bg-white border border-gray-200 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-black flex-shrink-0 text-sm" style={{ backgroundColor: YELLOW }}>
+                  {(a.authorName || '?').charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap text-xs text-gray-500">
+                    <span className="font-bold text-black">{a.authorName || 'Anonymous'}</span>
+                    <span
+                      className="uppercase tracking-wider font-bold px-2 py-0.5 rounded-full text-white text-[10px]"
+                      style={{ backgroundColor: a.side === 'pro' ? PRO_GREEN : CON_RED }}
+                    >
+                      {a.side === 'pro' ? 'Pro' : 'Con'}
+                    </span>
+                    <span>{timeAgo(a.createdAt)}</span>
+                  </div>
+                  <p className="mt-1 whitespace-pre-wrap text-sm text-gray-800">{a.body}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-6 bg-white border border-gray-200 rounded-lg p-4">
+        {!isActive ? (
+          <div className="text-sm text-gray-500">This debate is closed.</div>
+        ) : !userUid ? (
+          <div className="text-sm text-gray-500">Sign in to join the debate.</div>
+        ) : !myStance ? (
+          <div>
+            <div className="text-sm font-bold mb-3">Pick a side to join the discussion:</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button onClick={() => commit('pro')} className="p-4 rounded-lg text-left text-white font-extrabold" style={{ backgroundColor: PRO_GREEN }}>
+                <CheckCircle2 size={20} /> <div className="mt-1 leading-snug">PRO: {debate.proLabel}</div>
+              </button>
+              <button onClick={() => commit('con')} className="p-4 rounded-lg text-left text-white font-extrabold" style={{ backgroundColor: CON_RED }}>
+                <ShieldAlert size={20} /> <div className="mt-1 leading-snug">CON: {debate.conLabel}</div>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div>
+            <div className="text-xs text-gray-500 mb-2">
+              Arguing <span className="font-bold" style={{ color: myStance === 'pro' ? PRO_GREEN : CON_RED }}>{myStance === 'pro' ? 'PRO' : 'CON'}</span>
+            </div>
+            <textarea
+              value={body}
+              onChange={e => setBody(e.target.value)}
+              placeholder="Make your case…"
+              rows={3}
+              disabled={submitting}
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-black resize-y disabled:bg-gray-50"
+              maxLength={2000}
+            />
+            {error && <div className="mt-2 text-sm text-red-600">{error}</div>}
+            <div className="mt-3 flex justify-end">
+              <button
+                onClick={post}
+                disabled={submitting || !body.trim()}
+                className="px-5 py-2.5 font-extrabold uppercase tracking-wider text-sm rounded disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ backgroundColor: YELLOW }}
+              >
+                {submitting ? 'Posting…' : 'Post Argument'}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function PollsPage({ userName, userUid }) {
+  const [tab, setTab] = useState('polls'); // 'polls' | 'debates'
+  const [polls, setPolls] = useState([]);
+  const [debates, setDebates] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedDebate, setSelectedDebate] = useState(null);
+
+  useEffect(() => {
+    const unsubP = onSnapshot(
+      query(collection(db, 'polls'), orderBy('createdAt', 'desc'), limit(50)),
+      (snap) => { setPolls(snap.docs.map(d => ({ id: d.id, ...d.data() }))); setLoading(false); },
+      (err) => { console.error('polls subscribe failed', err); setLoading(false); },
+    );
+    const unsubD = onSnapshot(
+      query(collection(db, 'debates'), orderBy('createdAt', 'desc'), limit(50)),
+      (snap) => setDebates(snap.docs.map(d => ({ id: d.id, ...d.data() }))),
+      (err) => console.error('debates subscribe failed', err),
+    );
+    return () => { unsubP(); unsubD(); };
+  }, []);
+
+  if (selectedDebate) {
+    // keep the live doc fresh from the list
+    const live = debates.find(d => d.id === selectedDebate.id) || selectedDebate;
+    return <DebateDetail debate={live} userName={userName} userUid={userUid} onBack={() => setSelectedDebate(null)} />;
+  }
+
+  const activePolls = polls.filter(p => p.status === 'active');
+  const closedPolls = polls.filter(p => p.status !== 'active');
+  const activeDebates = debates.filter(d => d.status === 'active');
+  const closedDebates = debates.filter(d => d.status !== 'active');
+
+  return (
+    <div>
+      <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">Polls &amp; Debates</h1>
+      <p className="mt-3 text-gray-600 max-w-2xl">Quick, tap-and-go engagement — vote on a flash poll or take a side in a micro-debate. A few seconds is all it takes.</p>
+
+      <div className="mt-6 flex gap-1 border-b border-gray-200">
+        {[
+          { id: 'polls', label: 'Flash Polls', icon: BarChart3 },
+          { id: 'debates', label: 'Micro-Debates', icon: MessageSquare },
+        ].map(t => {
+          const Icon = t.icon;
+          const active = tab === t.id;
+          return (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className={`px-4 py-2.5 text-sm font-bold inline-flex items-center gap-2 whitespace-nowrap border-b-2 transition-colors ${
+                active ? 'text-black' : 'text-gray-500 hover:text-black border-transparent'
+              }`}
+              style={active ? { borderColor: YELLOW } : {}}
+            >
+              <Icon size={16} /> {t.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="mt-6 space-y-4">
+        {loading && polls.length === 0 && debates.length === 0 && (
+          <div className="py-12 text-center text-sm text-gray-500">Loading…</div>
+        )}
+
+        {tab === 'polls' && !loading && (
+          <>
+            {activePolls.length === 0 && closedPolls.length === 0 && (
+              <div className="p-8 border-2 border-dashed border-gray-300 text-center rounded-2xl">
+                <BarChart3 size={32} className="mx-auto text-gray-400" />
+                <p className="mt-3 text-gray-600">No flash polls yet — check back soon.</p>
+              </div>
+            )}
+            {activePolls.map(p => <FlashPollCard key={p.id} poll={p} userUid={userUid} userName={userName} />)}
+            {closedPolls.length > 0 && (
+              <>
+                <div className="pt-2 text-xs uppercase tracking-widest font-bold text-gray-400">Closed</div>
+                {closedPolls.map(p => <FlashPollCard key={p.id} poll={p} userUid={userUid} userName={userName} />)}
+              </>
+            )}
+          </>
+        )}
+
+        {tab === 'debates' && !loading && (
+          <>
+            {activeDebates.length === 0 && closedDebates.length === 0 && (
+              <div className="p-8 border-2 border-dashed border-gray-300 text-center rounded-2xl">
+                <MessageSquare size={32} className="mx-auto text-gray-400" />
+                <p className="mt-3 text-gray-600">No micro-debates yet — check back soon.</p>
+              </div>
+            )}
+            {activeDebates.map(d => <MicroDebateCard key={d.id} debate={d} userUid={userUid} userName={userName} onOpen={setSelectedDebate} />)}
+            {closedDebates.length > 0 && (
+              <>
+                <div className="pt-2 text-xs uppercase tracking-widest font-bold text-gray-400">Closed</div>
+                {closedDebates.map(d => <MicroDebateCard key={d.id} debate={d} userUid={userUid} userName={userName} onOpen={setSelectedDebate} />)}
+              </>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
 // ===== Course View =====
 function CourseView({ course, progress, completion, onStartLesson, onStartInteractive, onStartQuiz, onBack }) {
   const Icon = course.icon;

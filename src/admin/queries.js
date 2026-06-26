@@ -151,6 +151,70 @@ export async function deleteAssignment(id) {
   await deleteDoc(doc(db, 'assignments', id));
 }
 
+// --- Flash Polls & Micro-Debates (admin authoring) ---
+// Polls/debates are admin-authored content stored in Firestore (unlike the
+// hardcoded COURSES). Counters are seeded to 0 at creation so the "+1" vote
+// rule in firestore.rules has a base to compare against (mirrors forum
+// replyCount). Votes themselves are written client-side from App.jsx.
+
+function sortByCreatedDesc(list) {
+  return list.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
+}
+
+export async function createPoll({ question, options, createdBy }) {
+  return await addDoc(collection(db, 'polls'), {
+    question,
+    options, // [{ key: 'A', label }, ...]
+    createdBy,
+    createdAt: serverTimestamp(),
+    status: 'active',
+    countA: 0,
+    countB: 0,
+    countC: 0,
+    countD: 0,
+    total: 0,
+  });
+}
+
+export async function createDebate({ question, proLabel, conLabel, createdBy }) {
+  return await addDoc(collection(db, 'debates'), {
+    question,
+    proLabel,
+    conLabel,
+    createdBy,
+    createdAt: serverTimestamp(),
+    status: 'active',
+    proCount: 0,
+    conCount: 0,
+    total: 0,
+    argumentCount: 0,
+  });
+}
+
+export async function listPolls() {
+  const snap = await getDocs(collection(db, 'polls'));
+  const out = [];
+  snap.forEach(d => out.push({ id: d.id, ...d.data() }));
+  return sortByCreatedDesc(out);
+}
+
+export async function listDebates() {
+  const snap = await getDocs(collection(db, 'debates'));
+  const out = [];
+  snap.forEach(d => out.push({ id: d.id, ...d.data() }));
+  return sortByCreatedDesc(out);
+}
+
+export async function setPollStatus(id, status) {
+  if (!id) return;
+  await setDoc(doc(db, 'polls', id), { status }, { merge: true });
+}
+
+export async function setDebateStatus(id, status) {
+  if (!id) return;
+  await setDoc(doc(db, 'debates', id), { status }, { merge: true });
+}
+
 // --- Aggregation helpers (work on already-fetched data) ---
 
 export function isActiveSince(user, sinceMs) {

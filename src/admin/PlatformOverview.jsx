@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Users as UsersIcon, Activity, GraduationCap, Clock, Award, TrendingUp, Trophy } from 'lucide-react';
+import { Users as UsersIcon, Activity, GraduationCap, Clock, Award, TrendingUp, Trophy, CheckCircle2, Layers } from 'lucide-react';
 import KpiCard from './charts/KpiCard';
 import EnrollmentBarChart from './charts/EnrollmentBarChart';
 import ActivityLineChart from './charts/ActivityLineChart';
@@ -78,6 +78,40 @@ export default function PlatformOverview({
     [courses, allProgress, computeCompletion],
   );
 
+  // Top-5 leaderboards by badge category. Counts are derived from
+  // achievements that were loaded at admin-load time; the Refresh button
+  // (and any reload) re-pulls the data so these stay current.
+  const leaderboards = useMemo(() => {
+    const buildTop = (predicate) => {
+      const tally = {};
+      for (const a of achievements) {
+        if (!predicate(a)) continue;
+        const uid = a.uid;
+        if (!uid) continue;
+        tally[uid] = (tally[uid] || 0) + 1;
+      }
+      const userById = {};
+      for (const u of users) userById[u.uid] = u;
+      return Object.entries(tally)
+        .map(([uid, count]) => {
+          const u = userById[uid];
+          return {
+            uid,
+            name: u?.displayName || u?.email?.split('@')[0] || 'Unnamed learner',
+            email: u?.email || '',
+            count,
+          };
+        })
+        .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
+        .slice(0, 5);
+    };
+    return {
+      completion: buildTop(a => a.type === 'course'),
+      mastery:    buildTop(a => a.type === 'mastery'),
+      milestones: buildTop(a => a.type === 'milestone' || a.type === 'cluster' || a.type === 'master'),
+    };
+  }, [achievements, users]);
+
   if (loading && users.length === 0) {
     return <div className="py-12 text-center text-sm text-gray-500">Loading platform stats…</div>;
   }
@@ -121,6 +155,83 @@ export default function PlatformOverview({
           </div>
         </div>
       </div>
+
+      <div className="mt-6">
+        <div className="flex items-baseline justify-between flex-wrap gap-x-4 gap-y-1">
+          <h2 className="text-lg md:text-xl font-extrabold tracking-tight uppercase">
+            Top Learners
+          </h2>
+          <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+            Top 5 by badge category — refresh to update
+          </span>
+        </div>
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <LeaderboardCard
+            icon={CheckCircle2}
+            title="Course Completion"
+            countLabel="completions"
+            rows={leaderboards.completion}
+          />
+          <LeaderboardCard
+            icon={Trophy}
+            title="Mastery"
+            countLabel="≥95% quizzes"
+            rows={leaderboards.mastery}
+          />
+          <LeaderboardCard
+            icon={Layers}
+            title="Milestones & Clusters"
+            countLabel="badges"
+            rows={leaderboards.milestones}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LeaderboardCard({ icon: Icon, title, countLabel, rows }) {
+  return (
+    <div className="bg-white border border-gray-200 rounded-2xl p-5">
+      <div className="flex items-center gap-2">
+        <Icon size={18} className="text-black" />
+        <h3 className="text-sm font-extrabold uppercase tracking-wider">{title}</h3>
+      </div>
+      {rows.length === 0 ? (
+        <p className="mt-4 text-sm text-gray-500">
+          No badges in this category yet.
+        </p>
+      ) : (
+        <ol className="mt-4 space-y-2">
+          {rows.map((r, i) => (
+            <li
+              key={r.uid}
+              className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50"
+            >
+              <div
+                className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-extrabold flex-shrink-0 ${
+                  i === 0 ? 'bg-black text-white'
+                  : i === 1 ? 'bg-gray-200 text-black'
+                  : 'bg-gray-100 text-black'
+                }`}
+                style={i === 0 ? { backgroundColor: '#FFC800', color: '#000' } : {}}
+              >
+                {i + 1}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-semibold truncate">{r.name}</div>
+                <div className="text-[11px] text-gray-500 truncate">{r.email}</div>
+              </div>
+              <div className="text-sm font-extrabold tracking-tight">
+                {r.count}
+                <span className="ml-1 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                  {countLabel}
+                </span>
+              </div>
+            </li>
+          ))}
+        </ol>
+      )}
     </div>
   );
 }

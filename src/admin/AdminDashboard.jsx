@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Shield, BarChart3, Users as UsersIcon, BookOpen, ClipboardCheck, RefreshCw } from 'lucide-react';
-import { listAllUsers, getAllProgress, getAllCertificates, listAllAssignments, getAllAchievements } from './queries';
+import { Shield, BarChart3, Users as UsersIcon, BookOpen, ClipboardCheck, MessageSquare, RefreshCw } from 'lucide-react';
+import { listAllUsers, getAllProgress, getAllCertificates, listAllAssignments, getAllAchievements, listPolls, listDebates } from './queries';
 import PlatformOverview from './PlatformOverview';
 import UserManagement from './UserManagement';
 import CourseAnalytics from './CourseAnalytics';
 import Assignments from './Assignments';
+import PollsDebatesAdmin from './PollsDebatesAdmin';
 
 const YELLOW = '#FFC800';
 
@@ -13,6 +14,7 @@ const TABS = [
   { id: 'users',       label: 'Users',       icon: UsersIcon },
   { id: 'courses',     label: 'Courses',     icon: BookOpen },
   { id: 'assignments', label: 'Assignments', icon: ClipboardCheck },
+  { id: 'polls',       label: 'Polls & Debates', icon: MessageSquare },
 ];
 
 export default function AdminDashboard({ currentRole, currentUid, courses, computeCompletion }) {
@@ -24,23 +26,29 @@ export default function AdminDashboard({ currentRole, currentUid, courses, compu
   const [certificates, setCertificates] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [achievements, setAchievements] = useState([]);
+  const [polls, setPolls] = useState([]);
+  const [debates, setDebates] = useState([]);
 
   const load = async () => {
     setLoading(true);
     setError('');
     try {
       const us = await listAllUsers();
-      const [progress, certs, asgn, ach] = await Promise.all([
+      const [progress, certs, asgn, ach, pollList, debateList] = await Promise.all([
         getAllProgress(us),
         getAllCertificates(),
         listAllAssignments(),
         getAllAchievements(),
+        listPolls(),
+        listDebates(),
       ]);
       setUsers(us);
       setAllProgress(progress);
       setCertificates(certs);
       setAssignments(asgn);
       setAchievements(ach);
+      setPolls(pollList);
+      setDebates(debateList);
     } catch (e) {
       console.error('Admin dashboard load failed', e);
       setError(e.message || 'Failed to load admin data. Check your role and Firestore rules.');
@@ -141,6 +149,15 @@ export default function AdminDashboard({ currentRole, currentUid, courses, compu
             users={users}
             courses={courses}
             assignments={assignments}
+            currentUid={currentUid}
+            onChanged={load}
+          />
+        )}
+        {tab === 'polls' && (
+          <PollsDebatesAdmin
+            loading={loading}
+            polls={polls}
+            debates={debates}
             currentUid={currentUid}
             onChanged={load}
           />

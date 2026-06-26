@@ -141,5 +141,98 @@ service cloud.firestore {
           && resource.data.authorUid == request.auth.uid;
       }
     }
+
+    // --- /polls/{pollId} -------------------------------------------------------
+    // Flash polls. Managers/admins author them (counters seeded to 0). Any signed-in
+    // user may cast ONE vote: the vote bumps exactly one option count and total by +1
+    // (mirrors the forum replyCount +1 invariant). The paired write-once voter doc
+    // (below, keyed by uid) is what makes a second vote fail in the atomic batch.
+    // Totals are tamper-resistant, not tamper-proof — a hand-crafted request could
+    // bump a counter without the voter doc, same accepted posture as forum replyCount.
+    match /polls/{pollId} {
+      allow read: if signedInSolidaridad();
+
+      allow create: if isManagerOrAdmin()
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.total == 0;
+
+      allow update: if signedInSolidaridad() && (
+        isManagerOrAdmin()
+        || (
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['countA', 'countB', 'countC', 'countD', 'total'])
+          && request.resource.data.total == resource.data.total + 1
+          && (
+            request.resource.data.countA == resource.data.countA + 1 ||
+            request.resource.data.countB == resource.data.countB + 1 ||
+            request.resource.data.countC == resource.data.countC + 1 ||
+            request.resource.data.countD == resource.data.countD + 1
+          )
+        )
+      );
+
+      allow delete: if isManagerOrAdmin();
+
+      // Public (to signed-in users) so it powers real participant avatars;
+      // doc id is the voter's uid and is write-once → one vote per user.
+      match /voters/{voterUid} {
+        allow read: if signedInSolidaridad();
+        allow create: if signedInSolidaridad() && voterUid == request.auth.uid
+          && request.resource.data.choice in ['A', 'B', 'C', 'D'];
+        allow update, delete: if false;
+      }
+    }
+
+    // --- /debates/{debateId} ---------------------------------------------------
+    // Micro-debates. Managers/admins author them. Any signed-in user may take ONE
+    // side (bumps that side + total by +1) and post arguments (bumps argumentCount
+    // by +1). The write-once voter doc enforces one stance per user.
+    match /debates/{debateId} {
+      allow read: if signedInSolidaridad();
+
+      allow create: if isManagerOrAdmin()
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.total == 0
+        && request.resource.data.argumentCount == 0;
+
+      allow update: if signedInSolidaridad() && (
+        isManagerOrAdmin()
+        || (
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['proCount', 'conCount', 'total'])
+          && request.resource.data.total == resource.data.total + 1
+          && (
+            request.resource.data.proCount == resource.data.proCount + 1 ||
+            request.resource.data.conCount == resource.data.conCount + 1
+          )
+        )
+        || (
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['argumentCount'])
+          && request.resource.data.argumentCount == resource.data.argumentCount + 1
+        )
+      );
+
+      allow delete: if isManagerOrAdmin();
+
+      match /voters/{voterUid} {
+        allow read: if signedInSolidaridad();
+        allow create: if signedInSolidaridad() && voterUid == request.auth.uid
+          && request.resource.data.side in ['pro', 'con'];
+        allow update, delete: if false;
+      }
+
+      // Arguments require the author to have already committed a side, and the
+      // argument's side must match that committed stance (defence-in-depth; the
+      // client also gates the composer on holding a stance).
+      match /arguments/{argId} {
+        allow read: if signedInSolidaridad();
+        allow create: if signedInSolidaridad()
+          && request.resource.data.authorUid == request.auth.uid
+          && request.resource.data.side ==
+             get(/databases/$(database)/documents/debates/$(debateId)/voters/$(request.auth.uid)).data.side;
+        allow update, delete: if signedInSolidaridad()
+          && resource.data.authorUid == request.auth.uid;
+      }
+    }
   }
 }

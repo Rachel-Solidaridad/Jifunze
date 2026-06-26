@@ -192,17 +192,29 @@ export async function createDebate({ question, proLabel, conLabel, createdBy }) 
 }
 
 export async function listPolls() {
-  const snap = await getDocs(collection(db, 'polls'));
-  const out = [];
-  snap.forEach(d => out.push({ id: d.id, ...d.data() }));
-  return sortByCreatedDesc(out);
+  // Resilient: if the polls rules aren't deployed yet (or any transient error),
+  // return [] rather than rejecting and failing the whole admin dashboard load.
+  try {
+    const snap = await getDocs(collection(db, 'polls'));
+    const out = [];
+    snap.forEach(d => out.push({ id: d.id, ...d.data() }));
+    return sortByCreatedDesc(out);
+  } catch (e) {
+    console.error('listPolls failed', e);
+    return [];
+  }
 }
 
 export async function listDebates() {
-  const snap = await getDocs(collection(db, 'debates'));
-  const out = [];
-  snap.forEach(d => out.push({ id: d.id, ...d.data() }));
-  return sortByCreatedDesc(out);
+  try {
+    const snap = await getDocs(collection(db, 'debates'));
+    const out = [];
+    snap.forEach(d => out.push({ id: d.id, ...d.data() }));
+    return sortByCreatedDesc(out);
+  } catch (e) {
+    console.error('listDebates failed', e);
+    return [];
+  }
 }
 
 export async function setPollStatus(id, status) {

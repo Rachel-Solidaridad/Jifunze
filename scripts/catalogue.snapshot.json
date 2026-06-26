@@ -1,0 +1,2496 @@
+{
+  "courses": [
+    {
+      "id": "welcome",
+      "title": "HR Culture & Compliance",
+      "category": "HR",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "who-we-are"
+        },
+        {
+          "id": "vision-mission"
+        },
+        {
+          "id": "history"
+        },
+        {
+          "id": "values"
+        },
+        {
+          "id": "governance"
+        },
+        {
+          "id": "who-we-work-for"
+        },
+        {
+          "id": "your-onboarding"
+        },
+        {
+          "id": "hr-essentials"
+        },
+        {
+          "id": "gender-inclusion"
+        },
+        {
+          "id": "integrity-snapshot"
+        },
+        {
+          "id": "tools-systems"
+        },
+        {
+          "id": "who-to-ask"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "masp",
+      "title": "MASP 2026-2030: Our Strategic Plan",
+      "category": "Strategy",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "masp-overview"
+        },
+        {
+          "id": "masp-context"
+        },
+        {
+          "id": "masp-ambitions"
+        },
+        {
+          "id": "masp-where-we-work"
+        },
+        {
+          "id": "masp-target-groups"
+        },
+        {
+          "id": "masp-pathways"
+        },
+        {
+          "id": "masp-implementation"
+        },
+        {
+          "id": "masp-cross-cutting"
+        },
+        {
+          "id": "masp-outcomes"
+        },
+        {
+          "id": "masp-finance"
+        },
+        {
+          "id": "masp-risks"
+        },
+        {
+          "id": "masp-your-role"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "integrity",
+      "title": "Code of Conduct & Whistleblower Protocol",
+      "category": "Compliance",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "integrity-overview"
+        },
+        {
+          "id": "whistleblower"
+        },
+        {
+          "id": "governance"
+        },
+        {
+          "id": "scenarios-intro"
+        },
+        {
+          "id": "reporting"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "ethics",
+      "title": "Navigating Ethical Dilemmas",
+      "category": "Ethics",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "ethics-overview"
+        },
+        {
+          "id": "ethics-framework"
+        },
+        {
+          "id": "ethics-redflags"
+        },
+        {
+          "id": "ethics-support"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "climate",
+      "title": "Climate & Natural Resource Management",
+      "category": "Climate & NRM",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "climate-context"
+        },
+        {
+          "id": "regenerative-agriculture"
+        },
+        {
+          "id": "carbon-markets"
+        },
+        {
+          "id": "nature-based"
+        },
+        {
+          "id": "eudr"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "finance",
+      "title": "Access to Finance",
+      "category": "Access to Finance",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "finance-barriers"
+        },
+        {
+          "id": "eca-agribusiness"
+        },
+        {
+          "id": "blended-finance"
+        },
+        {
+          "id": "carbon-finance"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "truepricing",
+      "title": "Fundamentals of True Pricing",
+      "category": "True Pricing",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "tp-what"
+        },
+        {
+          "id": "tp-history"
+        },
+        {
+          "id": "tp-externalities"
+        },
+        {
+          "id": "tp-goal"
+        },
+        {
+          "id": "tp-transparency"
+        },
+        {
+          "id": "tp-methodology"
+        },
+        {
+          "id": "tp-coffee-tea-cotton"
+        },
+        {
+          "id": "tp-tony"
+        },
+        {
+          "id": "tp-deaanzet"
+        },
+        {
+          "id": "tp-solidaridad"
+        },
+        {
+          "id": "tp-misconceptions"
+        },
+        {
+          "id": "tp-future"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "brand",
+      "title": "Communications & Branding",
+      "category": "Communications",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "logo"
+        },
+        {
+          "id": "colour"
+        },
+        {
+          "id": "typography"
+        },
+        {
+          "id": "writing"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "digital",
+      "title": "Digital Solutions",
+      "category": "Digital",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "digital-overview"
+        },
+        {
+          "id": "solichain"
+        },
+        {
+          "id": "tools-suite"
+        },
+        {
+          "id": "data-governance"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "pmel",
+      "title": "Planning, Monitoring, Evaluation & Learning (PMEL)",
+      "category": "PMEL",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "pmel-overview"
+        },
+        {
+          "id": "data-solutions"
+        },
+        {
+          "id": "planning-cycle"
+        },
+        {
+          "id": "kpis"
+        },
+        {
+          "id": "learning"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "gender",
+      "title": "Gender, Equality & Inclusion",
+      "category": "Gender",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "gender-why"
+        },
+        {
+          "id": "gender-foundations"
+        },
+        {
+          "id": "gender-concepts"
+        },
+        {
+          "id": "gender-eca"
+        },
+        {
+          "id": "gender-analysis-what"
+        },
+        {
+          "id": "gender-analysis-frameworks"
+        },
+        {
+          "id": "gender-spectrum"
+        },
+        {
+          "id": "gender-gals"
+        },
+        {
+          "id": "gender-methodologies"
+        },
+        {
+          "id": "gender-villages"
+        },
+        {
+          "id": "gender-sustaining"
+        },
+        {
+          "id": "gender-intersectionality"
+        },
+        {
+          "id": "gender-your-role"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "eudr",
+      "title": "EUDR: EU Deforestation Regulation",
+      "category": "EUDR",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "eudr-overview"
+        },
+        {
+          "id": "eudr-core-rules"
+        },
+        {
+          "id": "eudr-roles-dd"
+        },
+        {
+          "id": "eudr-geolocation-risk"
+        },
+        {
+          "id": "eudr-timeline"
+        },
+        {
+          "id": "eudr-eca-response"
+        },
+        {
+          "id": "eudr-your-role"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "soy",
+      "title": "Soy: Crop, Practice & Programme",
+      "category": "Commodities",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "soy-overview"
+        },
+        {
+          "id": "soy-varieties"
+        },
+        {
+          "id": "soy-land"
+        },
+        {
+          "id": "soy-planting"
+        },
+        {
+          "id": "soy-csa"
+        },
+        {
+          "id": "soy-protection"
+        },
+        {
+          "id": "soy-harvest"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "coffee",
+      "title": "Coffee: Agronomy, Quality & Climate",
+      "category": "Commodities",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "coffee-overview"
+        },
+        {
+          "id": "coffee-establishment"
+        },
+        {
+          "id": "coffee-gaps"
+        },
+        {
+          "id": "coffee-protection"
+        },
+        {
+          "id": "coffee-csa"
+        },
+        {
+          "id": "coffee-waste"
+        },
+        {
+          "id": "coffee-harvest"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "tea",
+      "title": "Tea: Leaf, Quality & Livelihoods",
+      "category": "Commodities",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "tea-overview"
+        },
+        {
+          "id": "tea-gap"
+        },
+        {
+          "id": "tea-agronomy"
+        },
+        {
+          "id": "tea-climate"
+        },
+        {
+          "id": "tea-market"
+        },
+        {
+          "id": "tea-gender"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "fruits-veg",
+      "title": "Fruits & Vegetables: Growing, Quality & Markets",
+      "category": "Commodities",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "fruits-veg-overview"
+        },
+        {
+          "id": "fruits-veg-nursery"
+        },
+        {
+          "id": "fruits-veg-soil-water"
+        },
+        {
+          "id": "fruits-veg-ipm"
+        },
+        {
+          "id": "fruits-veg-postharvest"
+        },
+        {
+          "id": "fruits-veg-biodiversity"
+        },
+        {
+          "id": "fruits-veg-markets"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "food-crops",
+      "title": "Food Crops: Yields, Resilience & Nutrition",
+      "category": "Commodities",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "food-crops-overview"
+        },
+        {
+          "id": "food-crops-gap"
+        },
+        {
+          "id": "food-crops-csa"
+        },
+        {
+          "id": "food-crops-agroforestry"
+        },
+        {
+          "id": "food-crops-diversification"
+        },
+        {
+          "id": "food-crops-business"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "gold",
+      "title": "Gold: Responsible Artisanal & Small-Scale Mining",
+      "category": "Commodities",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "gold-overview"
+        },
+        {
+          "id": "gold-ohs"
+        },
+        {
+          "id": "gold-design"
+        },
+        {
+          "id": "gold-emergency"
+        },
+        {
+          "id": "gold-esg"
+        },
+        {
+          "id": "gold-selfreg"
+        },
+        {
+          "id": "gold-governance"
+        },
+        {
+          "id": "gold-policy"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "oil-palm",
+      "title": "Oil Palm: Best Practice & Sustainable Production",
+      "category": "Commodities",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "oil-palm-overview"
+        },
+        {
+          "id": "oil-palm-varieties"
+        },
+        {
+          "id": "oil-palm-establishment"
+        },
+        {
+          "id": "oil-palm-bmp-calendar"
+        },
+        {
+          "id": "oil-palm-harvest"
+        },
+        {
+          "id": "oil-palm-ipdm"
+        },
+        {
+          "id": "oil-palm-sustainability"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "cocoa",
+      "title": "Cocoa: Farming, Climate & Farmer Empowerment",
+      "category": "Commodities",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "cocoa-overview"
+        },
+        {
+          "id": "cocoa-agronomy"
+        },
+        {
+          "id": "cocoa-postharvest"
+        },
+        {
+          "id": "cocoa-climate"
+        },
+        {
+          "id": "cocoa-gals"
+        },
+        {
+          "id": "cocoa-vsla"
+        },
+        {
+          "id": "cocoa-business"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "cotton-textile",
+      "title": "Cotton & Textile: Crop, Standard & Value Chain",
+      "category": "Commodities",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "cotton-overview"
+        },
+        {
+          "id": "cotton-agronomy"
+        },
+        {
+          "id": "cotton-ipm"
+        },
+        {
+          "id": "cotton-better-cotton"
+        },
+        {
+          "id": "cotton-harvest-ginning"
+        },
+        {
+          "id": "cotton-fashion-value-chain"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "leather",
+      "title": "Leather: Hides, Tanning & Responsible Sourcing",
+      "category": "Commodities",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "leather-overview"
+        },
+        {
+          "id": "leather-hides-quality"
+        },
+        {
+          "id": "leather-tanning"
+        },
+        {
+          "id": "leather-environment"
+        },
+        {
+          "id": "leather-decent-work"
+        },
+        {
+          "id": "leather-sourcing"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "dairy",
+      "title": "Dairy: Herd, Milk & Market",
+      "category": "Commodities",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "dairy-overview"
+        },
+        {
+          "id": "dairy-herd"
+        },
+        {
+          "id": "dairy-feed"
+        },
+        {
+          "id": "dairy-health"
+        },
+        {
+          "id": "dairy-clean-milk"
+        },
+        {
+          "id": "dairy-market"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "risk",
+      "title": "Risk Management",
+      "category": "Risk",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "risk-overview"
+        },
+        {
+          "id": "risk-defense"
+        },
+        {
+          "id": "risk-process"
+        },
+        {
+          "id": "risk-assessment"
+        },
+        {
+          "id": "risk-treatment"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "finance-policy",
+      "title": "Finance, Procurement & Expenses",
+      "category": "Finance",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "fin-why"
+        },
+        {
+          "id": "fin-money-map"
+        },
+        {
+          "id": "fin-authority"
+        },
+        {
+          "id": "fin-budget"
+        },
+        {
+          "id": "fin-cofinance"
+        },
+        {
+          "id": "fin-travel-before"
+        },
+        {
+          "id": "fin-expenses-perdiem"
+        },
+        {
+          "id": "fin-expenses-claim"
+        },
+        {
+          "id": "fin-procure-methods"
+        },
+        {
+          "id": "fin-procure-suppliers"
+        },
+        {
+          "id": "fin-payments"
+        },
+        {
+          "id": "fin-cash-bank"
+        },
+        {
+          "id": "fin-controls"
+        },
+        {
+          "id": "fin-assets"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "gesi-gals",
+      "title": "Gender Action Learning System (GALS)",
+      "category": "Gender",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "gals-why"
+        },
+        {
+          "id": "gals-five-tools"
+        },
+        {
+          "id": "gals-role-model-couples"
+        },
+        {
+          "id": "gals-joint-decisions"
+        },
+        {
+          "id": "gals-gbv-respect"
+        },
+        {
+          "id": "gals-scaling"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "gesi-ease",
+      "title": "EA$E — Economic and Social Empowerment",
+      "category": "Gender",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "ease-fundamentals"
+        },
+        {
+          "id": "ease-governance"
+        },
+        {
+          "id": "ease-loans-social-fund"
+        },
+        {
+          "id": "ease-iga"
+        },
+        {
+          "id": "ease-formalisation"
+        },
+        {
+          "id": "ease-collective-marketing"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "gesi-evidence-advocacy",
+      "title": "From Research to Influence: The GESI Knowledge Pathway",
+      "category": "Gender",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "kpath-why"
+        },
+        {
+          "id": "kpath-research"
+        },
+        {
+          "id": "kpath-product"
+        },
+        {
+          "id": "kpath-dissemination"
+        },
+        {
+          "id": "kpath-uptake"
+        },
+        {
+          "id": "kpath-applying"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "nbs-ghgs",
+      "title": "Greenhouse Gases (GHGs)",
+      "category": "Climate & NRM",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "ghgs-basics"
+        },
+        {
+          "id": "ghgs-cool-farm"
+        },
+        {
+          "id": "ghgs-benchmarks"
+        },
+        {
+          "id": "ghgs-residues"
+        },
+        {
+          "id": "ghgs-fertiliser-soil"
+        },
+        {
+          "id": "ghgs-action"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "nbs-what-are-ghgs",
+      "title": "What Are GHGs?",
+      "category": "Climate & NRM",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "whatghg-greenhouse-effect"
+        },
+        {
+          "id": "whatghg-co2"
+        },
+        {
+          "id": "whatghg-methane"
+        },
+        {
+          "id": "whatghg-n2o"
+        },
+        {
+          "id": "whatghg-gwp-co2e"
+        },
+        {
+          "id": "whatghg-why"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "nbs-emission-sources",
+      "title": "Sources of Emissions",
+      "category": "Climate & NRM",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "sources-overview"
+        },
+        {
+          "id": "sources-fertiliser"
+        },
+        {
+          "id": "sources-residues"
+        },
+        {
+          "id": "sources-livestock"
+        },
+        {
+          "id": "sources-land-transport"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "nbs-carbon-cycle",
+      "title": "The Carbon Cycle",
+      "category": "Climate & NRM",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "cycle-overview"
+        },
+        {
+          "id": "cycle-photosynthesis"
+        },
+        {
+          "id": "cycle-soil"
+        },
+        {
+          "id": "cycle-biochar"
+        },
+        {
+          "id": "cycle-projects"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "nbs-emissions-mrv",
+      "title": "Measuring & Reporting Emissions",
+      "category": "Climate & NRM",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "mrv-why"
+        },
+        {
+          "id": "mrv-cool-farm"
+        },
+        {
+          "id": "mrv-kobo"
+        },
+        {
+          "id": "mrv-quality"
+        },
+        {
+          "id": "mrv-revenue"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "nbs-climate-impacts",
+      "title": "Climate Change Impacts",
+      "category": "Climate & NRM",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "impacts-overview"
+        },
+        {
+          "id": "impacts-rainfall"
+        },
+        {
+          "id": "impacts-soil"
+        },
+        {
+          "id": "impacts-lean-season"
+        },
+        {
+          "id": "impacts-pests-diseases"
+        },
+        {
+          "id": "impacts-adaptation"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "nbs-agroforestry-sequestration",
+      "title": "Agroforestry for Carbon Sequestration",
+      "category": "Climate & NRM",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "agcarbon-why"
+        },
+        {
+          "id": "agcarbon-species"
+        },
+        {
+          "id": "agcarbon-system"
+        },
+        {
+          "id": "agcarbon-protect"
+        },
+        {
+          "id": "agcarbon-getting-paid"
+        },
+        {
+          "id": "agcarbon-scale"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "nbs-biochar",
+      "title": "Biochar Production & Application",
+      "category": "Climate & NRM",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "biochar-why"
+        },
+        {
+          "id": "biochar-production"
+        },
+        {
+          "id": "biochar-chemistry"
+        },
+        {
+          "id": "biochar-application"
+        },
+        {
+          "id": "biochar-monitoring"
+        },
+        {
+          "id": "biochar-replication"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "nbs-biocomposting",
+      "title": "Biocomposting & Organic Waste Management",
+      "category": "Climate & NRM",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "biocomp-problem"
+        },
+        {
+          "id": "biocomp-5rs"
+        },
+        {
+          "id": "biocomp-superagric"
+        },
+        {
+          "id": "biocomp-imo"
+        },
+        {
+          "id": "biocomp-scale"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "nbs-carbon-markets",
+      "title": "Carbon Markets & Climate-Smart Practices",
+      "category": "Climate & NRM",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "cm-how-markets-work"
+        },
+        {
+          "id": "cm-lifecycle-standards"
+        },
+        {
+          "id": "cm-integrity"
+        },
+        {
+          "id": "cm-article-6"
+        },
+        {
+          "id": "cm-practices-credits"
+        },
+        {
+          "id": "cm-smallholder-rights"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "nbs-agroforestry-systems",
+      "title": "Agroforestry Systems",
+      "category": "Climate & NRM",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "nbs-afs-systems"
+        },
+        {
+          "id": "nbs-afs-harvesting-carbon"
+        },
+        {
+          "id": "nbs-afs-mortality"
+        },
+        {
+          "id": "nbs-afs-aftercare"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "nbs-soil-health",
+      "title": "Soil Health Management",
+      "category": "Climate & NRM",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "nbs-sh-foundation"
+        },
+        {
+          "id": "nbs-sh-pillars"
+        },
+        {
+          "id": "nbs-sh-degradation"
+        },
+        {
+          "id": "nbs-sh-building"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "nbs-biochar-soil",
+      "title": "Biochar for Soil Improvement",
+      "category": "Climate & NRM",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "nbs-bcs-how"
+        },
+        {
+          "id": "nbs-bcs-inoculation"
+        },
+        {
+          "id": "nbs-bcs-results"
+        },
+        {
+          "id": "nbs-bcs-fit"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "nbs-composting",
+      "title": "Composting & Nutrient Cycling",
+      "category": "Climate & NRM",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "nbs-comp-why"
+        },
+        {
+          "id": "nbs-comp-process"
+        },
+        {
+          "id": "nbs-comp-accelerated"
+        },
+        {
+          "id": "nbs-comp-quality"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "nbs-regenerative-ag",
+      "title": "Regenerative Agriculture Practices",
+      "category": "Climate & NRM",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "nbs-ra-what"
+        },
+        {
+          "id": "nbs-ra-practices"
+        },
+        {
+          "id": "nbs-ra-why"
+        },
+        {
+          "id": "nbs-ra-transition"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "nbs-resilient-livelihoods",
+      "title": "Climate-Resilient Livelihoods",
+      "category": "Climate & NRM",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "crl-landscape"
+        },
+        {
+          "id": "crl-gap"
+        },
+        {
+          "id": "crl-vsla"
+        },
+        {
+          "id": "crl-gals"
+        },
+        {
+          "id": "crl-market-income"
+        },
+        {
+          "id": "crl-mande"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "nbs-diversified-farming",
+      "title": "Diversified Farming Systems",
+      "category": "Climate & NRM",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "nbs-df-monoculture-risk"
+        },
+        {
+          "id": "nbs-df-how-diversity-helps"
+        },
+        {
+          "id": "nbs-df-supporting-shift"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "nbs-drought-flood-resilience",
+      "title": "Drought & Flood Resilience",
+      "category": "Climate & NRM",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "nbs-dfr-two-extremes"
+        },
+        {
+          "id": "nbs-dfr-drought"
+        },
+        {
+          "id": "nbs-dfr-flood"
+        },
+        {
+          "id": "nbs-dfr-integrated"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "nbs-community-adaptation",
+      "title": "Community Adaptation Strategies",
+      "category": "Climate & NRM",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "nbs-ca-why-local"
+        },
+        {
+          "id": "nbs-ca-cba-process"
+        },
+        {
+          "id": "nbs-ca-institutions"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "nbs-risk-resilience-planning",
+      "title": "Risk Management & Resilience Planning",
+      "category": "Climate & NRM",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "nbs-rrp-assess"
+        },
+        {
+          "id": "nbs-rrp-prioritise"
+        },
+        {
+          "id": "nbs-rrp-embed"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "nbs-csa-principles",
+      "title": "Climate-Smart Agriculture Principles",
+      "category": "Climate & NRM",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "nbs-csa-what"
+        },
+        {
+          "id": "nbs-csa-context"
+        },
+        {
+          "id": "nbs-csa-practices"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "nbs-agroforestry-triple-win",
+      "title": "Agroforestry as a Triple-Win Solution",
+      "category": "Climate & NRM",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "nbs-atw-three-wins"
+        },
+        {
+          "id": "nbs-atw-field"
+        },
+        {
+          "id": "nbs-atw-getting-right"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "nbs-biochar-compost-integration",
+      "title": "Biochar & Compost Integration",
+      "category": "Climate & NRM",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "nbs-bci-why-together"
+        },
+        {
+          "id": "nbs-bci-how"
+        },
+        {
+          "id": "nbs-bci-benefits"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "nbs-resilient-enterprises",
+      "title": "Resilient Farming Enterprises",
+      "category": "Climate & NRM",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "nbs-re-business-case"
+        },
+        {
+          "id": "nbs-re-costing-financing"
+        },
+        {
+          "id": "nbs-re-market-linkage"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "nbs-climate-livelihood-monitoring",
+      "title": "Monitoring Climate & Livelihood Outcomes",
+      "category": "Climate & NRM",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "nbs-clm-why"
+        },
+        {
+          "id": "nbs-clm-climate"
+        },
+        {
+          "id": "nbs-clm-livelihood-mrv"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "msme-growth-fundamentals",
+      "title": "Business Growth Fundamentals",
+      "category": "MSME Growth",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "mgf-what-is-growth"
+        },
+        {
+          "id": "mgf-five-phases"
+        },
+        {
+          "id": "mgf-strategies"
+        },
+        {
+          "id": "mgf-mistakes"
+        },
+        {
+          "id": "mgf-leadership"
+        },
+        {
+          "id": "mgf-measuring"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "msme-success-factors",
+      "title": "Success Factors for Growth",
+      "category": "MSME Growth",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "msf-what-drives-success"
+        },
+        {
+          "id": "msf-goals-plans"
+        },
+        {
+          "id": "msf-customers"
+        },
+        {
+          "id": "msf-competition"
+        },
+        {
+          "id": "msf-people-resources"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "msme-growth-opportunities",
+      "title": "Growth Opportunities & Finance",
+      "category": "MSME Growth",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "mgo-avenues"
+        },
+        {
+          "id": "mgo-sustainable"
+        },
+        {
+          "id": "mgo-resource-mobilisation"
+        },
+        {
+          "id": "mgo-finance-sources"
+        },
+        {
+          "id": "mgo-competitive-advantage"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "msme-customer-retention",
+      "title": "Customer Acquisition & Retention",
+      "category": "MSME Growth",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "mcr-why-retention"
+        },
+        {
+          "id": "mcr-six-steps"
+        },
+        {
+          "id": "mcr-communication"
+        },
+        {
+          "id": "mcr-metrics"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "msme-continuous-improvement",
+      "title": "Continuous Business Improvement",
+      "category": "MSME Growth",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "mci-why"
+        },
+        {
+          "id": "mci-elements"
+        },
+        {
+          "id": "mci-kpis"
+        },
+        {
+          "id": "mci-pdca"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "msme-product-development",
+      "title": "Product Development & Diversification",
+      "category": "MSME Growth",
+      "placeholder": false,
+      "lessons": [
+        {
+          "id": "mpd-meaning"
+        },
+        {
+          "id": "mpd-market-research"
+        },
+        {
+          "id": "mpd-idea-screening"
+        },
+        {
+          "id": "mpd-concept-to-launch"
+        },
+        {
+          "id": "mpd-diversification-types"
+        },
+        {
+          "id": "mpd-portfolio"
+        }
+      ],
+      "quiz": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ]
+    }
+  ],
+  "clusters": [
+    {
+      "name": "Strategy & Organisational Excellence",
+      "courseIds": [
+        "masp",
+        "welcome",
+        "finance-policy",
+        "brand",
+        "pmel"
+      ],
+      "subClusters": []
+    },
+    {
+      "name": "Governance, Ethics & Compliance",
+      "courseIds": [
+        "integrity",
+        "risk",
+        "ethics"
+      ],
+      "subClusters": []
+    },
+    {
+      "name": "Innovation & Strategic Transformation",
+      "courseIds": [
+        "climate",
+        "finance",
+        "gender",
+        "digital"
+      ],
+      "subClusters": []
+    },
+    {
+      "name": "Gender, Equality & Social Inclusion",
+      "courseIds": [
+        "gesi-gals",
+        "gesi-ease",
+        "gesi-evidence-advocacy"
+      ],
+      "subClusters": []
+    },
+    {
+      "name": "Nature-Based Solutions",
+      "courseIds": [],
+      "subClusters": [
+        {
+          "name": "Climate Change Fundamentals",
+          "courseIds": [
+            "nbs-ghgs",
+            "nbs-what-are-ghgs",
+            "nbs-emission-sources",
+            "nbs-carbon-cycle",
+            "nbs-emissions-mrv",
+            "nbs-climate-impacts"
+          ]
+        },
+        {
+          "name": "Climate Mitigation Solutions",
+          "courseIds": [
+            "nbs-agroforestry-sequestration",
+            "nbs-biochar",
+            "nbs-biocomposting",
+            "nbs-carbon-markets"
+          ]
+        },
+        {
+          "name": "Sustainable Land & Soil Management",
+          "courseIds": [
+            "nbs-agroforestry-systems",
+            "nbs-soil-health",
+            "nbs-biochar-soil",
+            "nbs-composting",
+            "nbs-regenerative-ag"
+          ]
+        },
+        {
+          "name": "Climate Adaptation & Resilience",
+          "courseIds": [
+            "nbs-resilient-livelihoods",
+            "nbs-diversified-farming",
+            "nbs-drought-flood-resilience",
+            "nbs-community-adaptation",
+            "nbs-risk-resilience-planning"
+          ]
+        },
+        {
+          "name": "Integrated Climate-Smart Agriculture",
+          "courseIds": [
+            "nbs-csa-principles",
+            "nbs-agroforestry-triple-win",
+            "nbs-biochar-compost-integration",
+            "nbs-resilient-enterprises",
+            "nbs-climate-livelihood-monitoring"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "MSME Growth",
+      "courseIds": [
+        "msme-growth-fundamentals",
+        "msme-success-factors",
+        "msme-growth-opportunities",
+        "msme-customer-retention",
+        "msme-continuous-improvement",
+        "msme-product-development"
+      ],
+      "subClusters": []
+    },
+    {
+      "name": "Commodities",
+      "courseIds": [
+        "soy",
+        "coffee",
+        "tea",
+        "fruits-veg",
+        "food-crops",
+        "gold",
+        "leather",
+        "dairy",
+        "cotton-textile",
+        "oil-palm",
+        "cocoa"
+      ],
+      "subClusters": []
+    },
+    {
+      "name": "Sustainability & Responsible Business",
+      "courseIds": [
+        "truepricing",
+        "eudr"
+      ],
+      "subClusters": []
+    }
+  ]
+}

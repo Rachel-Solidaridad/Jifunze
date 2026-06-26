@@ -11972,6 +11972,33 @@ export default function App() {
           } else {
             setShowNamePrompt(true);
           }
+          // Self-backfill: every login is also a chance to retroactively award
+          // any badges the learner is eligible for but doesn't have yet. The
+          // award call is idempotent (it checks existing achievement ids),
+          // so this is safe to run on every sign-in. Best-effort: failures
+          // are swallowed so the auth flow never breaks.
+          try {
+            const liveSet = COURSES.filter(c => !c.placeholder);
+            const cc = (id) => {
+              const course = COURSES.find(x => x.id === id);
+              return computeCompletion(course, p[id] || {});
+            };
+            const ctx = {
+              courseCompletion: cc,
+              allCourses: COURSES,
+              allClusters: CLUSTERS,
+              progress: p,
+              allComplete: liveSet.length > 0 && liveSet.every(c => cc(c.id) === 100),
+              achievementIds: new Set(ach.map(a => a.id || a.achievementId)),
+            };
+            const newly = await awardEligibleBadges(uid, ctx);
+            if (newly && newly.length) {
+              const updated = await loadAchievements(uid);
+              setMyAchievements(updated);
+            }
+          } catch (e) {
+            console.error('self-backfill awards failed', e);
+          }
         })();
       } else {
         setUserEmail('');

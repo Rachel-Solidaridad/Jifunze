@@ -12130,8 +12130,8 @@ export default function App() {
           <SidebarItem icon={Award} label="My Certificates" active={page === 'certificates'} onClick={() => navigate('certificates')} />
           <SidebarItem icon={Trophy} label="Achievements" active={page === 'achievements'} onClick={() => navigate('achievements')} />
           <SidebarItem icon={MessageSquare} label="Polls & Debates" active={page === 'polls'} onClick={() => navigate('polls')} />
-          {isAdmin(userRole) && (
-            <SidebarItem icon={Shield} label="Admin" active={page === 'admin'} onClick={() => navigate('admin')} />
+          {canViewAdminDashboard(userRole) && (
+            <SidebarItem icon={Shield} label={isAdmin(userRole) ? 'Admin' : 'Manage'} active={page === 'admin'} onClick={() => navigate('admin')} />
           )}
         </nav>
 
@@ -12174,11 +12174,11 @@ export default function App() {
                 style={{ '--tw-ring-color': YELLOW }}
               />
             </div>
-            {isAdmin(userRole) && (
+            {canViewAdminDashboard(userRole) && (
               <button
                 onClick={() => navigate('admin')}
-                aria-label="Open admin dashboard"
-                title="Admin dashboard"
+                aria-label="Open management dashboard"
+                title={isAdmin(userRole) ? 'Admin dashboard' : 'Management dashboard'}
                 className={`flex items-center gap-1.5 text-sm font-bold uppercase tracking-wider px-3 py-2 rounded border transition-colors ${
                   page === 'admin'
                     ? 'bg-black text-white border-black'
@@ -12186,7 +12186,7 @@ export default function App() {
                 }`}
               >
                 <Shield size={16} />
-                <span className="hidden sm:inline">Admin</span>
+                <span className="hidden sm:inline">{isAdmin(userRole) ? 'Admin' : 'Manage'}</span>
               </button>
             )}
           </div>
@@ -12249,8 +12249,8 @@ export default function App() {
             <PollsPage userName={userName} userUid={userUid} />
           )}
 
-          {view === 'list' && page === 'admin' && isAdmin(userRole) && (
-            <Suspense fallback={<div className="py-16 text-center text-sm text-gray-500">Loading admin dashboard…</div>}>
+          {view === 'list' && page === 'admin' && canViewAdminDashboard(userRole) && (
+            <Suspense fallback={<div className="py-16 text-center text-sm text-gray-500">Loading dashboard…</div>}>
               <AdminDashboard
                 currentRole={userRole}
                 currentUid={userUid}

@@ -6,12 +6,15 @@ import UserManagement from './UserManagement';
 import CourseAnalytics from './CourseAnalytics';
 import Assignments from './Assignments';
 import PollsDebatesAdmin from './PollsDebatesAdmin';
+import { isAdmin } from '../auth/roles';
 
 const YELLOW = '#FFC800';
 
+// `adminOnly` tabs are hidden from managers. Managers get the full engagement,
+// content and analytics view; user/role administration stays admin-only.
 const TABS = [
   { id: 'overview',    label: 'Overview',    icon: BarChart3 },
-  { id: 'users',       label: 'Users',       icon: UsersIcon },
+  { id: 'users',       label: 'Users',       icon: UsersIcon, adminOnly: true },
   { id: 'courses',     label: 'Courses',     icon: BookOpen },
   { id: 'assignments', label: 'Assignments', icon: ClipboardCheck },
   { id: 'polls',       label: 'Polls & Debates', icon: MessageSquare },
@@ -84,7 +87,7 @@ export default function AdminDashboard({ currentRole, currentUid, courses, compu
       </div>
 
       <div className="mt-6 border-b border-gray-200 flex gap-1 overflow-x-auto">
-        {TABS.map(t => {
+        {TABS.filter(t => !t.adminOnly || isAdmin(currentRole)).map(t => {
           const Icon = t.icon;
           const active = tab === t.id;
           return (
@@ -120,7 +123,7 @@ export default function AdminDashboard({ currentRole, currentUid, courses, compu
             computeCompletion={computeCompletion}
           />
         )}
-        {tab === 'users' && (
+        {tab === 'users' && isAdmin(currentRole) && (
           <UserManagement
             loading={loading}
             users={users}

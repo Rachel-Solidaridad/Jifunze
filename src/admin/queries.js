@@ -40,6 +40,9 @@ export async function listAllUsers() {
       displayName: data.displayName || '',
       email: data.email || '',
       role: normalizeRole(data.role),
+      country: data.country || '',
+      jobTitle: data.jobTitle || '',
+      profileCompletedAt: data.profileCompletedAt || null,
       createdAt: data.createdAt || null,
       lastActiveAt: data.lastActiveAt || null,
     });

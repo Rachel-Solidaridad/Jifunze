@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Users as UsersIcon, Activity, GraduationCap, Clock, Award, TrendingUp, Trophy, CheckCircle2, Layers } from 'lucide-react';
+import { Users as UsersIcon, Activity, GraduationCap, Clock, Award, TrendingUp, Trophy, CheckCircle2, Layers, UserCheck } from 'lucide-react';
 import KpiCard from './charts/KpiCard';
 import EnrollmentBarChart from './charts/EnrollmentBarChart';
 import ActivityLineChart from './charts/ActivityLineChart';
@@ -47,6 +47,9 @@ export default function PlatformOverview({
     }
     const avgCompletion = completionCount > 0 ? Math.round(totalCompletionPct / completionCount) : 0;
 
+    const profilesComplete = users.filter(u => u.profileCompletedAt).length;
+    const profilesPct = users.length > 0 ? Math.round((profilesComplete / users.length) * 100) : 0;
+
     return {
       totalUsers: users.length,
       roleCounts,
@@ -56,6 +59,8 @@ export default function PlatformOverview({
       avgCompletion,
       certificatesIssued: certificates.length,
       badgesIssued: achievements.length,
+      profilesComplete,
+      profilesPct,
     };
   }, [users, allProgress, certificates, achievements, liveCourses, computeCompletion]);
 
@@ -128,6 +133,12 @@ export default function PlatformOverview({
         <KpiCard icon={Trophy} label="Badges issued" value={stats.badgesIssued} sublabel="across all learners" />
         <KpiCard icon={Clock} label="Learning hours" value={stats.totalHours.toFixed(1)} sublabel="platform-wide (estimated)" />
         <KpiCard icon={TrendingUp} label="Avg completion" value={`${stats.avgCompletion}%`} sublabel="across active enrollments" />
+        <KpiCard
+          icon={UserCheck}
+          label="Profiles complete"
+          value={`${stats.profilesComplete} / ${stats.totalUsers}`}
+          sublabel={`${stats.profilesPct}% with country + job title`}
+        />
       </div>
 
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4">

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Search, X, Award, BookOpen, Clock, Calendar, Trophy } from 'lucide-react';
+import { Search, X, Award, BookOpen, Clock, Calendar, Trophy, MapPin, Briefcase, UserCheck } from 'lucide-react';
 import { ROLES, ROLE_LABELS, ROLE_OPTIONS, canChangeRoles } from '../auth/roles';
 import { setUserRole, quizPct, quizPassed, QUIZ_PASS_PCT } from './queries';
 
@@ -39,6 +39,7 @@ export default function UserManagement({
   computeCompletion, currentRole, currentUid, onChanged,
 }) {
   const [search, setSearch] = useState('');
+  const [incompleteOnly, setIncompleteOnly] = useState(false);
   const [selected, setSelected] = useState(null);
   const [busyUid, setBusyUid] = useState('');
 
@@ -64,9 +65,12 @@ export default function UserManagement({
         return { ...u, started, completed, hours, certs, badges };
       })
       .filter(u => {
+        if (incompleteOnly && u.profileCompletedAt) return false;
         if (!q) return true;
         return (u.displayName || '').toLowerCase().includes(q)
-          || (u.email || '').toLowerCase().includes(q);
+          || (u.email || '').toLowerCase().includes(q)
+          || (u.country || '').toLowerCase().includes(q)
+          || (u.jobTitle || '').toLowerCase().includes(q);
       })
       .sort((a, b) => {
         // Active users first
@@ -74,7 +78,7 @@ export default function UserManagement({
         const tb = b.lastActiveAt?.toDate?.()?.getTime() || 0;
         return tb - ta;
       });
-  }, [users, allProgress, certificates, achievements, liveCourses, computeCompletion, search]);
+  }, [users, allProgress, certificates, achievements, liveCourses, computeCompletion, search, incompleteOnly]);
 
   const handleRoleChange = async (uid, newRole) => {
     if (!canEdit || busyUid) return;
@@ -93,15 +97,25 @@ export default function UserManagement({
   return (
     <div>
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="text-sm text-gray-600">
-          {rows.length} {rows.length === 1 ? 'user' : 'users'}
+        <div className="text-sm text-gray-600 flex items-center gap-3 flex-wrap">
+          <span>{rows.length} {rows.length === 1 ? 'user' : 'users'}</span>
+          <label className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-600 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={incompleteOnly}
+              onChange={e => setIncompleteOnly(e.target.checked)}
+              className="w-4 h-4 rounded border-gray-300 focus:ring-2"
+              style={{ accentColor: YELLOW, '--tw-ring-color': YELLOW }}
+            />
+            Incomplete profiles only
+          </label>
         </div>
-        <div className="relative w-full sm:w-72">
+        <div className="relative w-full sm:w-80">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search name or email…"
+            placeholder="Search name, email, country, job title…"
             className="w-full pl-9 pr-3 py-2 text-sm bg-white border border-gray-200 rounded-full focus:outline-none focus:ring-2"
             style={{ '--tw-ring-color': YELLOW }}
           />
@@ -121,6 +135,8 @@ export default function UserManagement({
               <tr>
                 <th className="px-4 py-3">Name</th>
                 <th className="px-4 py-3">Email</th>
+                <th className="px-4 py-3">Country</th>
+                <th className="px-4 py-3">Job title</th>
                 <th className="px-4 py-3">Role</th>
                 <th className="px-4 py-3 text-right">Started</th>
                 <th className="px-4 py-3 text-right">Completed</th>
@@ -139,8 +155,22 @@ export default function UserManagement({
                     className="border-t border-gray-100 hover:bg-gray-50 cursor-pointer"
                     onClick={() => setSelected(u)}
                   >
-                    <td className="px-4 py-3 font-semibold">{u.displayName || '—'}</td>
+                    <td className="px-4 py-3 font-semibold">
+                      <div className="flex items-center gap-2">
+                        <span>{u.displayName || '—'}</span>
+                        {!u.profileCompletedAt ? (
+                          <span
+                            className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded text-gray-700 bg-gray-100"
+                            title="Profile incomplete — missing country or job title"
+                          >
+                            Profile
+                          </span>
+                        ) : null}
+                      </div>
+                    </td>
                     <td className="px-4 py-3 text-gray-600 text-xs">{u.email || '—'}</td>
+                    <td className="px-4 py-3 text-gray-700 text-xs">{u.country || <span className="text-gray-400">—</span>}</td>
+                    <td className="px-4 py-3 text-gray-700 text-xs">{u.jobTitle || <span className="text-gray-400">—</span>}</td>
                     <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                       {canEdit ? (
                         <select
@@ -219,7 +249,26 @@ function UserDetailDrawer({ user, courses, progress, certificates, achievements 
               {user.displayName || 'Unnamed user'}
             </h3>
             <p className="text-xs text-gray-600 mt-1">{user.email}</p>
-            <p className="text-xs text-gray-500 mt-1 uppercase tracking-wider font-bold">
+            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-700">
+              {user.country ? (
+                <span className="inline-flex items-center gap-1">
+                  <MapPin size={12} className="text-gray-500" />
+                  {user.country}
+                </span>
+              ) : null}
+              {user.jobTitle ? (
+                <span className="inline-flex items-center gap-1">
+                  <Briefcase size={12} className="text-gray-500" />
+                  {user.jobTitle}
+                </span>
+              ) : null}
+              {!user.country && !user.jobTitle ? (
+                <span className="inline-flex items-center gap-1 text-gray-500">
+                  <UserCheck size={12} /> Profile incomplete
+                </span>
+              ) : null}
+            </div>
+            <p className="text-xs text-gray-500 mt-2 uppercase tracking-wider font-bold">
               {ROLE_LABELS[user.role]}
             </p>
           </div>

@@ -4,6 +4,7 @@ import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp, query, orderBy, limit, onSnapshot, addDoc, writeBatch, increment } from 'firebase/firestore';
 import { auth, googleProvider, ALLOWED_DOMAIN, db } from './firebase';
 import { ROLES, isSeedAdmin, normalizeRole, canViewAdminDashboard, isAdmin } from './auth/roles';
+import { isOnEcaAllowlist, ECA_EMAIL_ALLOWLIST } from './auth/ecaAllowlist';
 import { listAssignmentsForUser } from './admin/queries';
 import { awardEligibleBadges, buildBadgeCatalogue, tierFor } from './achievements/awards';
 import ProfilePrompt from './profile/ProfilePrompt';
@@ -11889,13 +11890,26 @@ function timeAgo(ts) {
   return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 }
 
-function isAllowedEmail(email) {
-  if (!email) return false;
+// Two-layer gate on every sign-in:
+//   1. The address must be on the @solidaridadnetwork.org domain (kept
+//      separately from the allowlist so domain mis-spellings and personal
+//      Gmail addresses get a clearer error message than "not on the list").
+//   2. The address must appear on the ECA roster in src/auth/ecaAllowlist.js.
+//      A Solidaridad staffer from another region is rejected at this step.
+// Returns one of: 'ok' | 'wrong-domain' | 'not-on-roster'.
+function checkAccess(email) {
+  if (!email) return 'wrong-domain';
   const trimmed = email.trim().toLowerCase();
   const re = /^[^\s@]+@([^\s@]+)$/;
   const match = trimmed.match(re);
-  if (!match) return false;
-  return match[1] === ALLOWED_DOMAIN;
+  if (!match) return 'wrong-domain';
+  if (match[1] !== ALLOWED_DOMAIN) return 'wrong-domain';
+  if (!isOnEcaAllowlist(trimmed)) return 'not-on-roster';
+  return 'ok';
+}
+
+function isAllowedEmail(email) {
+  return checkAccess(email) === 'ok';
 }
 
 function friendlyAuthError(err) {
@@ -12415,18 +12429,22 @@ function SidebarItem({ icon: Icon, label, active, onClick }) {
 function LoginPage() {
   const [error, setError] = useState('');
   const [blockedAccount, setBlockedAccount] = useState(null);
+  const [blockReason, setBlockReason] = useState(null); // 'wrong-domain' | 'not-on-roster'
   const [ssoLoading, setSsoLoading] = useState(false);
 
   const handleGoogleSSO = async () => {
     setError('');
     setBlockedAccount(null);
+    setBlockReason(null);
     setSsoLoading(true);
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const signedInEmail = (result.user.email || '').toLowerCase();
-      if (!isAllowedEmail(signedInEmail)) {
+      const access = checkAccess(signedInEmail);
+      if (access !== 'ok') {
         await signOut(auth);
         setBlockedAccount(signedInEmail || 'this Google account');
+        setBlockReason(access);
       }
     } catch (err) {
       if (err?.code !== 'auth/popup-closed-by-user' && err?.code !== 'auth/cancelled-popup-request') {
@@ -12497,19 +12515,40 @@ function LoginPage() {
               <div className="flex items-start gap-3">
                 <Shield size={20} className="flex-shrink-0 mt-0.5 text-black" />
                 <div className="flex-1">
-                  <p className="text-sm font-extrabold text-black tracking-tight">Access restricted to Solidaridad staff</p>
-                  <p className="mt-1.5 text-xs text-gray-800 leading-relaxed">
-                    Jifunze is only available to people with an <strong>@{ALLOWED_DOMAIN}</strong> Google Workspace account.
-                  </p>
-                  <p className="mt-2 text-xs text-gray-700 leading-relaxed">
-                    You signed in with <span className="font-mono font-bold break-all">{blockedAccount}</span>, which isn't a Solidaridad account. You have been signed out.
-                  </p>
-                  <p className="mt-3 text-xs text-gray-700 leading-relaxed">
-                    If you have a Solidaridad account, try again and pick it from the Google chooser. If you believe you should have access, contact{' '}
-                    <a href={`mailto:info.secaec@${ALLOWED_DOMAIN}`} className="font-bold underline hover:text-black">
-                      info.secaec@{ALLOWED_DOMAIN}
-                    </a>.
-                  </p>
+                  {blockReason === 'not-on-roster' ? (
+                    <>
+                      <p className="text-sm font-extrabold text-black tracking-tight">Access restricted to Solidaridad ECA staff</p>
+                      <p className="mt-1.5 text-xs text-gray-800 leading-relaxed">
+                        Jifunze is only available to people on the Solidaridad East &amp; Central Africa roster.
+                      </p>
+                      <p className="mt-2 text-xs text-gray-700 leading-relaxed">
+                        Your account <span className="font-mono font-bold break-all">{blockedAccount}</span> is a Solidaridad account but isn't on the ECA roster, so you've been signed out.
+                      </p>
+                      <p className="mt-3 text-xs text-gray-700 leading-relaxed">
+                        If you believe you should have access, contact{' '}
+                        <a href={`mailto:info.secaec@${ALLOWED_DOMAIN}`} className="font-bold underline hover:text-black">
+                          info.secaec@{ALLOWED_DOMAIN}
+                        </a>{' '}
+                        to be added to the roster.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-sm font-extrabold text-black tracking-tight">Access restricted to Solidaridad staff</p>
+                      <p className="mt-1.5 text-xs text-gray-800 leading-relaxed">
+                        Jifunze is only available to people with an <strong>@{ALLOWED_DOMAIN}</strong> Google Workspace account.
+                      </p>
+                      <p className="mt-2 text-xs text-gray-700 leading-relaxed">
+                        You signed in with <span className="font-mono font-bold break-all">{blockedAccount}</span>, which isn't a Solidaridad account. You have been signed out.
+                      </p>
+                      <p className="mt-3 text-xs text-gray-700 leading-relaxed">
+                        If you have a Solidaridad account, try again and pick it from the Google chooser. If you believe you should have access, contact{' '}
+                        <a href={`mailto:info.secaec@${ALLOWED_DOMAIN}`} className="font-bold underline hover:text-black">
+                          info.secaec@{ALLOWED_DOMAIN}
+                        </a>.
+                      </p>
+                    </>
+                  )}
                 </div>
               </div>
             </div>

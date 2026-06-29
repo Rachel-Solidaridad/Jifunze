@@ -11978,16 +11978,14 @@ export default function App() {
           } else if (derived) {
             saveUserName(uid, derived);
           }
-          // Show the welcome / profile modal once per browser session if the
-          // profile isn't complete yet. session-storage gate makes this a
-          // nudge, not a nag. New users (no displayName) get it on first
-          // sign-in regardless of the gate.
+          // Profile completion is MANDATORY. The modal blocks the app until
+          // name + country + job title are all saved (and profileCompletedAt
+          // stamped). There is no skip path and no session-storage gate —
+          // every sign-in re-shows the modal until the profile is complete,
+          // because Solidaridad ECA admin reporting depends on these fields.
           const profileDone = !!userDoc.profileCompletedAt || isProfileComplete(userDoc);
-          const sessionKey = `jf-profile-prompted-${uid}`;
-          const alreadyPromptedThisSession = sessionStorage.getItem(sessionKey) === '1';
-          if (!profileDone && (!storedName || !alreadyPromptedThisSession)) {
+          if (!profileDone) {
             setShowNamePrompt(true);
-            try { sessionStorage.setItem(sessionKey, '1'); } catch {}
           }
           // Self-backfill: every login is also a chance to retroactively award
           // any badges the learner is eligible for but doesn't have yet. The

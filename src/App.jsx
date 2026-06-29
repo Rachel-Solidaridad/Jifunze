@@ -1,12 +1,15 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
-import { BookOpen, Award, CheckCircle2, ChevronRight, ChevronLeft, Home, Users, Target, Lightbulb, Shield, ShieldAlert, Globe, Mail, Palette, FileText, AlertTriangle, Sparkles, Trophy, X, Check, ArrowRight, RotateCcw, MapPin, TrendingUp, Leaf, Search, BarChart3, MessageSquare, BookMarked, Clock, Layers, Menu, DollarSign, CloudRain, Database, ClipboardCheck, Coffee, Apple, Wheat, Pickaxe, Shirt, Milk, Scissors, TreePalm, Bean, Lock } from 'lucide-react';
+import { BookOpen, Award, CheckCircle2, ChevronRight, ChevronLeft, Home, Users, User as UserIcon, Target, Lightbulb, Shield, ShieldAlert, Globe, Mail, Palette, FileText, AlertTriangle, Sparkles, Trophy, X, Check, ArrowRight, RotateCcw, MapPin, TrendingUp, Leaf, Search, BarChart3, MessageSquare, BookMarked, Clock, Layers, Menu, DollarSign, CloudRain, Database, ClipboardCheck, Coffee, Apple, Wheat, Pickaxe, Shirt, Milk, Scissors, TreePalm, Bean, Lock } from 'lucide-react';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp, query, orderBy, limit, onSnapshot, addDoc, writeBatch, increment } from 'firebase/firestore';
 import { auth, googleProvider, ALLOWED_DOMAIN, db } from './firebase';
 import { ROLES, isSeedAdmin, normalizeRole, canViewAdminDashboard, isAdmin } from './auth/roles';
 import { listAssignmentsForUser } from './admin/queries';
 import { awardEligibleBadges, buildBadgeCatalogue, tierFor } from './achievements/awards';
+import ProfilePrompt from './profile/ProfilePrompt';
+import { isProfileComplete } from './profile/profileApi';
 const AchievementsPage = lazy(() => import('./achievements/AchievementsPage'));
+const ProfilePage = lazy(() => import('./profile/ProfilePage'));
 // Branded Solidaridad commodity glyphs, used for the commodity courses.
 import soyIcon from './assets/commodities/soy.svg';
 import coffeeIcon from './assets/commodities/coffee.svg';
@@ -11929,6 +11932,11 @@ export default function App() {
   const [myAssignments, setMyAssignments] = useState([]);
   const [myAchievements, setMyAchievements] = useState([]);
   const [showNamePrompt, setShowNamePrompt] = useState(false);
+  const [userCountry, setUserCountry] = useState('');
+  const [userJobTitle, setUserJobTitle] = useState('');
+  const [userCreatedAt, setUserCreatedAt] = useState(null);
+  const [userLastActiveAt, setUserLastActiveAt] = useState(null);
+  const [profileCompletedAt, setProfileCompletedAt] = useState(null);
   const [loaded, setLoaded] = useState(false);
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -11960,12 +11968,26 @@ export default function App() {
           setUserRole(userDoc.role || ROLES.LEARNER);
           setMyAssignments(asgn);
           setMyAchievements(ach);
+          setUserCountry(userDoc.country || '');
+          setUserJobTitle(userDoc.jobTitle || '');
+          setUserCreatedAt(userDoc.createdAt || null);
+          setUserLastActiveAt(userDoc.lastActiveAt || null);
+          setProfileCompletedAt(userDoc.profileCompletedAt || null);
           if (storedName) {
             setUserName(storedName);
           } else if (derived) {
             saveUserName(uid, derived);
-          } else {
+          }
+          // Show the welcome / profile modal once per browser session if the
+          // profile isn't complete yet. session-storage gate makes this a
+          // nudge, not a nag. New users (no displayName) get it on first
+          // sign-in regardless of the gate.
+          const profileDone = !!userDoc.profileCompletedAt || isProfileComplete(userDoc);
+          const sessionKey = `jf-profile-prompted-${uid}`;
+          const alreadyPromptedThisSession = sessionStorage.getItem(sessionKey) === '1';
+          if (!profileDone && (!storedName || !alreadyPromptedThisSession)) {
             setShowNamePrompt(true);
+            try { sessionStorage.setItem(sessionKey, '1'); } catch {}
           }
           // Self-backfill: every login is also a chance to retroactively award
           // any badges the learner is eligible for but doesn't have yet. The
@@ -12003,6 +12025,11 @@ export default function App() {
         setProgress({});
         setMyAssignments([]);
         setMyAchievements([]);
+        setUserCountry('');
+        setUserJobTitle('');
+        setUserCreatedAt(null);
+        setUserLastActiveAt(null);
+        setProfileCompletedAt(null);
         setLoaded(true);
       }
     });
@@ -12110,10 +12137,16 @@ export default function App() {
   return (
     <div className="min-h-screen bg-gray-50 flex" style={{ fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif' }}>
       {showNamePrompt && (
-        <NamePrompt
-          onSubmit={(name) => {
-            setUserName(name);
-            saveUserName(userUid, name);
+        <ProfilePrompt
+          uid={userUid}
+          initialName={userName}
+          initialCountry={userCountry}
+          initialJobTitle={userJobTitle}
+          onClose={(result) => {
+            if (result?.displayName) setUserName(result.displayName);
+            if (result?.country) setUserCountry(result.country);
+            if (result?.jobTitle) setUserJobTitle(result.jobTitle);
+            if (result?.completed) setProfileCompletedAt(new Date());
             setShowNamePrompt(false);
           }}
         />
@@ -12133,6 +12166,7 @@ export default function App() {
           <SidebarItem icon={BookMarked} label="Course Catalog" active={page === 'catalog'} onClick={() => navigate('catalog')} />
           <SidebarItem icon={Award} label="My Certificates" active={page === 'certificates'} onClick={() => navigate('certificates')} />
           <SidebarItem icon={Trophy} label="Achievements" active={page === 'achievements'} onClick={() => navigate('achievements')} />
+          <SidebarItem icon={UserIcon} label="My Profile" active={page === 'profile'} onClick={() => navigate('profile')} />
           <SidebarItem icon={MessageSquare} label="Polls & Debates" active={page === 'polls'} onClick={() => navigate('polls')} />
           {canViewAdminDashboard(userRole) && (
             <SidebarItem icon={Shield} label={isAdmin(userRole) ? 'Admin' : 'Manage'} active={page === 'admin'} onClick={() => navigate('admin')} />
@@ -12149,6 +12183,15 @@ export default function App() {
               <div className="min-w-0 flex-1">
                 <div className="font-semibold text-sm truncate">{userName}</div>
                 <div className="text-xs text-gray-400 truncate">{userEmail || 'Solidaridad Staff'}</div>
+                {!profileCompletedAt && userUid ? (
+                  <button
+                    onClick={() => navigate('profile')}
+                    className="mt-1 text-[11px] font-bold uppercase tracking-wider hover:opacity-80"
+                    style={{ color: YELLOW }}
+                  >
+                    Complete your profile →
+                  </button>
+                ) : null}
               </div>
             </div>
           )}
@@ -12222,6 +12265,29 @@ export default function App() {
                 progress={progress}
                 achievements={myAchievements}
                 allComplete={completedCount === liveCourses.length && liveCourses.length > 0}
+              />
+            </Suspense>
+          )}
+
+          {view === 'list' && page === 'profile' && (
+            <Suspense fallback={<div className="py-16 text-center text-sm text-gray-500">Loading profile…</div>}>
+              <ProfilePage
+                uid={userUid}
+                userEmail={userEmail}
+                userName={userName}
+                initialCountry={userCountry}
+                initialJobTitle={userJobTitle}
+                createdAt={userCreatedAt}
+                lastActiveAt={userLastActiveAt}
+                profileCompletedAt={profileCompletedAt}
+                onSaved={(p) => {
+                  if (p.displayName) setUserName(p.displayName);
+                  if (p.country) setUserCountry(p.country);
+                  if (p.jobTitle) setUserJobTitle(p.jobTitle);
+                  if (p.displayName && p.country && p.jobTitle && !profileCompletedAt) {
+                    setProfileCompletedAt(new Date());
+                  }
+                }}
               />
             </Suspense>
           )}
@@ -14383,6 +14449,41 @@ function QuizView({ course, quizProgress, onSubmit, onBack }) {
 }
 
 // ===== Certificate View =====
+// Subtle Africa-continent watermark used as the certificate background.
+// Simplified polygonal outline — visually identifiable but lightweight.
+function AfricaWatermark() {
+  return (
+    <svg
+      viewBox="0 0 800 600"
+      preserveAspectRatio="xMidYMid meet"
+      aria-hidden="true"
+      className="absolute inset-0 w-full h-full pointer-events-none"
+      style={{ opacity: 0.08 }}
+    >
+      <path
+        d="M 380 60
+           L 430 55 L 480 70 L 520 95 L 535 130 L 555 150
+           L 595 165 L 615 190 L 605 220 L 595 245 L 605 270
+           L 590 295 L 600 320 L 595 345 L 580 365 L 575 395
+           L 560 420 L 545 445 L 515 470 L 490 495 L 460 515
+           L 430 525 L 400 530 L 375 525 L 360 535 L 340 545
+           L 315 540 L 290 525 L 270 500 L 260 475 L 270 450
+           L 260 425 L 245 405 L 230 380 L 215 355 L 205 325
+           L 210 295 L 220 265 L 230 235 L 240 205 L 255 180
+           L 275 160 L 295 145 L 315 125 L 335 105 L 355 85 Z"
+        fill="#000"
+        stroke="#000"
+        strokeWidth="1"
+      />
+      {/* Madagascar */}
+      <path
+        d="M 590 460 L 605 470 L 610 490 L 605 515 L 595 525 L 585 510 L 582 485 Z"
+        fill="#000"
+      />
+    </svg>
+  );
+}
+
 function CertificateView({ userName, onBack, course = null, uid = '' }) {
   const [cert, setCert] = useState(null);
 
@@ -14415,8 +14516,23 @@ function CertificateView({ userName, onBack, course = null, uid = '' }) {
       </button>
 
       <div className="relative bg-white border border-gray-300 rounded-lg overflow-hidden shadow-xl max-w-4xl mx-auto" style={{ aspectRatio: '1.414 / 1' }}>
-        <div className="absolute top-0 left-0 right-0 flex items-start justify-between p-5 md:p-7">
-          <JifunzeIcon size={30} color={BLACK} accent={YELLOW} />
+        {/* Faded Africa continent map watermark */}
+        <AfricaWatermark />
+
+        {/* Top: Jifunze wordmark (left) + arched Academy title (center) + Solidaridad + Cert ID (right) */}
+        <div className="absolute top-0 left-0 right-0 z-10 flex items-start justify-between p-5 md:p-7">
+          <div className="flex items-center gap-2">
+            <JifunzeIcon size={30} color={BLACK} accent={YELLOW} />
+            <div className="flex flex-col items-start">
+              <span className="font-extrabold text-lg md:text-2xl tracking-tight leading-none text-black">
+                Jifunze
+              </span>
+              <svg width="70" height="5" viewBox="0 0 70 5" className="mt-0.5">
+                <path d="M2 3.5 Q 35 0.5, 68 2.5" stroke={YELLOW} strokeWidth="2.5" fill="none" strokeLinecap="round" />
+              </svg>
+            </div>
+          </div>
+
           <div className="flex flex-col items-end gap-2">
             <div className="flex flex-col items-end">
               <span className="font-extrabold text-sm md:text-base tracking-tight leading-none text-black">
@@ -14433,12 +14549,22 @@ function CertificateView({ userName, onBack, course = null, uid = '' }) {
           </div>
         </div>
 
-        <div className="relative h-full flex flex-col items-center justify-center px-6 md:px-12 py-12 md:py-16 text-center">
-          <p className="text-xs md:text-sm uppercase tracking-[0.3em] font-bold" style={{ color: YELLOW }}>
-            Solidaridad Learning Academy
-          </p>
+        {/* Arched "SOLIDARIDAD LEARNING ACADEMY" title spanning the top */}
+        <div className="absolute top-3 md:top-5 left-0 right-0 z-0 pointer-events-none flex justify-center">
+          <svg width="60%" height="50" viewBox="0 0 600 60" className="max-w-[480px]">
+            <defs>
+              <path id="academyArc" d="M 30 50 Q 300 -10, 570 50" fill="none" />
+            </defs>
+            <text style={{ fontSize: 22, fontWeight: 800, letterSpacing: '0.18em' }}>
+              <textPath href="#academyArc" startOffset="50%" textAnchor="middle" fill={YELLOW}>
+                SOLIDARIDAD LEARNING ACADEMY
+              </textPath>
+            </text>
+          </svg>
+        </div>
 
-          <h1 className="mt-4 md:mt-6 text-3xl md:text-5xl lg:text-6xl font-extrabold uppercase tracking-tight leading-none">
+        <div className="relative z-10 h-full flex flex-col items-center justify-center px-6 md:px-12 pt-20 md:pt-24 pb-16 md:pb-20 text-center">
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold uppercase tracking-tight leading-none">
             Certificate of<br />Completion
           </h1>
 

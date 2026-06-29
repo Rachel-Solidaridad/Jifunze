@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
-import { Plus, Trash2, X, Calendar } from 'lucide-react';
-import { createAssignment, deleteAssignment } from './queries';
+import { Plus, Trash2, X, Calendar, User, Users } from 'lucide-react';
+import { createAssignment, createAssignmentsBulk, deleteAssignment } from './queries';
+import { ROLES } from '../auth/roles';
 
 const YELLOW = '#FFC800';
 
@@ -126,6 +127,7 @@ export default function Assignments({ loading, users, courses, assignments, curr
         <AssignForm
           users={users}
           courses={liveCourses}
+          assignments={assignments}
           currentUid={currentUid}
           onClose={() => setShowForm(false)}
           onCreated={async () => { setShowForm(false); await onChanged?.(); }}
@@ -135,29 +137,65 @@ export default function Assignments({ loading, users, courses, assignments, curr
   );
 }
 
-function AssignForm({ users, courses, currentUid, onClose, onCreated }) {
+function AssignForm({ users, courses, assignments, currentUid, onClose, onCreated }) {
+  const [target, setTarget] = useState('one'); // 'one' | 'all'
   const [userId, setUserId] = useState('');
   const [courseId, setCourseId] = useState('');
   const [due, setDue] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
+  // Everyone who learns: default learners plus managers (admins/managers can
+  // still be required to take a course). Sorted for a stable, readable count.
+  const learners = useMemo(
+    () => users.filter(u => u.role !== ROLES.ADMIN),
+    [users],
+  );
+
+  // For the selected course, which learners DON'T already have it assigned.
+  // "Assign to all" only writes for these, so re-running it is a safe no-op
+  // for people who were already covered.
+  const eligibleForAll = useMemo(() => {
+    if (!courseId) return [];
+    const already = new Set(
+      assignments.filter(a => a.courseId === courseId).map(a => a.userId),
+    );
+    return learners.filter(u => !already.has(u.uid));
+  }, [courseId, assignments, learners]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!userId || !courseId) {
-      setError('Pick a learner and a course.');
+    if (!courseId) {
+      setError('Pick a course.');
+      return;
+    }
+    if (target === 'one' && !userId) {
+      setError('Pick a learner.');
+      return;
+    }
+    if (target === 'all' && eligibleForAll.length === 0) {
+      setError('Every learner already has this course assigned.');
       return;
     }
     setBusy(true);
     setError('');
     try {
       const dueAt = due ? new Date(due) : null;
-      await createAssignment({
-        userId,
-        courseId,
-        assignedBy: currentUid,
-        dueAt,
-      });
+      if (target === 'all') {
+        await createAssignmentsBulk({
+          userIds: eligibleForAll.map(u => u.uid),
+          courseId,
+          assignedBy: currentUid,
+          dueAt,
+        });
+      } else {
+        await createAssignment({
+          userId,
+          courseId,
+          assignedBy: currentUid,
+          dueAt,
+        });
+      }
       await onCreated();
     } catch (err) {
       console.error('createAssignment failed', err);
@@ -184,21 +222,49 @@ function AssignForm({ users, courses, currentUid, onClose, onCreated }) {
 
         <div className="mt-5 space-y-4">
           <div>
-            <label className="text-xs font-bold uppercase tracking-wider text-gray-600">Learner</label>
-            <select
-              value={userId}
-              onChange={e => setUserId(e.target.value)}
-              className="mt-1 w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2"
-              style={{ '--tw-ring-color': YELLOW }}
-            >
-              <option value="">Choose a learner…</option>
-              {users.map(u => (
-                <option key={u.uid} value={u.uid}>
-                  {u.displayName || u.email || u.uid}
-                </option>
-              ))}
-            </select>
+            <label className="text-xs font-bold uppercase tracking-wider text-gray-600">Assign to</label>
+            <div className="mt-1 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setTarget('one')}
+                className="px-3 py-2 text-sm font-bold rounded-lg border-2 inline-flex items-center justify-center gap-2"
+                style={target === 'one'
+                  ? { borderColor: '#000', backgroundColor: YELLOW, color: '#000' }
+                  : { borderColor: '#e5e7eb', color: '#374151' }}
+              >
+                <User size={14} /> One learner
+              </button>
+              <button
+                type="button"
+                onClick={() => setTarget('all')}
+                className="px-3 py-2 text-sm font-bold rounded-lg border-2 inline-flex items-center justify-center gap-2"
+                style={target === 'all'
+                  ? { borderColor: '#000', backgroundColor: YELLOW, color: '#000' }
+                  : { borderColor: '#e5e7eb', color: '#374151' }}
+              >
+                <Users size={14} /> All learners
+              </button>
+            </div>
           </div>
+
+          {target === 'one' ? (
+            <div>
+              <label className="text-xs font-bold uppercase tracking-wider text-gray-600">Learner</label>
+              <select
+                value={userId}
+                onChange={e => setUserId(e.target.value)}
+                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2"
+                style={{ '--tw-ring-color': YELLOW }}
+              >
+                <option value="">Choose a learner…</option>
+                {users.map(u => (
+                  <option key={u.uid} value={u.uid}>
+                    {u.displayName || u.email || u.uid}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : null}
 
           <div>
             <label className="text-xs font-bold uppercase tracking-wider text-gray-600">Course</label>
@@ -214,6 +280,14 @@ function AssignForm({ users, courses, currentUid, onClose, onCreated }) {
               ))}
             </select>
           </div>
+
+          {target === 'all' && courseId ? (
+            <div className="text-xs text-gray-700 bg-gray-50 border border-gray-200 rounded p-2">
+              {eligibleForAll.length > 0
+                ? `Will assign this course to ${eligibleForAll.length} learner${eligibleForAll.length === 1 ? '' : 's'} who don't already have it.`
+                : 'Every learner already has this course assigned.'}
+            </div>
+          ) : null}
 
           <div>
             <label className="text-xs font-bold uppercase tracking-wider text-gray-600">Due date (optional)</label>
@@ -238,7 +312,11 @@ function AssignForm({ users, courses, currentUid, onClose, onCreated }) {
             className="w-full py-3 font-extrabold uppercase tracking-wider rounded-lg disabled:opacity-50"
             style={{ backgroundColor: YELLOW, color: '#000' }}
           >
-            {busy ? 'Assigning…' : 'Assign course'}
+            {busy
+              ? 'Assigning…'
+              : target === 'all'
+                ? `Assign to all${eligibleForAll.length ? ` (${eligibleForAll.length})` : ''}`
+                : 'Assign course'}
           </button>
         </div>
       </form>

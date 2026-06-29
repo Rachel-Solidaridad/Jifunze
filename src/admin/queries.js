@@ -4,7 +4,7 @@
 
 import {
   collection, collectionGroup, getDocs, query, where, doc, setDoc,
-  deleteDoc, addDoc, serverTimestamp,
+  deleteDoc, addDoc, serverTimestamp, writeBatch,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { ROLES, normalizeRole } from '../auth/roles';
@@ -144,6 +144,33 @@ export async function createAssignment({ userId, courseId, assignedBy, dueAt = n
     dueAt,
     status: 'assigned',
   });
+}
+
+// Bulk-assign one course to many learners in a single pass. Uses Firestore
+// batched writes (capped at 500 ops each, so we chunk at 450 for headroom).
+// `userIds` is de-duped and emptied of falsy values by the caller's filter;
+// returns the number of assignment docs actually written.
+export async function createAssignmentsBulk({ userIds, courseId, assignedBy, dueAt = null }) {
+  const ids = [...new Set((userIds || []).filter(Boolean))];
+  let created = 0;
+  for (let i = 0; i < ids.length; i += 450) {
+    const chunk = ids.slice(i, i + 450);
+    const batch = writeBatch(db);
+    for (const userId of chunk) {
+      const ref = doc(collection(db, 'assignments'));
+      batch.set(ref, {
+        userId,
+        courseId,
+        assignedBy,
+        assignedAt: serverTimestamp(),
+        dueAt,
+        status: 'assigned',
+      });
+      created++;
+    }
+    await batch.commit();
+  }
+  return created;
 }
 
 export async function deleteAssignment(id) {

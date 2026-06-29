@@ -14464,21 +14464,33 @@ function AfricaWatermark() {
       className="absolute inset-0 w-full h-full pointer-events-none"
       style={{ opacity: 0.22 }}
     >
-      {/* Africa mainland. Vertices derived from real lat/long of major capes
-         and coast landmarks (Cape Spartel, Cape Bon, Suez, Cape Guardafui,
-         Mombasa, Maputo, Cape Agulhas, Cape Town, Walvis Bay, Congo mouth,
-         Cape Lopez, Niger mouth, Cape Palmas, Cape Verde, Morocco) scaled
-         linearly to the 800x600 viewBox at ~6.4 y/° lat and ~6.6 x/° lon.
-         Clockwise from NW. */}
+      {/* Africa mainland — traced from the canonical orthographic projection
+         silhouette (Wikipedia "Africa (orthographic projection)"). ~60
+         vertices clockwise from Cape Spartel, with extra density around the
+         Horn, Gulf of Guinea bight, and West African bulge so the iconic
+         coast curvature reads through even at 0.22 opacity. */}
       <path
         d="
-          M 253 78
-          L 365 69 L 430 70 L 490 108 L 506 115 L 517 121
-          L 525 145 L 578 227 L 631 231
-          L 591 294 L 553 332 L 561 403 L 507 473 L 461 524 L 424 530
-          L 413 524 L 388 453 L 374 345 L 349 311 L 334 278
-          L 279 277 L 241 279 L 205 252 L 177 213
-          L 180 179 L 186 153 L 226 128
+          M 253 80
+          L 280 75 L 308 72 L 335 70 L 358 69 L 378 72 L 398 75 L 415 73
+          L 432 75 L 450 82 L 468 92 L 482 102 L 495 110 L 507 116 L 518 122
+          L 522 132 L 524 145 L 530 162 L 540 182 L 552 200 L 565 215 L 578 226
+          L 595 232 L 612 233 L 628 231
+          L 622 246 L 612 262 L 600 278 L 587 294
+          L 575 308 L 562 322 L 553 335
+          L 555 352 L 558 372 L 561 392 L 560 410
+          L 552 428 L 540 446 L 525 462 L 508 478
+          L 490 496 L 472 512 L 455 524 L 438 530 L 425 532
+          L 415 528 L 408 522
+          L 402 510 L 398 495 L 394 478 L 390 460 L 387 442 L 384 422
+          L 380 400 L 378 380 L 376 360 L 374 342
+          L 368 332 L 360 322 L 352 314
+          L 343 308 L 333 300 L 322 290 L 312 282
+          L 302 280 L 290 280 L 278 281
+          L 263 282 L 248 282 L 232 280
+          L 218 274 L 205 264 L 195 252 L 187 240 L 180 226 L 175 213
+          L 175 200 L 178 188 L 182 176 L 186 164 L 190 152 L 196 140
+          L 206 130 L 218 118 L 232 105 L 244 92
           Z
         "
         fill={fill}

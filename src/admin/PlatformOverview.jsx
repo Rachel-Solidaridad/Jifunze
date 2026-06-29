@@ -152,6 +152,39 @@ export default function PlatformOverview({
     return { rows, totalResponses, namedCountries, maxTotal: rows[0]?.total || 0 };
   }, [votes, users]);
 
+  // Course engagement broken down by country: for every learner (grouped by
+  // their profile country) we tally enrollments (a started course), completions
+  // (100%) and the running completion % across live courses. Mirrors the
+  // platform-wide enrollment / avg-completion KPIs, sliced per country.
+  const engagementByCountry = useMemo(() => {
+    const map = {}; // country -> { learners, enrollments, completions, pctSum, pctCount }
+    for (const u of users) {
+      const country = u.country || UNKNOWN_COUNTRY;
+      if (!map[country]) map[country] = { country, learners: 0, enrollments: 0, completions: 0, pctSum: 0, pctCount: 0 };
+      map[country].learners++;
+      const p = allProgress[u.uid] || {};
+      for (const c of liveCourses) {
+        const cp = p[c.id];
+        if (!cp) continue;
+        const pct = computeCompletion(c, cp);
+        map[country].enrollments++;
+        if (pct === 100) map[country].completions++;
+        map[country].pctSum += pct;
+        map[country].pctCount++;
+      }
+    }
+    const rows = Object.values(map)
+      .map(r => ({
+        country: r.country,
+        learners: r.learners,
+        enrollments: r.enrollments,
+        completions: r.completions,
+        avgCompletion: r.pctCount > 0 ? Math.round(r.pctSum / r.pctCount) : 0,
+      }))
+      .sort((a, b) => b.enrollments - a.enrollments || a.country.localeCompare(b.country));
+    return { rows, maxEnroll: rows[0]?.enrollments || 0 };
+  }, [users, allProgress, liveCourses, computeCompletion]);
+
   if (loading && users.length === 0) {
     return <div className="py-12 text-center text-sm text-gray-500">Loading platform stats…</div>;
   }
@@ -242,6 +275,18 @@ export default function PlatformOverview({
       <div className="mt-6">
         <div className="flex items-baseline justify-between flex-wrap gap-x-4 gap-y-1">
           <h2 className="text-lg md:text-xl font-extrabold tracking-tight uppercase">
+            Course Engagement by Country
+          </h2>
+          <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+            Learners attributed by profile country — refresh to update
+          </span>
+        </div>
+        <EngagementByCountryCard data={engagementByCountry} />
+      </div>
+
+      <div className="mt-6">
+        <div className="flex items-baseline justify-between flex-wrap gap-x-4 gap-y-1">
+          <h2 className="text-lg md:text-xl font-extrabold tracking-tight uppercase">
             Feedback by Country
           </h2>
           <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
@@ -250,6 +295,64 @@ export default function PlatformOverview({
         </div>
         <FeedbackByCountryCard data={feedbackByCountry} />
       </div>
+    </div>
+  );
+}
+
+function EngagementByCountryCard({ data }) {
+  const { rows, maxEnroll } = data;
+  const totalEnroll = rows.reduce((s, r) => s + r.enrollments, 0);
+  return (
+    <div className="mt-4 bg-white border border-gray-200 rounded-2xl p-5">
+      <div className="flex items-center gap-2">
+        <Globe size={18} className="text-black" />
+        <h3 className="text-sm font-extrabold uppercase tracking-wider">
+          Enrollments & completions per country
+        </h3>
+      </div>
+      <p className="text-xs text-gray-500 mt-0.5">
+        Learners grouped by profile country. Enrollments = started courses; avg % is across started courses.
+      </p>
+
+      {totalEnroll === 0 ? (
+        <p className="mt-4 text-sm text-gray-500">
+          No course activity yet. Once learners start courses, the breakdown appears here.
+        </p>
+      ) : (
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="text-left text-xs uppercase tracking-wider text-gray-500 font-bold">
+              <tr>
+                <th className="py-2 pr-4">Country</th>
+                <th className="py-2 px-2 text-right">Learners</th>
+                <th className="py-2 px-2 text-right">Enrollments</th>
+                <th className="py-2 px-2 text-right">Completions</th>
+                <th className="py-2 pl-2 text-right">Avg %</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map(r => {
+                const pct = maxEnroll > 0 ? Math.round((r.enrollments / maxEnroll) * 100) : 0;
+                const muted = r.country === UNKNOWN_COUNTRY;
+                return (
+                  <tr key={r.country} className="border-t border-gray-100">
+                    <td className="py-2.5 pr-4">
+                      <div className={`font-semibold ${muted ? 'text-gray-400 italic' : ''}`}>{r.country}</div>
+                      <div className="mt-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full" style={{ width: `${pct}%`, backgroundColor: muted ? '#d1d5db' : '#FFC800' }} />
+                      </div>
+                    </td>
+                    <td className="py-2.5 px-2 text-right tabular-nums">{r.learners}</td>
+                    <td className="py-2.5 px-2 text-right tabular-nums">{r.enrollments}</td>
+                    <td className="py-2.5 px-2 text-right tabular-nums">{r.completions}</td>
+                    <td className="py-2.5 pl-2 text-right font-extrabold tabular-nums">{r.avgCompletion}%</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

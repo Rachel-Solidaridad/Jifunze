@@ -12080,8 +12080,8 @@ export default function App() {
     // score even when the course isn't yet 100%). Best-effort: failures
     // here must never break the course-complete UX.
     const liveCoursesNow = COURSES.filter(c => !c.placeholder);
-    const completedNow = liveCoursesNow.filter(c => computeCompletion(c, next[c.id])).length;
-    const allCompleteNow = completedNow === liveCoursesNow.length;
+    const completedNow = liveCoursesNow.filter(c => computeCompletion(c, next[c.id]) === 100).length;
+    const allCompleteNow = liveCoursesNow.length > 0 && completedNow === liveCoursesNow.length;
     const ctx = {
       courseCompletion: (id) => {
         const cc = COURSES.find(x => x.id === id);
@@ -14449,36 +14449,69 @@ function QuizView({ course, quizProgress, onSubmit, onBack }) {
 }
 
 // ===== Certificate View =====
-// Subtle Africa-continent watermark used as the certificate background.
-// Simplified polygonal outline — visually identifiable but lightweight.
+// Africa-continent watermark used as the certificate background.
+// Recognisable silhouette: top Mediterranean edge, Horn of Africa east
+// protrusion, West African bulge, southern Cape, plus Madagascar.
 function AfricaWatermark() {
+  const fill = '#7d7d6f';
+  const stroke = '#5e5e54';
+  const border = '#9ea08f';
   return (
     <svg
       viewBox="0 0 800 600"
       preserveAspectRatio="xMidYMid meet"
       aria-hidden="true"
       className="absolute inset-0 w-full h-full pointer-events-none"
-      style={{ opacity: 0.08 }}
+      style={{ opacity: 0.22 }}
     >
+      {/* Africa mainland. Vertices derived from real lat/long of major capes
+         and coast landmarks (Cape Spartel, Cape Bon, Suez, Cape Guardafui,
+         Mombasa, Maputo, Cape Agulhas, Cape Town, Walvis Bay, Congo mouth,
+         Cape Lopez, Niger mouth, Cape Palmas, Cape Verde, Morocco) scaled
+         linearly to the 800x600 viewBox at ~6.4 y/° lat and ~6.6 x/° lon.
+         Clockwise from NW. */}
       <path
-        d="M 380 60
-           L 430 55 L 480 70 L 520 95 L 535 130 L 555 150
-           L 595 165 L 615 190 L 605 220 L 595 245 L 605 270
-           L 590 295 L 600 320 L 595 345 L 580 365 L 575 395
-           L 560 420 L 545 445 L 515 470 L 490 495 L 460 515
-           L 430 525 L 400 530 L 375 525 L 360 535 L 340 545
-           L 315 540 L 290 525 L 270 500 L 260 475 L 270 450
-           L 260 425 L 245 405 L 230 380 L 215 355 L 205 325
-           L 210 295 L 220 265 L 230 235 L 240 205 L 255 180
-           L 275 160 L 295 145 L 315 125 L 335 105 L 355 85 Z"
-        fill="#000"
-        stroke="#000"
-        strokeWidth="1"
+        d="
+          M 253 78
+          L 365 69 L 430 70 L 490 108 L 506 115 L 517 121
+          L 525 145 L 578 227 L 631 231
+          L 591 294 L 553 332 L 561 403 L 507 473 L 461 524 L 424 530
+          L 413 524 L 388 453 L 374 345 L 349 311 L 334 278
+          L 279 277 L 241 279 L 205 252 L 177 213
+          L 180 179 L 186 153 L 226 128
+          Z
+        "
+        fill={fill}
+        stroke={stroke}
+        strokeWidth="1.5"
       />
+      {/* Internal country-border hints (latitude + longitude markers) */}
+      <g fill="none" stroke={border} strokeWidth="0.8" opacity="0.55">
+        <path d="M 190 145 C 280 135, 380 135, 470 145 C 530 153, 575 162, 605 170" />
+        <path d="M 200 200 C 290 195, 390 200, 490 215 C 555 225, 605 240, 645 248" />
+        <path d="M 235 275 C 320 270, 410 275, 500 290 C 560 300, 605 315, 625 325" />
+        <path d="M 280 380 C 360 375, 440 380, 510 395 C 555 405, 580 415, 590 420" />
+        <path d="M 320 460 C 380 455, 440 460, 490 470 C 520 478, 540 485, 545 490" />
+        <path d="M 280 90  C 290 200, 295 320, 320 460" />
+        <path d="M 360 75  C 365 200, 370 330, 380 510" />
+        <path d="M 440 75  C 442 200, 450 330, 440 525" />
+        <path d="M 520 85  C 525 220, 530 340, 510 470" />
+        <path d="M 590 115 C 595 200, 605 320, 580 440" />
+        <path d="M 555 100 C 575 130, 605 160, 635 195" />
+      </g>
       {/* Madagascar */}
       <path
-        d="M 590 460 L 605 470 L 610 490 L 605 515 L 595 525 L 585 510 L 582 485 Z"
-        fill="#000"
+        d="
+          M 615 425
+          C 626 432, 635 450, 638 472
+          C 640 495, 632 515, 622 524
+          C 612 528, 605 515, 602 498
+          C 600 480, 602 460, 608 442
+          C 610 433, 612 428, 615 425 Z
+        "
+        fill={fill}
+        stroke={stroke}
+        strokeWidth="1.2"
       />
     </svg>
   );

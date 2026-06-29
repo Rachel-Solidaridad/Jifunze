@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Search, X, Award, BookOpen, Clock, Calendar } from 'lucide-react';
+import { Search, X, Award, BookOpen, Clock, Calendar, Trophy } from 'lucide-react';
 import { ROLES, ROLE_LABELS, ROLE_OPTIONS, canChangeRoles } from '../auth/roles';
 import { setUserRole, quizPct, quizPassed, QUIZ_PASS_PCT } from './queries';
 
@@ -74,7 +74,7 @@ export default function UserManagement({
         const tb = b.lastActiveAt?.toDate?.()?.getTime() || 0;
         return tb - ta;
       });
-  }, [users, allProgress, certificates, liveCourses, computeCompletion, search]);
+  }, [users, allProgress, certificates, achievements, liveCourses, computeCompletion, search]);
 
   const handleRoleChange = async (uid, newRole) => {
     if (!canEdit || busyUid) return;
@@ -125,6 +125,7 @@ export default function UserManagement({
                 <th className="px-4 py-3 text-right">Started</th>
                 <th className="px-4 py-3 text-right">Completed</th>
                 <th className="px-4 py-3 text-right">Hours</th>
+                <th className="px-4 py-3 text-right">Certs</th>
                 <th className="px-4 py-3 text-right">Badges</th>
                 <th className="px-4 py-3 text-right">Last active</th>
               </tr>
@@ -165,6 +166,7 @@ export default function UserManagement({
                     <td className="px-4 py-3 text-right">{u.started}</td>
                     <td className="px-4 py-3 text-right">{u.completed}</td>
                     <td className="px-4 py-3 text-right">{u.hours.toFixed(1)}</td>
+                    <td className="px-4 py-3 text-right">{u.certs}</td>
                     <td className="px-4 py-3 text-right">{u.badges}</td>
                     <td className="px-4 py-3 text-right text-xs text-gray-600">{timeAgo(u.lastActiveAt)}</td>
                   </tr>
@@ -181,6 +183,7 @@ export default function UserManagement({
           courses={liveCourses}
           progress={allProgress[selected.uid] || {}}
           certificates={certificates.filter(c => c.uid === selected.uid)}
+          achievements={achievements.filter(a => a.uid === selected.uid)}
           computeCompletion={computeCompletion}
           onClose={() => setSelected(null)}
         />
@@ -189,10 +192,19 @@ export default function UserManagement({
   );
 }
 
-function UserDetailDrawer({ user, courses, progress, certificates, computeCompletion, onClose }) {
+function UserDetailDrawer({ user, courses, progress, certificates, achievements = [], computeCompletion, onClose }) {
   const enrolled = courses
     .map(c => ({ course: c, p: progress[c.id] }))
     .filter(x => x.p);
+
+  const badges = useMemo(
+    () => [...achievements].sort((a, b) => {
+      const ta = a.awardedAt?.toDate?.()?.getTime() || 0;
+      const tb = b.awardedAt?.toDate?.()?.getTime() || 0;
+      return tb - ta;
+    }),
+    [achievements],
+  );
 
   return (
     <div className="fixed inset-0 z-40 flex justify-end" onClick={onClose}>
@@ -276,6 +288,29 @@ function UserDetailDrawer({ user, courses, progress, certificates, computeComple
                       </div>
                     </div>
                     {c.score != null ? <div className="text-xs font-bold">{c.score}%</div> : null}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <section>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500">Badges ({badges.length})</h4>
+            {badges.length === 0 ? (
+              <p className="mt-2 text-sm text-gray-500">No badges earned yet.</p>
+            ) : (
+              <ul className="mt-3 space-y-2">
+                {badges.map(b => (
+                  <li key={b.achievementId} className="flex items-center justify-between gap-3 border border-gray-200 rounded-lg p-3">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <Trophy size={16} className="flex-shrink-0" />
+                      <div className="min-w-0">
+                        <div className="text-sm font-semibold truncate">{b.title || b.achievementId}</div>
+                        <div className="text-[11px] text-gray-500 truncate">
+                          {(b.type ? b.type[0].toUpperCase() + b.type.slice(1) : 'Badge')} · {timeAgo(b.awardedAt)}
+                        </div>
+                      </div>
+                    </div>
                   </li>
                 ))}
               </ul>

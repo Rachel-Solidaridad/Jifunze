@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Shield, BarChart3, Users as UsersIcon, BookOpen, ClipboardCheck, MessageSquare, RefreshCw } from 'lucide-react';
-import { listAllUsers, getAllProgress, getAllCertificates, listAllAssignments, getAllAchievements, listPolls, listDebates } from './queries';
+import { listAllUsers, getAllProgress, getAllCertificates, listAllAssignments, getAllAchievements, getAllVotes, listPolls, listDebates } from './queries';
 import PlatformOverview from './PlatformOverview';
 import UserManagement from './UserManagement';
 import CourseAnalytics from './CourseAnalytics';
@@ -29,6 +29,7 @@ export default function AdminDashboard({ currentRole, currentUid, courses, compu
   const [certificates, setCertificates] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [achievements, setAchievements] = useState([]);
+  const [votes, setVotes] = useState([]);
   const [polls, setPolls] = useState([]);
   const [debates, setDebates] = useState([]);
 
@@ -37,11 +38,12 @@ export default function AdminDashboard({ currentRole, currentUid, courses, compu
     setError('');
     try {
       const us = await listAllUsers();
-      const [progress, certs, asgn, ach, pollList, debateList] = await Promise.all([
+      const [progress, certs, asgn, ach, voteList, pollList, debateList] = await Promise.all([
         getAllProgress(us),
         getAllCertificates(),
         listAllAssignments(),
         getAllAchievements(),
+        getAllVotes(),
         listPolls(),
         listDebates(),
       ]);
@@ -50,6 +52,7 @@ export default function AdminDashboard({ currentRole, currentUid, courses, compu
       setCertificates(certs);
       setAssignments(asgn);
       setAchievements(ach);
+      setVotes(voteList);
       setPolls(pollList);
       setDebates(debateList);
     } catch (e) {
@@ -119,6 +122,7 @@ export default function AdminDashboard({ currentRole, currentUid, courses, compu
             allProgress={allProgress}
             certificates={certificates}
             achievements={achievements}
+            votes={votes}
             courses={courses}
             computeCompletion={computeCompletion}
           />

@@ -120,6 +120,39 @@ export async function getAllAchievements() {
   }
 }
 
+// --- Feedback (poll / debate participation) ---
+
+// Every poll vote and debate stance lives in a `voters` subcollection:
+//   /polls/{pollId}/voters/{uid}    ({ name, choice, votedAt })
+//   /debates/{debateId}/voters/{uid} ({ name, side,   votedAt })
+// The doc id IS the voter's uid, so the admin can attribute each response to
+// a country by joining on the users list — no country is stored on the vote
+// itself, and this works retroactively for votes cast before this report
+// existed. One collectionGroup read covers both polls and debates.
+export async function getAllVotes() {
+  try {
+    const snap = await getDocs(collectionGroup(db, 'voters'));
+    const out = [];
+    snap.forEach(d => {
+      const parentDoc = d.ref.parent.parent;          // the poll or debate doc
+      const topCollectionId = parentDoc?.parent?.id;  // 'polls' or 'debates'
+      const data = d.data();
+      out.push({
+        uid: d.id,
+        source: topCollectionId === 'debates' ? 'debate' : 'poll',
+        parentId: parentDoc?.id || null,
+        choice: data.choice ?? null, // poll option key (A–D)
+        side: data.side ?? null,     // debate stance (pro/con)
+        votedAt: data.votedAt || null,
+      });
+    });
+    return out;
+  } catch (e) {
+    console.error('getAllVotes failed', e);
+    return [];
+  }
+}
+
 // --- Assignments ---
 
 export async function listAllAssignments() {

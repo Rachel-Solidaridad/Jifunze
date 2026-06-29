@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Users as UsersIcon, Activity, GraduationCap, Clock, Award, TrendingUp, Trophy, CheckCircle2, Layers, UserCheck } from 'lucide-react';
+import { Users as UsersIcon, Activity, GraduationCap, Clock, Award, TrendingUp, Trophy, CheckCircle2, Layers, UserCheck, MessageSquare, Globe } from 'lucide-react';
 import KpiCard from './charts/KpiCard';
 import EnrollmentBarChart from './charts/EnrollmentBarChart';
 import ActivityLineChart from './charts/ActivityLineChart';
@@ -18,8 +18,10 @@ function durationToHours(d) {
   return n;
 }
 
+const UNKNOWN_COUNTRY = 'Country not set';
+
 export default function PlatformOverview({
-  loading, users, allProgress, certificates, achievements = [], courses, computeCompletion,
+  loading, users, allProgress, certificates, achievements = [], votes = [], courses, computeCompletion,
 }) {
   const liveCourses = useMemo(() => courses.filter(c => !c.placeholder), [courses]);
 
@@ -117,6 +119,39 @@ export default function PlatformOverview({
     };
   }, [achievements, users]);
 
+  // Feedback (poll + debate participation) broken down by country. Each vote
+  // doc is keyed by uid, so we attribute it to the voter's profile country;
+  // votes from users with no country fall into "Country not set". We also
+  // count DISTINCT participants per country (a learner who answers five polls
+  // is one participant, five responses).
+  const feedbackByCountry = useMemo(() => {
+    const countryByUid = {};
+    for (const u of users) countryByUid[u.uid] = u.country || UNKNOWN_COUNTRY;
+
+    const map = {}; // country -> { pollVotes, debateVotes, participants:Set }
+    for (const v of votes) {
+      const country = countryByUid[v.uid] || UNKNOWN_COUNTRY;
+      if (!map[country]) map[country] = { country, pollVotes: 0, debateVotes: 0, participants: new Set() };
+      if (v.source === 'debate') map[country].debateVotes++;
+      else map[country].pollVotes++;
+      if (v.uid) map[country].participants.add(v.uid);
+    }
+
+    const rows = Object.values(map)
+      .map(r => ({
+        country: r.country,
+        pollVotes: r.pollVotes,
+        debateVotes: r.debateVotes,
+        total: r.pollVotes + r.debateVotes,
+        participants: r.participants.size,
+      }))
+      .sort((a, b) => b.total - a.total || a.country.localeCompare(b.country));
+
+    const totalResponses = rows.reduce((s, r) => s + r.total, 0);
+    const namedCountries = rows.filter(r => r.country !== UNKNOWN_COUNTRY).length;
+    return { rows, totalResponses, namedCountries, maxTotal: rows[0]?.total || 0 };
+  }, [votes, users]);
+
   if (loading && users.length === 0) {
     return <div className="py-12 text-center text-sm text-gray-500">Loading platform stats…</div>;
   }
@@ -138,6 +173,12 @@ export default function PlatformOverview({
           label="Profiles complete"
           value={`${stats.profilesComplete} / ${stats.totalUsers}`}
           sublabel={`${stats.profilesPct}% with country + job title`}
+        />
+        <KpiCard
+          icon={MessageSquare}
+          label="Feedback responses"
+          value={feedbackByCountry.totalResponses}
+          sublabel={`poll & debate votes · ${feedbackByCountry.namedCountries} ${feedbackByCountry.namedCountries === 1 ? 'country' : 'countries'}`}
         />
       </div>
 
@@ -197,6 +238,75 @@ export default function PlatformOverview({
           />
         </div>
       </div>
+
+      <div className="mt-6">
+        <div className="flex items-baseline justify-between flex-wrap gap-x-4 gap-y-1">
+          <h2 className="text-lg md:text-xl font-extrabold tracking-tight uppercase">
+            Feedback by Country
+          </h2>
+          <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+            Poll & debate participation — refresh to update
+          </span>
+        </div>
+        <FeedbackByCountryCard data={feedbackByCountry} />
+      </div>
+    </div>
+  );
+}
+
+function FeedbackByCountryCard({ data }) {
+  const { rows, totalResponses, maxTotal } = data;
+  return (
+    <div className="mt-4 bg-white border border-gray-200 rounded-2xl p-5">
+      <div className="flex items-center gap-2">
+        <Globe size={18} className="text-black" />
+        <h3 className="text-sm font-extrabold uppercase tracking-wider">
+          Poll & debate responses per country
+        </h3>
+      </div>
+      <p className="text-xs text-gray-500 mt-0.5">
+        Each response attributed to the voter's profile country. Participants counts distinct learners.
+      </p>
+
+      {totalResponses === 0 ? (
+        <p className="mt-4 text-sm text-gray-500">
+          No poll or debate responses yet. Once learners vote, the breakdown appears here.
+        </p>
+      ) : (
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="text-left text-xs uppercase tracking-wider text-gray-500 font-bold">
+              <tr>
+                <th className="py-2 pr-4">Country</th>
+                <th className="py-2 px-2 text-right">Participants</th>
+                <th className="py-2 px-2 text-right">Poll votes</th>
+                <th className="py-2 px-2 text-right">Debate stances</th>
+                <th className="py-2 pl-2 text-right">Total responses</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map(r => {
+                const pct = maxTotal > 0 ? Math.round((r.total / maxTotal) * 100) : 0;
+                const muted = r.country === UNKNOWN_COUNTRY;
+                return (
+                  <tr key={r.country} className="border-t border-gray-100">
+                    <td className="py-2.5 pr-4">
+                      <div className={`font-semibold ${muted ? 'text-gray-400 italic' : ''}`}>{r.country}</div>
+                      <div className="mt-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full" style={{ width: `${pct}%`, backgroundColor: muted ? '#d1d5db' : '#FFC800' }} />
+                      </div>
+                    </td>
+                    <td className="py-2.5 px-2 text-right tabular-nums">{r.participants}</td>
+                    <td className="py-2.5 px-2 text-right tabular-nums">{r.pollVotes}</td>
+                    <td className="py-2.5 px-2 text-right tabular-nums">{r.debateVotes}</td>
+                    <td className="py-2.5 pl-2 text-right font-extrabold tabular-nums">{r.total}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

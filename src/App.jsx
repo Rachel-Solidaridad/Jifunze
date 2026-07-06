@@ -11829,6 +11829,19 @@ async function loadCertificate(uid, courseId) {
   }
 }
 
+// Stable 4-char code derived from a string (FNV-1a → base36, upper-cased).
+// Used to make certificate IDs unique per learner+course, so courses that
+// share a 3-letter prefix (e.g. every nbs-* course → "NBS", finance +
+// finance-policy → "FIN") no longer collide on one displayed Certificate ID.
+function certHash(str) {
+  let h = 0x811c9dc5; // FNV-1a 32-bit offset basis
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 0x01000193); // FNV prime
+  }
+  return (h >>> 0).toString(36).toUpperCase().padStart(4, '0').slice(-4);
+}
+
 // Write the cert doc once on first 100% completion. Idempotent: if a cert
 // already exists for this user+course, we keep the original issuedAt (the
 // rules also forbid update/delete, so any concurrent attempt would just no-op).
@@ -11840,8 +11853,9 @@ async function issueCertificateIfFirstTime(uid, course, score) {
     if (existing.exists()) return;
     const yr = new Date().getFullYear();
     const certCode = course.id.toUpperCase().slice(0, 3);
+    const uniq = certHash(`${uid}:${course.id}`);
     await setDoc(ref, {
-      certId: `SCA-${certCode}-${yr}`,
+      certId: `SCA-${certCode}-${uniq}-${yr}`,
       courseTitle: course.title,
       score: score || 0,
       issuedAt: serverTimestamp(),
@@ -14581,7 +14595,11 @@ function CertificateView({ userName, onBack, course = null, uid = '' }) {
 
   const courseCode = course ? course.id.toUpperCase().slice(0, 3) : 'MST';
   const fallbackYear = new Date().getFullYear();
-  const certId = cert?.certId || `SCA-${courseCode}-${fallbackYear}`;
+  const fallbackHashKey = course ? `${uid}:${course.id}` : `${uid}:master`;
+  const fallbackId = uid
+    ? `SCA-${courseCode}-${certHash(fallbackHashKey)}-${fallbackYear}`
+    : `SCA-${courseCode}-${fallbackYear}`;
+  const certId = cert?.certId || fallbackId;
 
   const issueDate = (cert?.issuedAt?.toDate?.() || new Date()).toLocaleDateString('en-GB', {
     day: 'numeric',

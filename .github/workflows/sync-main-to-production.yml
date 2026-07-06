@@ -1,0 +1,52 @@
+name: Open PR main → production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: sync-main-to-production
+  cancel-in-progress: false
+
+jobs:
+  open-sync-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch branches
+        run: git fetch --no-tags origin main production
+
+      - name: Check whether production is behind main
+        id: diff
+        run: |
+          ahead=$(git rev-list --count origin/production..origin/main)
+          echo "ahead=$ahead" >> "$GITHUB_OUTPUT"
+          echo "production is $ahead commit(s) behind main"
+
+      - name: Check for an existing open PR
+        id: existing
+        if: steps.diff.outputs.ahead != '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          count=$(gh pr list --repo "$GITHUB_REPOSITORY" \
+            --base production --head main --state open --json number --jq 'length')
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+
+      - name: Open PR main → production
+        if: steps.diff.outputs.ahead != '0' && steps.existing.outputs.count == '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr create --repo "$GITHUB_REPOSITORY" \
+            --base production --head main \
+            --title "Sync production with main" \
+            --body "Automated PR to bring \`production\` up to date with \`main\`. Opened by the sync-main-to-production workflow. Merge when ready to advance production."

@@ -285,6 +285,3 @@ Internal Solidaridad ECA tool. Not for public redistribution. Contact your line 
 ---
 
 *Built for Solidaridad ECA.* **Change That Matters.**
-
-<!-- ci-test: sync-main-to-production workflow smoke test (temporary, will be reverted) -->
-

@@ -1,7 +1,15 @@
-name: Deploy to Firebase Hosting on merge
+name: Deploy to Firebase Hosting — Development (main)
+
+# Every push to `main` deploys the latest development build to the
+# development Hosting site: https://jifunze-7dbfe.web.app
 on:
   push:
     branches: [main]
+
+concurrency:
+  group: firebase-deploy-development
+  cancel-in-progress: false
+
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
@@ -19,3 +27,4 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JIFUNZE_7DBFE }}
           channelId: live
           projectId: jifunze-7dbfe
+          target: development

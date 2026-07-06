@@ -1,5 +1,18 @@
 {
   "projects": {
     "default": "jifunze-7dbfe"
-  }
+  },
+  "targets": {
+    "jifunze-7dbfe": {
+      "hosting": {
+        "development": [
+          "jifunze-7dbfe"
+        ],
+        "production": [
+          "jifunze-production"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }

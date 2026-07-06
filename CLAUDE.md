@@ -27,7 +27,7 @@ This rule overrides the default "only commit when asked" behavior for this proje
 **Jifunze** — Solidaridad ECA Learning Hub. An interactive e-learning platform for Solidaridad East & Central Africa staff.
 
 - **Stack:** React 18 + Vite 5 + Tailwind CSS 3
-- **Deploy target:** Firebase Hosting (project `jifunze-7dbfe`), auto-deployed from GitHub Actions on every push to `main`. See the Deployment section below.
+- **Deploy target:** Firebase Hosting (project `jifunze-7dbfe`), two sites — `main` auto-deploys to development, `production` deploys to the live production site. See the Deployment section below.
 - **Remote:** `https://github.com/Rachel-Solidaridad/Jifunze.git`
 - **Source layout:** all app code lives in `src/` (`App.jsx`, `main.jsx`, `index.css`)
 - **Content:** 13 self-paced courses with lessons, interactive activities, quizzes, and certificates. See `README.md` for the full course list.
@@ -65,9 +65,12 @@ If you change anything visible in the browser, start the dev server (`npm run de
 
 ## Deployment
 
-- **Production deploys are automatic.** Every push to `main` triggers `.github/workflows/firebase-hosting-merge.yml`, which runs `npm ci && npm run build` and deploys `dist/` to Firebase Hosting (`https://jifunze-7dbfe.web.app`).
-- **PRs get preview channels** via `.github/workflows/firebase-hosting-pull-request.yml` — the preview URL is posted as a PR comment (7-day expiry).
-- **Firebase project:** `jifunze-7dbfe`. Hosting config lives in `firebase.json` and `.firebaserc`.
+- **Two Firebase Hosting sites, one per branch** (both in project `jifunze-7dbfe`, mapped via hosting targets in `.firebaserc`):
+  - **Development** (`main`) → site `jifunze-7dbfe` → `https://jifunze-7dbfe.web.app`. Every push to `main` triggers `.github/workflows/firebase-hosting-development.yml` (`npm ci && npm run build`, deploy target `development`). This is where changes should be validated.
+  - **Production** (`production`) → site `jifunze-production` → `https://jifunze-production.web.app`. Every push to `production` triggers `.github/workflows/firebase-hosting-production.yml` (deploy target `production`). **This is the live site for real users.**
+- **Releasing to production:** don't push to `production` directly. `.github/workflows/sync-main-to-production.yml` automatically opens/updates a single `main → production` PR whenever `main` is ahead. A human reviews it and merges when ready; merging is what deploys to the live production site. (This automated release PR is the one exception to the "no PRs" rule above — it is not a feature branch.)
+- **PRs get preview channels** via `.github/workflows/firebase-hosting-pull-request.yml` — the preview URL is posted as a PR comment (7-day expiry). Previews deploy to the `development` target.
+- **Firebase project:** `jifunze-7dbfe`. Hosting config lives in `firebase.json` (an array with one entry per target) and `.firebaserc` (target→site mapping).
 - **Auth for the deploy action:** GitHub repo secret `FIREBASE_SERVICE_ACCOUNT_JIFUNZE_7DBFE` (a Google service account JSON). See README.md for one-time setup.
 - **`Dockerfile`, `nginx.conf`, `cloudbuild.yaml` are inactive fallback only** — they're kept for emergency Cloud Run rollback and are not part of normal work. Don't update them as part of feature changes.
-- **Verifying a deploy:** after pushing, watch with `gh run watch --repo Rachel-Solidaridad/Jifunze`, then load `https://jifunze-7dbfe.web.app` and confirm the change.
+- **Verifying a deploy:** after pushing to `main`, watch with `gh run watch --repo Rachel-Solidaridad/Jifunze`, then load `https://jifunze-7dbfe.web.app` (development) and confirm the change. The production site `https://jifunze-production.web.app` only updates when a `main → production` PR is merged.

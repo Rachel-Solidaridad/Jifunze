@@ -121,11 +121,17 @@ These are wired into `tailwind.config.js` as `solidaridad-yellow`, `solidaridad-
 
 ### Primary path: Firebase Hosting (auto-deploy from GitHub)
 
-The site is deployed to Firebase Hosting from GitHub Actions. Firebase project: **`jifunze-7dbfe`**.
+The site is deployed to Firebase Hosting from GitHub Actions. Firebase project: **`jifunze-7dbfe`**, with **two Hosting sites** (one per branch, wired via hosting targets in `.firebaserc`):
 
-- **Live URLs:** `https://jifunze-7dbfe.web.app` and `https://jifunze-7dbfe.firebaseapp.com`
-- **On push to `main`** → `.github/workflows/firebase-hosting-merge.yml` runs `npm ci && npm run build` and deploys to the `live` channel.
-- **On pull request** → `.github/workflows/firebase-hosting-pull-request.yml` deploys to an ephemeral preview channel and posts the URL as a PR comment (7-day expiry by default).
+| Environment | Branch | Site / URL | Workflow |
+|---|---|---|---|
+| **Development** | `main` | `https://jifunze-7dbfe.web.app` | `firebase-hosting-development.yml` |
+| **Production** (live users) | `production` | `https://jifunze-production.web.app` | `firebase-hosting-production.yml` |
+
+- **On push to `main`** → deploys the latest development build to the **development** site (`npm ci && npm run build`, target `development`).
+- **On push to `production`** → deploys the release build to the **production** site (target `production`). This is the live site for real users.
+- **Releasing to production:** `.github/workflows/sync-main-to-production.yml` automatically opens/keeps a single `main → production` pull request whenever `main` is ahead. Review it carefully and **merge to release** — merging deploys to production immediately.
+- **On other pull requests** → `.github/workflows/firebase-hosting-pull-request.yml` deploys to an ephemeral preview channel (on the development site) and posts the URL as a PR comment (7-day expiry by default).
 
 #### Required GitHub secret (one-time setup)
 

@@ -1,0 +1,32 @@
+name: Deploy to Firebase Hosting — Production (production branch)
+
+# Every push to `production` (i.e. when a main→production sync PR is merged)
+# deploys the release build to the PRODUCTION Hosting site — live for users:
+# https://jifunze-production.web.app
+on:
+  push:
+    branches: [production]
+  workflow_dispatch:
+
+concurrency:
+  group: firebase-deploy-production
+  cancel-in-progress: false
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JIFUNZE_7DBFE }}
+          channelId: live
+          projectId: jifunze-7dbfe
+          target: production

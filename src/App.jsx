@@ -5,7 +5,7 @@ import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp, query, order
 import { auth, googleProvider, ALLOWED_DOMAIN, db } from './firebase';
 import { ROLES, isSeedAdmin, normalizeRole, canViewAdminDashboard, isAdmin } from './auth/roles';
 import { isOnEcaAllowlist, ECA_EMAIL_ALLOWLIST } from './auth/ecaAllowlist';
-import { isPreviewUser, isPreviewExpired, PREVIEW_RELEASED_CLUSTERS } from './auth/previewCohort';
+import { isPreviewUser, isPreviewOnHold, PREVIEW_RELEASED_CLUSTERS } from './auth/previewCohort';
 import { listAssignmentsForUser } from './admin/queries';
 import { awardEligibleBadges, buildBadgeCatalogue, tierFor } from './achievements/awards';
 import ProfilePrompt from './profile/ProfilePrompt';
@@ -11933,8 +11933,8 @@ function checkAccess(email) {
   if (!match) return 'wrong-domain';
   if (match[1] !== ALLOWED_DOMAIN) return 'wrong-domain';
   if (!isOnEcaAllowlist(trimmed)) return 'not-on-roster';
-  // Temporary preview learners lose access once their window closes.
-  if (isPreviewUser(trimmed) && isPreviewExpired()) return 'preview-expired';
+  // Temporary testing cohort: once the window closes, access is put on hold.
+  if (isPreviewUser(trimmed) && isPreviewOnHold()) return 'preview-on-hold';
   return 'ok';
 }
 
@@ -12167,7 +12167,7 @@ export default function App() {
   // Temporary preview cohort: these users only get the released clusters; every
   // other course is "under development" and can't be opened. `isCourseLocked`
   // is false for everyone else, so the rest of the app is unaffected.
-  const previewLocked = isPreviewUser(userEmail) && !isPreviewExpired();
+  const previewLocked = isPreviewUser(userEmail) && !isPreviewOnHold();
   const isCourseLocked = (courseId) => previewLocked && !PREVIEW_RELEASED_COURSE_IDS.has(courseId);
 
   const goToCourse = (course) => {
@@ -12469,7 +12469,7 @@ function SidebarItem({ icon: Icon, label, active, onClick }) {
 function LoginPage() {
   const [error, setError] = useState('');
   const [blockedAccount, setBlockedAccount] = useState(null);
-  const [blockReason, setBlockReason] = useState(null); // 'wrong-domain' | 'not-on-roster' | 'preview-expired'
+  const [blockReason, setBlockReason] = useState(null); // 'wrong-domain' | 'not-on-roster' | 'preview-on-hold'
   const [ssoLoading, setSsoLoading] = useState(false);
 
   const handleGoogleSSO = async () => {
@@ -12555,15 +12555,15 @@ function LoginPage() {
               <div className="flex items-start gap-3">
                 <Shield size={20} className="flex-shrink-0 mt-0.5 text-black" />
                 <div className="flex-1">
-                  {blockReason === 'preview-expired' ? (
+                  {blockReason === 'preview-on-hold' ? (
                     <>
-                      <p className="text-sm font-extrabold text-black tracking-tight">Your preview access has ended</p>
+                      <p className="text-sm font-extrabold text-black tracking-tight">Testing access is on hold</p>
                       <p className="mt-2 text-xs text-gray-800 leading-relaxed">
-                        Thanks for helping us test-drive Jifunze! Your early-access preview window for{' '}
-                        <span className="font-mono font-bold break-all">{blockedAccount}</span> has now closed.
+                        Thanks for helping us test-drive Jifunze! The testing window for{' '}
+                        <span className="font-mono font-bold break-all">{blockedAccount}</span> has now closed ahead of the full launch.
                       </p>
                       <p className="mt-3 text-xs text-gray-700 leading-relaxed">
-                        The full platform is on its way. To be re-enabled or to ask about the launch, email{' '}
+                        Your access is simply paused — nothing you did is lost — and comes back when Jifunze launches. Questions? Email{' '}
                         <a href={`mailto:jifunze@${ALLOWED_DOMAIN}`} className="font-bold underline hover:text-black">
                           jifunze@{ALLOWED_DOMAIN}
                         </a>.

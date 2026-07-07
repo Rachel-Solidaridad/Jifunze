@@ -46,7 +46,60 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          cat > /tmp/pr-body.md <<'BODY'
+          ## 🚀 Release to production — sync `production` with `main`
+
+          This PR brings the **`production`** branch up to date with the latest changes on
+          **`main`** (the development branch). It was opened automatically and stays up to
+          date with `main` until it is merged.
+
+          ---
+
+          ### ⚠️ Merging this PR deploys to PRODUCTION — changes go LIVE to real users
+
+          The moment this PR is merged, the push to `production` triggers
+          **`Deploy to Firebase Hosting — Production`**, which builds and deploys to the
+          live production site:
+
+          > 🌍 **https://jifunze-production.web.app** — used by real Solidaridad ECA staff.
+
+          There is **no separate approval step after merge. Merge = live.** If something is
+          wrong, users will see it immediately.
+
+          *(For reference, `main` continuously auto-deploys to the development site
+          **https://jifunze-7dbfe.web.app**, which is where changes should be validated
+          **before** this PR is merged.)*
+
+          ---
+
+          ### ✅ Review checklist — please go through this carefully before merging
+
+          - [ ] I have reviewed the **full diff** under *Files changed*, not just commit titles.
+          - [ ] Every change here is **intended for end users** and is production-ready
+            (no work-in-progress, debug code, `console.log`, test data, or commented-out blocks).
+          - [ ] I verified the behaviour on the **development site**
+            (https://jifunze-7dbfe.web.app) and it works as expected.
+          - [ ] Any **Firestore rules / data model** changes are safe for real user data and
+            backward-compatible.
+          - [ ] No **secrets, credentials, or internal-only content** are being exposed.
+          - [ ] Copy, translations, and course content have been proofread.
+          - [ ] I am ready for these changes to be **live immediately** after merge.
+
+          ---
+
+          ### 🔁 Rollback
+
+          If a release causes a problem, roll back from the Firebase Console
+          (Hosting → `jifunze-production` → Release history → *Rollback*) or run
+          `npx firebase hosting:rollback` against the production target.
+
+          ---
+
+          <sub>Opened automatically by the `sync-main-to-production` workflow. This PR tracks
+          `main`; new commits on `main` appear here until it is merged.</sub>
+          BODY
+
           gh pr create --repo "$GITHUB_REPOSITORY" \
             --base production --head main \
-            --title "Sync production with main" \
-            --body "Automated PR to bring \`production\` up to date with \`main\`. Opened by the sync-main-to-production workflow. Merge when ready to advance production."
+            --title "🚀 Release: sync production with main" \
+            --body-file /tmp/pr-body.md

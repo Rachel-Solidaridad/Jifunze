@@ -21,3 +21,4 @@ jobs:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JIFUNZE_7DBFE }}
           projectId: jifunze-7dbfe
+          target: development

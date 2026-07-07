@@ -5,6 +5,7 @@ import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp, query, order
 import { auth, googleProvider, ALLOWED_DOMAIN, db } from './firebase';
 import { ROLES, isSeedAdmin, normalizeRole, canViewAdminDashboard, isAdmin } from './auth/roles';
 import { isOnEcaAllowlist, ECA_EMAIL_ALLOWLIST } from './auth/ecaAllowlist';
+import { isPreviewUser, isPreviewExpired, PREVIEW_RELEASED_CLUSTERS } from './auth/previewCohort';
 import { listAssignmentsForUser } from './admin/queries';
 import { awardEligibleBadges, buildBadgeCatalogue, tierFor } from './achievements/awards';
 import ProfilePrompt from './profile/ProfilePrompt';
@@ -11818,6 +11819,19 @@ async function loadOrInitUserDoc(uid, email) {
   }
 }
 
+// Course ids released to the temporary preview cohort — derived from the
+// released cluster names so it follows CLUSTERS automatically. Used only to
+// gate what preview-cohort users can open; everyone else ignores this.
+const PREVIEW_RELEASED_COURSE_IDS = (() => {
+  const ids = new Set();
+  for (const cl of CLUSTERS) {
+    if (!PREVIEW_RELEASED_CLUSTERS.has(cl.name)) continue;
+    (cl.courseIds || []).forEach(id => ids.add(id));
+    (cl.subClusters || []).forEach(sc => (sc.courseIds || []).forEach(id => ids.add(id)));
+  }
+  return ids;
+})();
+
 async function loadCertificate(uid, courseId) {
   if (!uid || !courseId) return null;
   try {
@@ -11919,6 +11933,8 @@ function checkAccess(email) {
   if (!match) return 'wrong-domain';
   if (match[1] !== ALLOWED_DOMAIN) return 'wrong-domain';
   if (!isOnEcaAllowlist(trimmed)) return 'not-on-roster';
+  // Temporary preview learners lose access once their window closes.
+  if (isPreviewUser(trimmed) && isPreviewExpired()) return 'preview-expired';
   return 'ok';
 }
 
@@ -12148,7 +12164,14 @@ export default function App() {
     return <LoginPage />;
   }
 
+  // Temporary preview cohort: these users only get the released clusters; every
+  // other course is "under development" and can't be opened. `isCourseLocked`
+  // is false for everyone else, so the rest of the app is unaffected.
+  const previewLocked = isPreviewUser(userEmail) && !isPreviewExpired();
+  const isCourseLocked = (courseId) => previewLocked && !PREVIEW_RELEASED_COURSE_IDS.has(courseId);
+
   const goToCourse = (course) => {
+    if (isCourseLocked(course.id)) return; // under-development for this preview user
     setActiveCourse(course);
     setView('course');
     setPage('catalog');
@@ -12279,6 +12302,7 @@ export default function App() {
               assignments={myAssignments}
               achievements={myAchievements}
               onGoToAchievements={() => navigate('achievements')}
+              isCourseLocked={isCourseLocked}
             />
           )}
 
@@ -12327,6 +12351,7 @@ export default function App() {
               searchQuery={searchQuery}
               courseCompletion={courseCompletion}
               onSelectCourse={goToCourse}
+              isCourseLocked={isCourseLocked}
             />
           )}
 
@@ -12444,7 +12469,7 @@ function SidebarItem({ icon: Icon, label, active, onClick }) {
 function LoginPage() {
   const [error, setError] = useState('');
   const [blockedAccount, setBlockedAccount] = useState(null);
-  const [blockReason, setBlockReason] = useState(null); // 'wrong-domain' | 'not-on-roster'
+  const [blockReason, setBlockReason] = useState(null); // 'wrong-domain' | 'not-on-roster' | 'preview-expired'
   const [ssoLoading, setSsoLoading] = useState(false);
 
   const handleGoogleSSO = async () => {
@@ -12530,7 +12555,21 @@ function LoginPage() {
               <div className="flex items-start gap-3">
                 <Shield size={20} className="flex-shrink-0 mt-0.5 text-black" />
                 <div className="flex-1">
-                  {blockReason === 'not-on-roster' ? (
+                  {blockReason === 'preview-expired' ? (
+                    <>
+                      <p className="text-sm font-extrabold text-black tracking-tight">Your preview access has ended</p>
+                      <p className="mt-2 text-xs text-gray-800 leading-relaxed">
+                        Thanks for helping us test-drive Jifunze! Your early-access preview window for{' '}
+                        <span className="font-mono font-bold break-all">{blockedAccount}</span> has now closed.
+                      </p>
+                      <p className="mt-3 text-xs text-gray-700 leading-relaxed">
+                        The full platform is on its way. To be re-enabled or to ask about the launch, email{' '}
+                        <a href={`mailto:jifunze@${ALLOWED_DOMAIN}`} className="font-bold underline hover:text-black">
+                          jifunze@{ALLOWED_DOMAIN}
+                        </a>.
+                      </p>
+                    </>
+                  ) : blockReason === 'not-on-roster' ? (
                     <>
                       <p className="text-sm font-extrabold text-black tracking-tight">Let's get you the right access!</p>
                       <p className="mt-2 text-xs text-gray-800 leading-relaxed">
@@ -12650,7 +12689,7 @@ function NamePrompt({ onSubmit }) {
 }
 
 // ===== Dashboard Page =====
-function DashboardPage({ userName, courses, courseCompletion, completedCount, inProgressCount, onSelectCourse, onGoToCatalog, assignments = [], achievements = [], onGoToAchievements }) {
+function DashboardPage({ userName, courses, courseCompletion, completedCount, inProgressCount, onSelectCourse, onGoToCatalog, assignments = [], achievements = [], onGoToAchievements, isCourseLocked = () => false }) {
   const inProgressCourses = courses.filter(c => {
     const p = courseCompletion(c.id);
     return p > 0 && p < 100;
@@ -12738,7 +12777,7 @@ function DashboardPage({ userName, courses, courseCompletion, completedCount, in
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {requiredCourses.map(course => (
-              <CourseCard key={course.id} course={course} progress={courseCompletion(course.id)} onClick={() => onSelectCourse(course)} />
+              <CourseCard key={course.id} course={course} progress={courseCompletion(course.id)} onClick={() => onSelectCourse(course)} locked={isCourseLocked(course.id)} />
             ))}
           </div>
         </div>
@@ -12774,7 +12813,7 @@ function DashboardPage({ userName, courses, courseCompletion, completedCount, in
         )}
       </div>
 
-      {courses.filter(c => !c.placeholder && courseCompletion(c.id) === 0).length > 0 && (
+      {courses.filter(c => !c.placeholder && !isCourseLocked(c.id) && courseCompletion(c.id) === 0).length > 0 && (
         <div className="mt-10">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-xl md:text-2xl font-extrabold tracking-tight">Recommended For You</h2>
@@ -12783,7 +12822,7 @@ function DashboardPage({ userName, courses, courseCompletion, completedCount, in
             </button>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {courses.filter(c => !c.placeholder && courseCompletion(c.id) === 0).slice(0, 3).map(course => (
+            {courses.filter(c => !c.placeholder && !isCourseLocked(c.id) && courseCompletion(c.id) === 0).slice(0, 3).map(course => (
               <CourseCard key={course.id} course={course} progress={0} onClick={() => onSelectCourse(course)} />
             ))}
           </div>
@@ -12913,7 +12952,7 @@ function ContinueLearningCard({ course, progress, onClick }) {
 }
 
 // ===== Catalog Page =====
-function CatalogPage({ courses, activeCategory, setActiveCategory, searchQuery, courseCompletion, onSelectCourse }) {
+function CatalogPage({ courses, activeCategory, setActiveCategory, searchQuery, courseCompletion, onSelectCourse, isCourseLocked = () => false }) {
   // `activeCategory` is reused as the active cluster name ('All' or a CLUSTERS[].name).
   const q = (searchQuery || '').toLowerCase();
   const matchesSearch = (c) =>
@@ -12974,7 +13013,7 @@ function CatalogPage({ courses, activeCategory, setActiveCategory, searchQuery, 
               <div className="flex items-baseline justify-between flex-wrap gap-x-4 gap-y-1">
                 <h2 className="text-xl md:text-2xl font-extrabold tracking-tight uppercase">{section.name}</h2>
                 <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-                  {section.allCourses.filter(c => !c.placeholder).length} live · {section.allCourses.filter(c => c.placeholder).length} coming soon
+                  {section.allCourses.filter(c => !c.placeholder && !isCourseLocked(c.id)).length} live · {section.allCourses.filter(c => c.placeholder || isCourseLocked(c.id)).length} coming soon
                 </span>
               </div>
               <Swoosh w={96} />
@@ -12989,6 +13028,7 @@ function CatalogPage({ courses, activeCategory, setActiveCategory, searchQuery, 
                       course={course}
                       progress={courseCompletion(course.id)}
                       onClick={() => onSelectCourse(course)}
+                      locked={isCourseLocked(course.id)}
                     />
                   ))}
                 </div>
@@ -13008,6 +13048,7 @@ function CatalogPage({ courses, activeCategory, setActiveCategory, searchQuery, 
                         course={course}
                         progress={courseCompletion(course.id)}
                         onClick={() => onSelectCourse(course)}
+                        locked={isCourseLocked(course.id)}
                       />
                     ))}
                   </div>
@@ -13022,11 +13063,15 @@ function CatalogPage({ courses, activeCategory, setActiveCategory, searchQuery, 
 }
 
 // ===== Course Card =====
-function CourseCard({ course, progress, onClick }) {
+function CourseCard({ course, progress, onClick, locked = false }) {
   const Icon = course.icon;
   const done = progress === 100;
 
-  if (course.placeholder) {
+  // `course.placeholder` = globally "Coming soon" (no content yet).
+  // `locked` = content exists but is gated for this user (preview cohort) —
+  // shown as "Under development" rather than opened.
+  if (course.placeholder || locked) {
+    const badge = course.placeholder ? 'Coming soon' : 'Under development';
     return (
       <div
         aria-disabled="true"
@@ -13036,7 +13081,7 @@ function CourseCard({ course, progress, onClick }) {
           <Icon size={72} strokeWidth={1.5} className="text-black opacity-60" />
           <div className="absolute top-3 left-3 px-2.5 py-1 bg-white text-xs font-extrabold uppercase tracking-wider rounded-full border border-black inline-flex items-center gap-1.5">
             <Lock size={11} strokeWidth={2.5} />
-            Coming soon
+            {badge}
           </div>
         </div>
         <div className="p-5 flex flex-col flex-1">

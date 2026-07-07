@@ -12531,19 +12531,16 @@ function LoginPage() {
                 <div className="flex-1">
                   {blockReason === 'not-on-roster' ? (
                     <>
-                      <p className="text-sm font-extrabold text-black tracking-tight">Access restricted to Solidaridad ECA staff</p>
-                      <p className="mt-1.5 text-xs text-gray-800 leading-relaxed">
-                        Jifunze is only available to people on the Solidaridad East &amp; Central Africa roster.
-                      </p>
-                      <p className="mt-2 text-xs text-gray-700 leading-relaxed">
-                        Your account <span className="font-mono font-bold break-all">{blockedAccount}</span> is a Solidaridad account but isn't on the ECA roster, so you've been signed out.
+                      <p className="text-sm font-extrabold text-black tracking-tight">Let's get you the right access!</p>
+                      <p className="mt-2 text-xs text-gray-800 leading-relaxed">
+                        Welcome! We see you are logging in with a valid Solidaridad account, but Jifunze is currently set up specifically for the Solidaridad East &amp; Central Africa team.
                       </p>
                       <p className="mt-3 text-xs text-gray-700 leading-relaxed">
-                        If you believe you should have access, contact{' '}
-                        <a href={`mailto:info.secaec@${ALLOWED_DOMAIN}`} className="font-bold underline hover:text-black">
-                          info.secaec@{ALLOWED_DOMAIN}
+                        Think you should be on the list? Simply email{' '}
+                        <a href={`mailto:jifunze@${ALLOWED_DOMAIN}`} className="font-bold underline hover:text-black">
+                          jifunze@{ALLOWED_DOMAIN}
                         </a>{' '}
-                        to be added to the roster.
+                        to request access and we will get you sorted out.
                       </p>
                     </>
                   ) : (

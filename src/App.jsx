@@ -12101,10 +12101,11 @@ export default function App() {
       issueCertificateIfFirstTime(userUid, course, quizScore);
     }
 
-    // Badge awards — fire on any progress change (course-complete badges
-    // and milestones key off completion; mastery badges key off the quiz
-    // score even when the course isn't yet 100%). Best-effort: failures
-    // here must never break the course-complete UX.
+    // Badge awards — fire on any progress change. Course-complete badges,
+    // milestones AND mastery badges all key off completion (mastery also
+    // requires a ≥95% quiz score on top of finishing the course), so we run
+    // this after every write. Best-effort: failures here must never break
+    // the course-complete UX.
     const liveCoursesNow = COURSES.filter(c => !c.placeholder);
     const completedNow = liveCoursesNow.filter(c => computeCompletion(c, next[c.id]) === 100).length;
     const allCompleteNow = liveCoursesNow.length > 0 && completedNow === liveCoursesNow.length;

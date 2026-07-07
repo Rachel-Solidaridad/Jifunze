@@ -20,6 +20,21 @@
 // everyone, or move these people to normal access by removing them from
 // PREVIEW_COHORT.
 
+// ┌───────────────────────────────────────────────────────────────────────────┐
+// │  LAUNCH SWITCH — flip this ONE line at full launch.                        │
+// │                                                                           │
+// │  Leave `true` during the pre-launch testing window (current behaviour:    │
+// │  the 8 testers get half the catalogue and are put on hold after the       │
+// │  cutoff).                                                                  │
+// │                                                                           │
+// │  Set to `false` to LAUNCH: instantly lifts the hold, removes the          │
+// │  half-catalogue gate, and gives all 8 testers normal full access — the    │
+// │  whole preview scheme switches off in this single edit, no other file     │
+// │  changes and no waiting for the cutoff. (You can delete this module and   │
+// │  its App.jsx wiring later for good; flipping this is the quick path.)      │
+// └───────────────────────────────────────────────────────────────────────────┘
+export const PREVIEW_COHORT_ENABLED = true;
+
 // All lowercase; the lookup helper lowercases the candidate too.
 export const PREVIEW_COHORT = new Set([
   'flaviah.koyesiga@solidaridadnetwork.org',
@@ -50,6 +65,10 @@ export const PREVIEW_RELEASED_CLUSTERS = new Set([
 ]);
 
 export function isPreviewUser(email) {
+  // Master off-switch: once launched, nobody is a preview user, so both the
+  // sign-in hold (checkAccess) and the half-catalogue lock (isCourseLocked)
+  // stop applying — every gate in the app flows through this one function.
+  if (!PREVIEW_COHORT_ENABLED) return false;
   if (!email) return false;
   return PREVIEW_COHORT.has(email.trim().toLowerCase());
 }

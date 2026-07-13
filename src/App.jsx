@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import React, { useState, useEffect, useLayoutEffect, Suspense, lazy } from 'react';
 import { BookOpen, Award, CheckCircle2, ChevronRight, ChevronLeft, Home, Users, User as UserIcon, Target, Lightbulb, Shield, ShieldAlert, Globe, Mail, Palette, FileText, AlertTriangle, Sparkles, Trophy, X, Check, ArrowRight, RotateCcw, MapPin, TrendingUp, Leaf, Search, BarChart3, MessageSquare, BookMarked, Clock, Layers, Menu, DollarSign, CloudRain, Database, ClipboardCheck, Coffee, Apple, Wheat, Pickaxe, Shirt, Milk, Scissors, TreePalm, Bean, Lock } from 'lucide-react';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp, query, orderBy, limit, onSnapshot, addDoc, writeBatch, increment } from 'firebase/firestore';
@@ -12922,6 +12922,14 @@ export default function App() {
   const previewLocked = isPreviewUser(userEmail) && !isPreviewOnHold();
   const isCourseLocked = (courseId) => previewLocked && !PREVIEW_RELEASED_COURSE_IDS.has(courseId);
 
+  // Land at the top of every newly-shown page/view. This app has no router,
+  // so a view change only swaps <main>'s children while the window keeps its
+  // old scroll position — which the browser clamps to the bottom of a shorter
+  // page. useLayoutEffect runs before paint so there's no visible jump.
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+  }, [page, view, activeCourse, activeLessonIdx, certificateCourse]);
+
   const goToCourse = (course) => {
     if (isCourseLocked(course.id)) return; // under-development for this preview user
     setActiveCourse(course);
@@ -14364,6 +14372,13 @@ function PollsPage({ userName, userUid }) {
   const [debates, setDebates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedDebate, setSelectedDebate] = useState(null);
+
+  // Opening a debate (or returning to the list) is a page-level change; land at
+  // top. Keyed on selectedDebate only — a Polls<->Debates tab switch is an
+  // in-page toggle and should preserve scroll position, not jump to top.
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+  }, [selectedDebate]);
 
   useEffect(() => {
     const unsubP = onSnapshot(

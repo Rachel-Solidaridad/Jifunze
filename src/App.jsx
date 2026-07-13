@@ -6,7 +6,6 @@ import { auth, googleProvider, ALLOWED_DOMAIN, db } from './firebase';
 import { ROLES, isSeedAdmin, normalizeRole, canViewAdminDashboard, isAdmin } from './auth/roles';
 import { isOnEcaAllowlist, ECA_EMAIL_ALLOWLIST } from './auth/ecaAllowlist';
 import { isPreviewUser, isPreviewOnHold, PREVIEW_RELEASED_CLUSTERS } from './auth/previewCohort';
-import { isLockedOutRole, TESTING_LOCKDOWN_ENABLED } from './auth/testingLockdown';
 import { listAssignmentsForUser } from './admin/queries';
 import { awardEligibleBadges, buildBadgeCatalogue, tierFor } from './achievements/awards';
 import ProfilePrompt from './profile/ProfilePrompt';
@@ -11983,9 +11982,6 @@ export default function App() {
   const [userLastActiveAt, setUserLastActiveAt] = useState(null);
   const [profileCompletedAt, setProfileCompletedAt] = useState(null);
   const [loaded, setLoaded] = useState(false);
-  // Final-testing lockdown: when a signed-in learner is blocked, this holds the
-  // email to show them a "back at launch" message. null = not locked out.
-  const [lockoutEmail, setLockoutEmail] = useState(null);
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -11995,21 +11991,13 @@ export default function App() {
       if (user && isAllowedEmail(user.email)) {
         const email = user.email.toLowerCase();
         const uid = user.uid;
-        // Clear any prior lockout so a new sign-in (e.g. an admin after a
-        // locked-out learner on the same browser) isn't stuck on the lockout
-        // screen. The role gate below re-sets it if this user is also blocked.
-        setLockoutEmail(null);
         setUserEmail(email);
         setUserUid(uid);
         // Show the app immediately on a derived name. The catalog and courses
         // are static, so they need no network — only per-user data does.
         const derived = user.displayName || nameFromEmail(email);
         if (derived) setUserName(derived);
-        // Instant paint when there is no lockdown. Under the final-testing
-        // lockdown we must know the role before painting, so a blocked learner
-        // never sees the app — the loading screen is held until the role gate
-        // below decides, then setLoaded(true) runs for admins/managers only.
-        if (!TESTING_LOCKDOWN_ENABLED) setLoaded(true);
+        setLoaded(true);
         // Hydrate per-user data in the background so Firestore round-trips
         // don't gate the first paint.
         (async () => {
@@ -12020,20 +12008,6 @@ export default function App() {
             listAssignmentsForUser(uid).catch(() => []),
             loadAchievements(uid),
           ]);
-          // Final-testing lockdown: only admins/managers may proceed. A learner
-          // is signed out here and shown a "back at launch" message. Seed admins
-          // are always let through as a safety net in case the Firestore role
-          // read hasn't stamped their admin role yet. Nothing is deleted, so
-          // access resumes the moment the lockdown switch is flipped off.
-          if (isLockedOutRole(normalizeRole(userDoc.role)) && !isSeedAdmin(email)) {
-            setLockoutEmail(email);
-            setLoaded(true);
-            await signOut(auth);
-            return;
-          }
-          // Gate passed (admin/manager, or lockdown off). Paint now — under the
-          // lockdown this is the deferred first paint; otherwise it already ran.
-          if (TESTING_LOCKDOWN_ENABLED) setLoaded(true);
           setProgress(p);
           setUserRole(userDoc.role || ROLES.LEARNER);
           setMyAssignments(asgn);
@@ -12184,12 +12158,6 @@ export default function App() {
 
   if (!loaded) {
     return <LoadingScreen />;
-  }
-
-  // Final-testing lockdown: a learner who was signed out at the role gate sees
-  // the login screen with a "back at launch" message instead of the app.
-  if (lockoutEmail) {
-    return <LoginPage forcedBlock={{ reason: 'testing-lockdown', account: lockoutEmail }} />;
   }
 
   if (!userEmail) {
@@ -12498,13 +12466,10 @@ function SidebarItem({ icon: Icon, label, active, onClick }) {
 }
 
 // ===== Login Page =====
-function LoginPage({ forcedBlock = null }) {
+function LoginPage() {
   const [error, setError] = useState('');
-  // `forcedBlock` pre-seeds the block panel when App locks a signed-in learner
-  // out at the role gate (final-testing lockdown) — they never reached this
-  // page via handleGoogleSSO, so the reason is passed in.
-  const [blockedAccount, setBlockedAccount] = useState(forcedBlock?.account || null);
-  const [blockReason, setBlockReason] = useState(forcedBlock?.reason || null); // 'wrong-domain' | 'not-on-roster' | 'preview-on-hold' | 'testing-lockdown'
+  const [blockedAccount, setBlockedAccount] = useState(null);
+  const [blockReason, setBlockReason] = useState(null); // 'wrong-domain' | 'not-on-roster' | 'preview-on-hold'
   const [ssoLoading, setSsoLoading] = useState(false);
 
   const handleGoogleSSO = async () => {
@@ -12590,21 +12555,7 @@ function LoginPage({ forcedBlock = null }) {
               <div className="flex items-start gap-3">
                 <Shield size={20} className="flex-shrink-0 mt-0.5 text-black" />
                 <div className="flex-1">
-                  {blockReason === 'testing-lockdown' ? (
-                    <>
-                      <p className="text-sm font-extrabold text-black tracking-tight">Jifunze is in final testing</p>
-                      <p className="mt-2 text-xs text-gray-800 leading-relaxed">
-                        We're putting the finishing touches on Jifunze before the official launch, so access for{' '}
-                        <span className="font-mono font-bold break-all">{blockedAccount}</span> is paused for now.
-                      </p>
-                      <p className="mt-3 text-xs text-gray-700 leading-relaxed">
-                        Nothing you did is lost — your account and progress are safe — and you'll be invited back the moment we launch. Questions? Email{' '}
-                        <a href={`mailto:jifunze@${ALLOWED_DOMAIN}`} className="font-bold underline hover:text-black">
-                          jifunze@{ALLOWED_DOMAIN}
-                        </a>.
-                      </p>
-                    </>
-                  ) : blockReason === 'preview-on-hold' ? (
+                  {blockReason === 'preview-on-hold' ? (
                     <>
                       <p className="text-sm font-extrabold text-black tracking-tight">Testing access is on hold</p>
                       <p className="mt-2 text-xs text-gray-800 leading-relaxed">
@@ -12643,8 +12594,8 @@ function LoginPage({ forcedBlock = null }) {
                       </p>
                       <p className="mt-3 text-xs text-gray-700 leading-relaxed">
                         If you have a Solidaridad account, try again and pick it from the Google chooser. If you believe you should have access, contact{' '}
-                        <a href={`mailto:jifunze@${ALLOWED_DOMAIN}`} className="font-bold underline hover:text-black">
-                          jifunze@{ALLOWED_DOMAIN}
+                        <a href={`mailto:info.secaec@${ALLOWED_DOMAIN}`} className="font-bold underline hover:text-black">
+                          info.secaec@{ALLOWED_DOMAIN}
                         </a>.
                       </p>
                     </>
@@ -12697,7 +12648,7 @@ function LoginPage({ forcedBlock = null }) {
             CHANGE <span style={{ color: '#9C7A00' }}>THAT MATTERS</span>
           </p>
           <p className="text-[10px] text-gray-400 mt-1">
-            © Solidaridad {new Date().getFullYear()} · Need help? <a href={`mailto:jifunze@${ALLOWED_DOMAIN}`} className="underline hover:text-black">Contact support</a>
+            © Solidaridad {new Date().getFullYear()} · Need help? <a href={`mailto:info.secaec@${ALLOWED_DOMAIN}`} className="underline hover:text-black">Contact support</a>
           </p>
         </div>
       </div>

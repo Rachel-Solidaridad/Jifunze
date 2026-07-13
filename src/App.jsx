@@ -12720,6 +12720,17 @@ export default function App() {
   const [activeCourse, setActiveCourse] = useState(null);
   const [certificateCourse, setCertificateCourse] = useState(null);
   const [activeLessonIdx, setActiveLessonIdx] = useState(0);
+
+  // Land at the top of every newly-shown page/view. This app has no router,
+  // so a view change only swaps <main>'s children while the window keeps its
+  // old scroll position — which the browser clamps to the bottom of a shorter
+  // page. useLayoutEffect runs before paint so there's no visible jump.
+  // NOTE: must stay above the early returns below (LoadingScreen / LoginPage)
+  // so the hook runs on every render — otherwise React throws error #310.
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+  }, [page, view, activeCourse, activeLessonIdx, certificateCourse]);
+
   const [progress, setProgress] = useState({});
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
@@ -12921,14 +12932,6 @@ export default function App() {
   // is false for everyone else, so the rest of the app is unaffected.
   const previewLocked = isPreviewUser(userEmail) && !isPreviewOnHold();
   const isCourseLocked = (courseId) => previewLocked && !PREVIEW_RELEASED_COURSE_IDS.has(courseId);
-
-  // Land at the top of every newly-shown page/view. This app has no router,
-  // so a view change only swaps <main>'s children while the window keeps its
-  // old scroll position — which the browser clamps to the bottom of a shorter
-  // page. useLayoutEffect runs before paint so there's no visible jump.
-  useLayoutEffect(() => {
-    window.scrollTo(0, 0);
-  }, [page, view, activeCourse, activeLessonIdx, certificateCourse]);
 
   const goToCourse = (course) => {
     if (isCourseLocked(course.id)) return; // under-development for this preview user

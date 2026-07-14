@@ -12715,7 +12715,7 @@ function nameFromEmail(email) {
 
 // ===== Main App =====
 export default function App() {
-  const [page, setPage] = useState('catalog');
+  const [page, setPage] = useState('dashboard');
   const [view, setView] = useState('list');
   const [activeCourse, setActiveCourse] = useState(null);
   const [certificateCourse, setCertificateCourse] = useState(null);
@@ -12847,7 +12847,7 @@ export default function App() {
     } catch (e) {
       console.error('Sign-out failed', e);
     }
-    setPage('catalog');
+    setPage('dashboard');
     setView('list');
   };
 

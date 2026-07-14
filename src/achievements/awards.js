@@ -86,17 +86,22 @@ export function buildBadgeCatalogue(allCourses, allClusters) {
     });
   }
 
-  // --- Mastery badges (one per live course, ≥95% quiz) ---------------------
+  // --- Mastery badges (one per live course) --------------------------------
+  // Requires BOTH: the course fully completed (every lesson + interactive +
+  // a passed quiz, i.e. courseCompletion === 100) AND a quiz score ≥ 95%.
+  // Completing the course is the floor; the high score is what elevates it to
+  // "mastery" — you cannot master a course you have not finished.
   for (const c of liveCourses) {
     catalogue.push({
       id: `mastery:${c.id}`,
       type: 'mastery',
       category: 'Mastery',
       title: `${c.title} — Mastery`,
-      description: `Scored ${MASTERY_PCT}% or higher on the ${c.title} quiz.`,
+      description: `Completed ${c.title} and scored ${MASTERY_PCT}% or higher on its quiz.`,
       icon: 'Trophy',
       meta: { courseId: c.id },
       isUnlocked: (ctx) => {
+        if (ctx.courseCompletion(c.id) !== 100) return false;
         const q = ctx.progress?.[c.id]?.quiz;
         const total = c.quiz?.length || 0;
         if (!q || !total || q.score == null) return false;

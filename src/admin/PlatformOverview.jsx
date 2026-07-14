@@ -1,22 +1,15 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Users as UsersIcon, Activity, GraduationCap, Clock, Award, TrendingUp, Trophy, CheckCircle2, Layers, UserCheck, MessageSquare, Globe } from 'lucide-react';
 import KpiCard from './charts/KpiCard';
+import StatDrilldown from './StatDrilldown';
 import EnrollmentBarChart from './charts/EnrollmentBarChart';
 import ActivityLineChart from './charts/ActivityLineChart';
 import CompletionDonut from './charts/CompletionDonut';
 import {
-  isActiveSince, buildDauSeries, getCourseStats, completionBuckets,
+  buildDauSeries, getCourseStats, completionBuckets,
+  SEVEN_DAYS_MS, listActiveUsers, listEnrollments, hoursByCourse, splitProfiles,
 } from './queries';
 import { ROLES } from '../auth/roles';
-
-function durationToHours(d) {
-  if (!d) return 0;
-  const match = d.match(/(\d+(?:\.\d+)?)/);
-  if (!match) return 0;
-  const n = parseFloat(match[1]);
-  if (/min/i.test(d)) return n / 60;
-  return n;
-}
 
 const UNKNOWN_COUNTRY = 'Country not set';
 
@@ -25,43 +18,38 @@ export default function PlatformOverview({
 }) {
   const liveCourses = useMemo(() => courses.filter(c => !c.placeholder), [courses]);
 
+  const [drilldown, setDrilldown] = useState(null);
+
   const stats = useMemo(() => {
     const roleCounts = { learner: 0, manager: 0, admin: 0 };
     for (const u of users) roleCounts[u.role] = (roleCounts[u.role] || 0) + 1;
 
-    const sevenDays = Date.now() - 7 * 24 * 60 * 60 * 1000;
-    const activeLast7 = users.filter(u => isActiveSince(u, sevenDays)).length;
+    // Build the same row lists the drill-down drawers render, then derive each
+    // headline number from list.length. This makes the list the single source
+    // of truth — a card and its drawer can never disagree (see queries.js).
+    const activeUsers = listActiveUsers(users, Date.now() - SEVEN_DAYS_MS);
+    const enrollmentRows = listEnrollments(users, allProgress, liveCourses, computeCompletion);
+    const hoursRows = hoursByCourse(liveCourses, allProgress, computeCompletion);
+    const profiles = splitProfiles(users);
 
-    let enrollments = 0;
-    let totalHours = 0;
-    let totalCompletionPct = 0;
-    let completionCount = 0;
-    for (const uid of Object.keys(allProgress)) {
-      for (const c of liveCourses) {
-        const p = allProgress[uid]?.[c.id];
-        if (!p) continue;
-        enrollments++;
-        const pct = computeCompletion(c, p);
-        totalHours += durationToHours(c.duration) * (pct / 100);
-        totalCompletionPct += pct;
-        completionCount++;
-      }
-    }
-    const avgCompletion = completionCount > 0 ? Math.round(totalCompletionPct / completionCount) : 0;
-
-    const profilesComplete = users.filter(u => u.profileCompletedAt).length;
-    const profilesPct = users.length > 0 ? Math.round((profilesComplete / users.length) * 100) : 0;
+    const totalHours = hoursRows.reduce((s, r) => s + r.hours, 0);
+    const avgCompletion = enrollmentRows.length > 0
+      ? Math.round(enrollmentRows.reduce((s, r) => s + r.pct, 0) / enrollmentRows.length)
+      : 0;
+    const profilesPct = users.length > 0
+      ? Math.round((profiles.complete.length / users.length) * 100)
+      : 0;
 
     return {
       totalUsers: users.length,
       roleCounts,
-      activeLast7,
-      enrollments,
+      activeLast7: activeUsers.length,
+      enrollments: enrollmentRows.length,
       totalHours,
       avgCompletion,
       certificatesIssued: certificates.length,
       badgesIssued: achievements.length,
-      profilesComplete,
+      profilesComplete: profiles.complete.length,
       profilesPct,
     };
   }, [users, allProgress, certificates, achievements, liveCourses, computeCompletion]);
@@ -193,25 +181,40 @@ export default function PlatformOverview({
 
   return (
     <div>
+      {drilldown ? (
+        <StatDrilldown
+          drilldown={drilldown}
+          users={users}
+          allProgress={allProgress}
+          certificates={certificates}
+          achievements={achievements}
+          votes={votes}
+          liveCourses={liveCourses}
+          computeCompletion={computeCompletion}
+          onClose={() => setDrilldown(null)}
+        />
+      ) : null}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-        <KpiCard icon={UsersIcon} label="Total users" value={stats.totalUsers} sublabel={roleSub} />
-        <KpiCard icon={Activity} label="Active (7 days)" value={stats.activeLast7} sublabel="signed in this week" />
-        <KpiCard icon={GraduationCap} label="Enrollments" value={stats.enrollments} sublabel="across all live courses" />
-        <KpiCard icon={Award} label="Certificates issued" value={stats.certificatesIssued} />
-        <KpiCard icon={Trophy} label="Badges issued" value={stats.badgesIssued} sublabel="across all learners" />
-        <KpiCard icon={Clock} label="Learning hours" value={stats.totalHours.toFixed(1)} sublabel="platform-wide (estimated)" />
-        <KpiCard icon={TrendingUp} label="Avg completion" value={`${stats.avgCompletion}%`} sublabel="across active enrollments" />
+        <KpiCard icon={UsersIcon} label="Total users" value={stats.totalUsers} sublabel={roleSub} onClick={() => setDrilldown('totalUsers')} />
+        <KpiCard icon={Activity} label="Active (7 days)" value={stats.activeLast7} sublabel="signed in this week" onClick={() => setDrilldown('active')} />
+        <KpiCard icon={GraduationCap} label="Enrollments" value={stats.enrollments} sublabel="across all live courses" onClick={() => setDrilldown('enrollments')} />
+        <KpiCard icon={Award} label="Certificates issued" value={stats.certificatesIssued} onClick={() => setDrilldown('certificates')} />
+        <KpiCard icon={Trophy} label="Badges issued" value={stats.badgesIssued} sublabel="across all learners" onClick={() => setDrilldown('badges')} />
+        <KpiCard icon={Clock} label="Learning hours" value={stats.totalHours.toFixed(1)} sublabel="platform-wide (estimated)" onClick={() => setDrilldown('hours')} />
+        <KpiCard icon={TrendingUp} label="Avg completion" value={`${stats.avgCompletion}%`} sublabel="across active enrollments" onClick={() => setDrilldown('avgCompletion')} />
         <KpiCard
           icon={UserCheck}
           label="Profiles complete"
           value={`${stats.profilesComplete} / ${stats.totalUsers}`}
           sublabel={`${stats.profilesPct}% with country + job title`}
+          onClick={() => setDrilldown('profiles')}
         />
         <KpiCard
           icon={MessageSquare}
           label="Feedback responses"
           value={feedbackByCountry.totalResponses}
           sublabel={`poll & debate votes · ${feedbackByCountry.namedCountries} ${feedbackByCountry.namedCountries === 1 ? 'country' : 'countries'}`}
+          onClick={() => setDrilldown('feedback')}
         />
       </div>
 

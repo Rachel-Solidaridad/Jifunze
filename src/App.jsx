@@ -1,10 +1,11 @@
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import React, { useState, useEffect, useLayoutEffect, Suspense, lazy } from 'react';
 import { BookOpen, Award, CheckCircle2, ChevronRight, ChevronLeft, Home, Users, User as UserIcon, Target, Lightbulb, Shield, ShieldAlert, Globe, Mail, Palette, FileText, AlertTriangle, Sparkles, Trophy, X, Check, ArrowRight, RotateCcw, MapPin, TrendingUp, Leaf, Search, BarChart3, MessageSquare, BookMarked, Clock, Layers, Menu, DollarSign, CloudRain, Database, ClipboardCheck, Coffee, Apple, Wheat, Pickaxe, Shirt, Milk, Scissors, TreePalm, Bean, Lock } from 'lucide-react';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp, query, orderBy, limit, onSnapshot, addDoc, writeBatch, increment } from 'firebase/firestore';
 import { auth, googleProvider, ALLOWED_DOMAIN, db } from './firebase';
 import { ROLES, isSeedAdmin, normalizeRole, canViewAdminDashboard, isAdmin } from './auth/roles';
 import { isOnEcaAllowlist, ECA_EMAIL_ALLOWLIST } from './auth/ecaAllowlist';
+import { isPreviewUser, isPreviewOnHold, PREVIEW_RELEASED_CLUSTERS } from './auth/previewCohort';
 import { listAssignmentsForUser } from './admin/queries';
 import { awardEligibleBadges, buildBadgeCatalogue, tierFor } from './achievements/awards';
 import ProfilePrompt from './profile/ProfilePrompt';
@@ -182,6 +183,14 @@ const COURSES = [
     icon: commodityIcon(welcomeIcon),
     duration: '45 min',
     description: 'Welcome to Solidaridad East and Central Africa! A complete onboarding course covering who we are, our values, history, governance, HR essentials, integrity, and your first 90 days.',
+    keyTakeaways: [
+      'Solidaridad is a 55-year-old international civil-society organisation with nearly 1,500 staff in more than 40 countries, working throughout entire supply chains to make sustainability the norm.',
+      'Our vision is "an economy that works for all" and our mission is to help farmers and workers earn a living income and produce in balance with nature, expressed through the pay-off "Change That Matters", which is used as-is and never translated.',
+      'Everything we do is guided by four core values: Solidarity, Impact-driven, Solution-oriented, and Integrity.',
+      'As a network organisation we are locally managed and globally connected, with East & Central Africa headquartered in Nairobi and offices in Ethiopia, Kenya, Tanzania and Uganda, aiming to reach over 1.1 million stakeholders under MASP IV (2026-2030).',
+      'Your first 90 days follow a structured path from meeting your team and shadowing field work through to a probation review, and HR essentials cover your contract, leave, and two-way annual performance reviews, alongside 2030 targets of 50% female representation and 25% internal mobility.',
+      'Integrity is non-negotiable: every staff member signs the Code of Conduct on joining and can raise concerns through Persons of Trust, Integrity Coordinators, or the whistleblower protocol.',
+    ],
     lessons: [
       {
         id: 'who-we-are',
@@ -404,6 +413,14 @@ const COURSES = [
     icon: commodityIcon(maspIcon),
     duration: '40 min',
     description: 'A comprehensive walk-through of Solidaridad East & Central Africa\'s Multi-Annual Strategic Plan (MASP IV) — context, ambitions, theory of change, pathways, KPIs, and how it shapes everything we do.',
+    keyTakeaways: [
+      'MASP IV (2026-2030), themed "Sustainable Supply Chains, Thriving Farmers," is Solidaridad East & Central Africa\'s most ambitious plan yet, expanding reach from 687,500 stakeholders under MASP III to over 1.1 million by 2030 across Ethiopia, Kenya (regional HQ, led by Managing Director Rachel Wanyoike), Uganda and Tanzania, with outreach into Burundi, Cameroon, DRC and Rwanda.',
+      'The plan responds to six interconnected regional realities — economic and trade pressures, climate vulnerability, social inequality, the digital divide, governance and finance gaps, and shifting demographics — and pursues five bold ambitions, including empowering 650,000 producers, connecting 200,000 producers to markets, mobilising over €1.5M in finance, achieving 50/50 equity, and influencing 56 policies.',
+      'Delivery is guided by a Theory of Change built on four interconnected pathways — Production, Services, Market and Governance — each following an IF/THEN logic, and is implemented through six strategies spanning supply chain transformation, community-led change, regenerative landscapes, market access, sustainable finance, and digital systems such as Solichain, e-Dairy and J\'Funze.',
+      'Climate and nature-based solutions and Gender, Equality & Social Inclusion (GESI) are cross-cutting themes embedded in every project, with GESI applying proven methodologies such as GALS, EMAP, EA$E, SASA! and Gender Smart Villages.',
+      'Progress is tracked against four outcome areas with measurable 2030 KPIs (viable production systems, inclusive service delivery, an enabling policy environment, and inclusive market connection systems), underpinned by a diversified funding model (forecast income from €9.6M in 2026 to €11.1M in 2030, with €7.7M secured and an active pipeline of €43.4M+) and six categories of risk that are identified annually and reviewed quarterly.',
+      'MASP is meant to shape everyday work: every project proposal should map to a MASP outcome, annual goals should connect to a MASP KPI, quarterly reports feed outcome-level reporting, and staff are encouraged to pursue cross-country learning and scale innovations that work.',
+    ],
     lessons: [
       {
         id: 'masp-overview',
@@ -627,6 +644,14 @@ const COURSES = [
     icon: commodityIcon(integrityIcon),
     duration: '25 min',
     description: 'Understand the ethical standards that guide our work. Learn how to recognize misconduct and the safe channels available to report concerns.',
+    keyTakeaways: [
+      'Solidaridad upholds integrity through a code of conduct signed by every staff member, a whistle-blowing protocol with reporting procedures and victim support, and global and regional integrity coordinators who provide a safe environment to speak up.',
+      'Staff who are concerned about possible misconduct have multiple safe reporting paths, including their line manager, the Managing Director of their Regional Expertise Centre, the Executive Director of Solidaridad Network, the Chairperson of the International Supervisory Board, the REC\'s Integrity Advisor, or the External Whistleblower Organization.',
+      'If unsure where to turn, staff can first talk to a Person of Trust, who will listen without any obligation to formally report.',
+      'Misconduct can take several forms staff should watch for, including financial irregularities, misuse of power, interpersonal misconduct such as harassment or discrimination, and safety violations.',
+      'Retaliation against whistleblowers is prohibited and is itself considered a violation, and reports are investigated through a structured protocol with confidentiality maintained throughout, under the formal Victim Support and Protection Policy.',
+      'Solidaridad is a locally-managed and governed network organization, with each region having its own Managing Director and Continental Supervisory Board, overseen at the highest level by the International Supervisory Board, which monitors policies, programme quality, financial control, and the Executive Board of Directors.',
+    ],
     lessons: [
       {
         id: 'integrity-overview',
@@ -748,6 +773,14 @@ COURSES.push(
     icon: commodityIcon(ethicsIcon),
     duration: '25 min',
     description: 'Practice navigating real ethical dilemmas Solidaridad teams face in the field — from results reporting to private sector partnerships, carbon credits, and internal controls.',
+    keyTakeaways: [
+      'Ethical dilemmas arise when genuinely important values pull in different directions, such as impact versus accuracy or speed versus process, and rarely have an obvious right answer.',
+      'Solidaridad\'s integrity framework provides a foundation, but day-to-day judgement in tough situations ultimately rests with each staff member.',
+      'Before deciding on a difficult call, work through five questions: whose interests are at stake, which Solidaridad value applies most directly, what the code of conduct or relevant policy says, whether a third option honours multiple values at once, and whether the decision could be defended openly to farmers, donors, and colleagues.',
+      'Certain phrases, such as "we can regularise the paperwork later" or "everyone else does it this way", are red flags that should prompt a pause and a conversation rather than a quick decision.',
+      'If you cannot comfortably explain a decision to all stakeholders, that is a strong signal to reconsider it.',
+      'Staff do not need to navigate dilemmas alone: support is available through a line manager, a Person of Trust, the Regional or Global Integrity Coordinator, or the External Whistleblower Organization, and asking for help is a sign of integrity, not weakness.',
+    ],
     lessons: [
       {
         id: 'ethics-overview',
@@ -881,6 +914,14 @@ COURSES.push(
     icon: commodityIcon(climateIcon),
     duration: '15 min',
     description: 'Learn how Solidaridad embeds climate adaptation, mitigation, and nature-based solutions across agriculture, mining, and industry.',
+    keyTakeaways: [
+      'East and Central African economies are highly vulnerable to climate change, with agriculture accounting for around 40% of GDP and 80% of livelihoods, as shown by Kenya\'s 2024 floods (188 lives lost, 200,000+ displaced), chronic droughts in Ethiopia and Somalia, over 40% soil degradation, and 4.4 million hectares of forest lost annually across Sub-Saharan Africa between 2015 and 2020.',
+      'Solidaridad\'s regenerative agriculture approach integrates agroecology, agroforestry, crop rotation and cover cropping into circular production models that work with natural systems rather than against them.',
+      'Solidaridad connects small-scale producers to carbon markets through Payment for Ecosystem Services schemes, which have enabled 9,423 farmers to earn approximately €500,000 by sequestering 22,045 tCO₂eq across 27,270 hectares.',
+      'In 2024, ECA Agribusiness disbursed over €397,200 in carbon pre-finance loans to 33,100 coffee farmers, expanding access to carbon markets while enhancing resilience.',
+      'Nature-based solutions such as watershed restoration, tree planting and reforestation, biochar application, solar-powered milk chillers and irrigation, and responsible small-scale mining are scaled alongside sustainable processing.',
+      'International regulations including the EU Deforestation Regulation, the Corporate Sustainability Due Diligence Directive, Responsible Business Conduct guidelines and ESG standards are tightening, and Solidaridad supports producer compliance through tools such as Solichain, its blockchain traceability platform.',
+    ],
     lessons: [
       {
         id: 'climate-context',
@@ -978,6 +1019,13 @@ COURSES.push(
     icon: commodityIcon(financeIcon),
     duration: '20 min',
     description: 'Discover how Solidaridad mobilizes responsible finance for small-scale producers, MSMEs, and community enterprises across East & Central Africa.',
+    keyTakeaways: [
+      'Small-scale farmers, MSMEs, women and youth-led enterprises across East & Central Africa face acute financing barriers, including high interest rates, onerous collateral requirements, financial products that are not tailored to agricultural seasonality, low insurance penetration leaving climate losses on producers, and shallow rural financial markets.',
+      'ECA Agribusiness is Solidaridad\'s social enterprise and, under MASP IV, will mobilize €1.5 million through grants, blended finance, debt, matching funds and consultancy services.',
+      'Beyond agroforestry inputs, ECA Agribusiness offers products such as solar irrigation systems, solar dryers and lamps, chaff cutters, drying canvas, and other productivity-enhancing and renewable energy technologies.',
+      'Solidaridad expands financial access through a four-pillar blended finance approach: building data and evidence for viable business cases, deploying digital tools for loan management and transparency, co-designing tailored credit, savings, payments and insurance solutions for cooperatives and women-led MSMEs, and piloting, learning from and scaling what works.',
+      'Carbon pre-finance is used to unlock early investment in regenerative practices, with €397,200 disbursed to 33,100 coffee farmers in 2024, expanding their access to carbon markets and laying the foundation for scaled climate finance flows to small-scale producers.',
+    ],
     lessons: [
       {
         id: 'finance-barriers',
@@ -1072,6 +1120,14 @@ COURSES.push(
     icon: commodityIcon(truePricingIcon),
     duration: '1 hr',
     description: 'A complete primer on True Pricing — what it is, why it matters, the methodology, real-world cases, and how it can transform Solidaridad\'s work with farmers and supply chains.',
+    keyTakeaways: [
+      'A true price equals the market price plus the hidden social and environmental costs (the "True Price Gap") that are otherwise paid by farmers, communities and the planet rather than the consumer, and are calculated through a five-step methodology of scope, measure, value, aggregate and act.',
+      'The goal of true pricing is not to make products more expensive but to make production more sustainable by reducing externalities at source, such as paying living wages and using cleaner energy.',
+      'Real-world data shows the scale of the gap, including a €7.10/kg true price for Ivory Coast cocoa (a hidden cost higher than the market price farmers receive) and figures of €2.60/kg for Vietnamese coffee, €1.05/kg for Kenyan tea and €4.20/kg for Indian cotton, with certified production consistently reducing the gap.',
+      'Cases such as Tony\'s Chocolonely (which raised its living income premium to Côte d\'Ivoire and Ghana cacao farmers by around 30% between 2021/22 and 2022/23) and Amsterdam\'s De Aanzet supermarket (the first to display true prices alongside normal prices in 2020) show true pricing working in practice.',
+      'Making hidden costs visible enables every actor in the chain to act: governments can adjust subsidies, taxes and regulations (e.g. EUDR, CSDDD), businesses can redesign operations, consumers can choose responsibly, farmers and workers can be paid fairly, and investors can direct capital accordingly.',
+      'For Solidaridad, true price data strengthens the case for living incomes, supports compliance and policy advocacy, quantifies the value of regenerative practices, and is used in negotiations with partners, in farmer training, and in donor proposals as part of the growing Global Partnership for the True Price of Food.',
+    ],
     lessons: [
       {
         id: 'tp-what',
@@ -1353,6 +1409,14 @@ COURSES.push(
     icon: commodityIcon(brandIconSrc),
     duration: '15 min',
     description: 'Master logo usage, colours, typography, email etiquette, and Solidaridad\'s UN English writing style.',
+    keyTakeaways: [
+      'Always use the correct name "Solidaridad" without adding country or regional names unless distinguishing ourselves is genuinely needed.',
+      'The logo is black with a yellow swoosh (white with a yellow swoosh for dark backgrounds) and must never be altered, stretched or compacted, and should always have white space around it to breathe.',
+      'The pay-off "CHANGE THAT MATTERS" should never be translated.',
+      'Solidaridad\'s signature colours are Yellow (#FFC800, PMS 123C), Black (PMS Black) and Grey (#D9D9C3, PMS 7527C), and Open Sans is the standard font, used as Extra Bold UPPERCASE for headings, Light for intros and quotes, and Regular for body text.',
+      'All communications should follow international UN English based on the UN style guide and Oxford Dictionary, using spellings such as organization, programme, centre, colour, analyse and travelling.',
+      'Writing should be in active voice with short sentences of 15-20 words, avoiding jargon and acronyms.',
+    ],
     lessons: [
       {
         id: 'logo',
@@ -1436,6 +1500,13 @@ COURSES.push(
     icon: commodityIcon(digitalIcon),
     duration: '15 min',
     description: 'Explore the digital ecosystem powering Solidaridad — from Solichain blockchain traceability to J\'Funze e-learning and Uwanjani field data.',
+    keyTakeaways: [
+      'Robust digital infrastructure is central to systems transformation, helping Solidaridad drive efficiency, inclusion, and learning across agriculture, industry, and mining, with AI, IoT, and climate intelligence systems deployed in partnership with Microsoft, Google, and ESRI.',
+      'Solichain is Solidaridad\'s blockchain-based traceability platform, configurable across value chains, monitoring farm-level practices, supporting certification and regulatory compliance (EUDR, CSDDD), and providing tamper-proof records of sustainability claims from farm to consumer.',
+      'Solidaridad\'s digital suite comprises six core tools: J\'Funze for self-paced e-learning, Carbon Academy for carbon farming and climate market capacity-building, E-Dairy for quality-based milk payments, Uwanjani for enterprise field data management, Zwardy for rewarding sustainable practices and training, and the MRV Dashboard for greenhouse gas monitoring, reporting, and verification.',
+      'Staff should know which tool serves which purpose, since each platform is designed for a distinct function within the digital ecosystem rather than being interchangeable.',
+      'Solidaridad upholds strong data governance principles throughout its digital work, including privacy by design, informed consent from data subjects, ethical data reuse, compliance with data privacy standards, investment in cybersecurity, and co-design with stakeholders.',
+    ],
     lessons: [
       {
         id: 'digital-overview',
@@ -1518,6 +1589,13 @@ COURSES.push(
     icon: commodityIcon(pmelIcon),
     duration: '15 min',
     description: 'Learn how Solidaridad uses data, indicators, and adaptive management to drive evidence-based decisions across MASP IV.',
+    keyTakeaways: [
+      'Under MASP IV, PMEL drives evidence-based decision-making, adaptive management and learning, anchored in a regional results framework aligned with the Theory of Change, and progress is tracked from outputs to outcomes to impact using both quantitative and qualitative KPIs.',
+      'Solidaridad\'s data ecosystem spans Uwanjani for regional field data collection, Plaza (Salesforce) for network-level project management, KoboToolbox for survey-based data collection, and Looker Studio, Zoho, Tableau and Power BI for analytics and dashboards, all built on standardised indicators aligned with regional and global KPIs.',
+      'The annual cycle runs from Q4 planning (setting KPI targets) to Q1 annual performance reporting, with monthly, quarterly and biannual monitoring reports produced throughout, and evaluations (baseline, midterm and final studies) use mixed methods including quasi-experimental designs.',
+      'By 2030, the Strategic Results Framework targets include 649,000 farmers with improved farm viability (80% of 811,250 targeted), 1,298,000 tCO2e/year sequestered or avoided, 37,500 new decent green jobs, and 56 regulations and frameworks improved across the four ECA countries.',
+      'Strategic learning is embedded throughout programme design and implementation via communities of practice, webinars and learning labs, cross-country peer exchanges, publications and case studies, and adaptive management based on real-time insights.',
+    ],
     lessons: [
       {
         id: 'pmel-overview',
@@ -1613,6 +1691,14 @@ COURSES.push({
   icon: commodityIcon(genderIcon),
   duration: '1 hr 20 min',
   description: 'A comprehensive gender course built on Solidaridad\'s Gender Task Force materials and the KAYA learning journey. Covers four modules — Gender Basics, Gender Analysis, Gender Responsive Programming, and Sustainability & Inclusivity — adapted for ECA staff at all levels.',
+  keyTakeaways: [
+    'Solidaridad\'s gender curriculum, built on its 2017 Global Gender Policy and developed by the Gender Task Force on KAYA, is organised into four modules — Gender Basics, Gender Analysis, Gender Responsive Programming, and Sustainability & Inclusivity — and applies to staff at every level.',
+    'Sex is biological while gender is socially constructed and therefore changeable, and the goal for all programming is to move along the spectrum from gender-blind through to gender-transformative, since only transformative work actually shifts the underlying norms and power structures.',
+    'In ECA value chains women provide 60-80% of agricultural labour but own under 20% of land, earn 19% less than men, and control shifts away from women whenever their work meets cash, so gender dynamics must be understood sector by sector rather than assumed to be uniform.',
+    'Gender analysis must go beyond counting women trained to examine who does what, who has access to and control over resources, and who benefits, using frameworks such as Harvard, Moser (practical versus strategic needs), Social Relations, or GALS depending on the question, and every indicator should be sex-disaggregated.',
+    'Solidaridad\'s toolkit for driving change includes GALS (farmer-led gender mapping), EMAP (engaging men as allies), EA$E (savings groups plus gender discussions), and SASA! (community mobilisation against gender-based violence), often combined and embedded through Farmer Field Schools, lead farmers, and the Gender Smart Village model built around cooperatives.',
+    'Gender outcomes only last with deliberate design — institutional embedding, community ownership, economic anchoring, male engagement, and long (5-7 year) horizons — while guarding against backlash, tokenisation, burnout, and elite capture, and staff should apply an intersectional lens (age, disability, ethnicity, migration status, LGBTQI+ status) and escalate concerns to the ECA Gender Inclusivity Advisor, a Person of Trust, or the Gender Task Force as needed.',
+  ],
   lessons: [
     {
       id: 'gender-why',
@@ -2007,6 +2093,14 @@ COURSES.push({
   icon: commodityIcon(eudrIcon),
   duration: '1 hr 5 min',
   description: 'A comprehensive overview of Regulation (EU) 2023/1115 — the EU Deforestation Regulation — and what it means in practice for Solidaridad ECA staff, cooperatives, and smallholder producers of coffee, cocoa, palm oil, cattle products, and wood.',
+  keyTakeaways: [
+    'Regulation (EU) 2023/1115 bans products entering or leaving the EU market if they are linked to deforestation or forest degradation after 31 December 2020, and it replaces the existing EU Timber Regulation (EUTR).',
+    'For ECA, five of the seven EUDR commodities are directly relevant today (cattle/leather, wood, cocoa, palm oil, and coffee, the highest-volume commodity from the region), and a product qualifies only if it is BOTH deforestation-free and produced legally.',
+    'The current application dates to plan around are 30 December 2026 for large and medium operators and 30 June 2027 for micro and small operators, following two rounds of delay, though the cutoff date, the seven commodities, and the core requirement remain unchanged in substance.',
+    'Legal EUDR responsibility sits with EU operators, who must lodge a Due Diligence Statement via the EU Information System (live since 4 December 2024) covering geolocation, risk assessment, and risk mitigation, and keep records for at least 5 years, while smallholders are not directly liable but need to supply geolocation and production data or risk losing market access.',
+    'Countries are classified low, standard, or high risk (with inspection rates of roughly 3% and 9% of operators for standard and high risk respectively), and ECA countries including Ethiopia, Kenya, Uganda, and Tanzania currently sit at standard risk by default.',
+    'Solidaridad\'s role is to support producers and cooperatives to comply and ensure smallholders are not excluded, using tools already in place such as Solichain, polygon/point mapping support, cooperative capacity building, buyer partnerships, and carbon pre-finance, treating EUDR as an acceleration of its existing traceability work rather than a new programme.',
+  ],
   lessons: [
     {
       id: 'eudr-overview',
@@ -2288,6 +2382,14 @@ COURSES.push({
   icon: commodityIcon(soyIcon),
   duration: '1 hr 10 min',
   description: 'A seven-module summary of Solidaridad\'s Soy Training Manual — developed under SATSBIS (Southern Africa towards Soybean Import Substitution) and applicable wherever Solidaridad works with soy. Designed for staff who support field teams, partner cooperatives, and farmer training programmes.',
+  keyTakeaways: [
+    'Soy is a high-leverage commodity for Solidaridad — a high-protein cash crop that improves soil health, generates household income, feeds livestock and industry, and underpins food security — but smallholder yields average only 0.6 t/ha against a potential of 3-4 t/ha, and closing that gap through better practices, not soil, is the core opportunity extension support delivers.',
+    'The course is built on Solidaridad\'s Soy Training Manual developed under SATSBIS, a 33,200-farmer programme across Mozambique, Zambia, and Malawi, and the same curriculum, methods, and tools (RTRS certification, Farmer ID, Wadi, Z\'wardy, Solichain) apply wherever Solidaridad works with soy, including ECA.',
+    'Getting the fundamentals right at planting is decisive: choosing the right certified variety for the agroclimatic zone, never dry-planting, inoculating seed correctly and planting within 24 hours in shade or low light, and applying phosphorus-based basal fertiliser (150-250 kg/ha) at the right placement together prevent most yield loss.',
+    'Climate-Smart Agriculture balances three pillars — adaptation, mitigation, and productivity — and staff should help farmers make explicit trade-offs between practices (such as conservation tillage, mulching, cover crops, and reduced synthetic fertiliser) rather than treat CSA as a fixed prescription.',
+    'Weed control in the first six weeks, integrated pest management (soybean tolerates up to 30% defoliation without yield loss), and timely disease control (soybean rust alone can cause up to 80% loss) are all necessary to protect yield potential through the season.',
+    'Post-harvest losses in smallholder soy regularly exceed 30%, concentrated in field drying/harvesting (13.9%), storage (9.4%), and homestead drying (7.2%), and are largely preventable through correct harvest timing, careful drying and threshing, and hermetic or improved storage — often the cheapest yield gain available.',
+  ],
   lessons: [
     {
       id: 'soy-overview',
@@ -2669,6 +2771,14 @@ COURSES.push({
   icon: commodityIcon(coffeeIcon),
   duration: '1 hr 20 min',
   description: 'A seven-module working summary of Solidaridad ECA\'s coffee curriculum, drawing on the Tanzania National Coffee Sustainability Curriculum, the UCDA Robusta Coffee Handbook, and Solidaridad\'s climate-smart, organic, nursery business-case, and waste-to-wealth (biochar) materials. Designed for staff who support field teams, partner cooperatives, and farmer training programmes across Arabica and Robusta systems.',
+  keyTakeaways: [
+    'Coffee is a decades-long, high-value ECA export crop where the yield gap between traditional practice (around 1,000 kg/ha) and improved compact Arabica potential (4,800-6,000 kg/ha) is driven mainly by poor establishment, pruning, nutrition and pest management rather than the crop\'s inherent limits, so staff should prioritise closing that gap through good agronomy.',
+    'Establishment decisions made once at planting - certified nursery seedlings, correct spacing, well-prepared planting holes and shade - lock in a farm\'s productivity and quality for 20-40 years, making sourcing from registered nurseries (TaCRI/TCB or equivalent) essential rather than optional.',
+    'Annual pruning immediately after harvest and nutrition matched to tree age and soil/leaf test results (the right product, rate, time and place) are the practices with the biggest annual influence on yield and bean quality.',
+    'Scouting-led Integrated Pest Management should guide pest and disease control, since major threats like Coffee Wilt Disease have no cure (prevention through quarantine and burning affected trees is the only defence) and Coffee Berry Disease can destroy up to 90% of an unmanaged crop.',
+    'Climate-Smart Agriculture (adaptation, mitigation and productivity), agroforestry shade trees, and the biochar carbon-removal programme - which turns farm waste into a soil amendment worth at least USD 50 per tonne of CO2 - let staff help farmers respond to shrinking suitable Arabica zones while creating new income.',
+    'Post-harvest handling determines roughly 60% of final green-bean quality, so same-day pulping (within 8 hours), clean shared processing and uniform cooperative practice are critical, since even a few poor lots can cross-contaminate and discount the price for an entire cooperative bulk.',
+  ],
   lessons: [
     {
       id: 'coffee-overview',
@@ -2996,6 +3106,14 @@ COURSES.push({
   icon: commodityIcon(teaIcon),
   duration: '1 hr 10 min',
   description: 'A six-module summary of Solidaridad ECA\'s sustainable tea work, drawing on the Reclaim Sustainability! (RS!) Tea programme in Kenya and Uganda and the Women in Tea report, combined with standard sustainable-tea agronomy. Designed for staff who support field teams, factories, farmer associations, and women-in-tea groups.',
+  keyTakeaways: [
+    'Tea is a perennial, quality-driven export commodity for East and Central Africa — in Uganda nearly 90% of the 60,000 t produced annually is exported, and smallholders are historically sold at auction (notably Mombasa) with little price control, so Solidaridad\'s work targets the bush, the factory, the price structure, and who has a voice in the sector.',
+    'The single biggest lever a smallholder controls is plucking quality: the "two leaves and a bud" standard, delivered fresh, cool and loose, drives the fine-leaf percentage that sets grade and price, while coarse plucking is the most common, avoidable cause of low green-leaf prices.',
+    'Good agricultural practice — deep acidic soils, the four Rs of fertilisation, managed shade, pruning cycles, and soil and water conservation on slopes — protects a tea bush that should yield for decades.',
+    'Climate-Smart Agriculture (adaptation, mitigation, productivity) is exemplified by biochar made from tea prunings, which in the Mabale Tea Growers Factory pilot in Western Uganda cut inorganic fertiliser use by about 14%, reduced production costs by about 33%, and raised farmer profitability by over 40% while maintaining yield.',
+    'Moving value off the auction floor — through green-leaf quality, direct buyer relationships, certification, and especially the specialty and cottage tea model — lifts smallholder income dramatically, as seen where women-led enterprises exported specialty tea to Europe at USD 20-100/kg (and up to USD 75-120/kg in Uganda) versus under USD 1/kg for conventional bulk tea at the Mombasa auction, though digital transparency tools like the MIS prototype must be grounded in sector consensus on governance before rollout.',
+    'Women contribute over 70% of tea farm labour in Uganda yet were historically excluded from decision-making and value capture, and Solidaridad\'s Women in Tea work — building organisations like WiTU, WITEVA and UTOA, securing a living wage benchmark with Rainforest Alliance and KPAWU, and embedding gender equality in the Uganda National Tea Policy — has repositioned women as entrepreneurs, exporters and policy influencers, so staff should treat women\'s tea groups as economic and policy actors and channel training deliberately to them.',
+  ],
   lessons: [
     {
       id: 'tea-overview',
@@ -3281,6 +3399,14 @@ COURSES.push({
   icon: commodityIcon(fruitsVegIcon),
   duration: '1 hr 15 min',
   description: 'A seven-module summary of Solidaridad ECA\'s sustainable horticulture curriculum, drawn from the FOSEK Fruits, Vegetables & Sweet Potato Production Guide, the Roots of Resilience biodiversity handbook, and the regional horticulture sector strategy. Designed for staff who support field teams, partner cooperatives, and farmer training programmes across the fruit and vegetable value chains.',
+  keyTakeaways: [
+    'Fruits and vegetables are among Solidaridad\'s highest-value, most nutrition-rich crops, but the region loses an estimated 30-40% of produce to poor post-harvest handling and leaves large yield gaps unclosed, such as sweet potato averaging 12.5 t/ha against a 30 t/ha potential — closing these two gaps is the core opportunity for field support.',
+    'Quality planting material is the single most important input and a one-time decision per crop cycle: certified seed, tissue-culture banana plantlets, cleaned sweet potato vines, and grafted Phytophthora-tolerant avocado rootstock all remove most of the failure risk that field management cannot later fix.',
+    'Soil health and water management are the foundation of sustainable production, with organic matter as the single most important practice for holding moisture in rain-fed systems, crop rotation essential to prevent soil-borne disease build-up, and technologies like drip irrigation and greenhouses able to raise productivity by up to 50%.',
+    'Integrated Pest Management should follow a ladder of cultural, biological, and mechanical controls before chemicals, using scouting and economic thresholds rather than calendar spraying, and strict pre-harvest interval discipline is a food-safety rule, not a guideline, since it is what keeps pesticide residues below Maximum Residue Limits for premium and export markets.',
+    'Careful harvesting and handling, especially avoiding field heat and bruising, plus investment in curing, cold chain, and packhouses, are often the cheapest way to raise farm income given that post-harvest loss is largely preventable.',
+    'Agronomy only pays if produce reaches a buyer in grade and on time, so farmer organisation into groups and cooperatives, GlobalG.A.P. certification, and attention to biodiversity, pollinator protection, and agri-nutrition (such as promoting vitamin-A-rich orange-fleshed sweet potato) are as important as production skills for Solidaridad staff supporting farmers.',
+  ],
   lessons: [
     {
       id: 'fruits-veg-overview',
@@ -3611,6 +3737,14 @@ COURSES.push({
   icon: commodityIcon(foodCropsIcon),
   duration: '1 hr 10 min',
   description: 'A six-module summary of Solidaridad ECA\'s food crops curriculum — drawing on the CSV Maize agronomy and Cereal GAP manuals, the P4G Climate-Smart Agriculture manual, the SAVE agroforestry and Roots of Resilience biodiversity handbooks, the FOSEK food crop and nutrition guide, and the VSLA training manual. Built for staff who support field teams, lead-farmer trainers, and partner cooperatives across maize and cereals, beans, sweet potato, and vegetables.',
+  keyTakeaways: [
+    'The gap between Level A maize yields (25-30 bags/acre) and Level C yields (3 bags/acre) is almost entirely down to practices such as certified seed, correct spacing, fertiliser placement and timely weeding, not soil quality, so closing it is exactly what good extension support delivers.',
+    'Climate-Smart Agriculture rests on three pillars - adaptation, mitigation and productivity - and a good practice should score positive on at least two of them, while conservation tillage should be paired with mulching so farmers see quick wins while slower soil-structure and yield benefits build over years.',
+    'Agroforestry and biodiversity (pollinators, natural enemies, local seed varieties, hedgerows) are not separate from food production but form the resilient infrastructure - improving soil, water, income and pest control - that keeps yields stable under climate stress.',
+    'Diversification and intercropping (e.g. maize with beans) spread risk and improve soil, and orange-flesh sweet potato is a priority crop for vitamin A - though vegetatively propagated vines silently accumulate viruses over generations, so planting material must be renewed from clean, certified stock.',
+    'Farming as a business (crop calendar plus business plan) and Village Savings and Loans Associations - 15 to 25 members, transparent three-padlock cash boxes and passbooks - give farmers the planning discipline and access to capital needed to invest in inputs and absorb shocks.',
+    'Post-harvest losses cost Sub-Saharan Africa nearly USD 4 billion a year and can reach 20-30% of stored Kenyan maize within six months, so hermetic storage, solar drying and proper handling capture grain already grown and paid for, often the cheapest yield gain available.',
+  ],
   lessons: [
     {
       id: 'food-crops-overview',
@@ -3900,6 +4034,14 @@ COURSES.push({
   icon: commodityIcon(goldIcon),
   duration: '1 hr 40 min',
   description: 'An eight-module summary of Solidaridad ECA\'s responsible artisanal and small-scale gold mining (ASGM) curriculum — drawn from occupational health and safety, emergency rescue and first aid, mine design, mercury reduction and ESG, self-regulation and formalisation, governance and financial management training developed with miners in Busia, Kassanda, Migori, Geita and beyond, and the Reclaim Sustainability! Gold Uganda policy-influencing story (UGAASM, the Mining and Minerals Act 2022, and Uganda\'s first-ever Small-Scale Mining Licence). Designed for staff who support mining organisations (ASMOs), associations, and cooperatives.',
+  keyTakeaways: [
+    'ASGM is a vital but largely informal livelihood across East and Central Africa (Africa produces about 24% of world gold, with 20-40 million ASM miners globally), and informality is the root cause of most safety, environmental and governance problems, so formalisation is the foundation that unlocks finance, premium markets and a social licence to operate.',
+    'Safety follows the AVOID, PROTECT, MITIGATE hierarchy: hazards must be identified and controlled through the mining cycle, with suffocation and gas poisoning the leading cause of underground deaths, so measures like proper shaft design, timbering, ventilation, two exits per working block, and correctly matched PPE are essential rather than optional.',
+    'Mercury amalgamation is the sector\'s central environmental and health hazard because mercury is most dangerous as an inhaled vapour, so staff should promote containment (closed tanks), retort use, and mercury-free alternatives such as the borax method, noting that Uganda\'s Mining and Minerals Act 2022 prohibits mercury use with heavy fines and imprisonment.',
+    'ESG (Environmental, Social, Governance) is not a cost but the entry ticket to finance, premium prices and a social licence to operate for mining organisations (ASMOs), and self-regulation through site-level committees conducting fortnightly self-assessments lets miners own compliance proactively rather than wait for prescriptive inspection.',
+    'Strong governance and financial management (separating personal and organisational funds, keeping records for at least five years, budgeting and auditing) combined with deliberate inclusion of women, as shown by the Mama Safi women\'s group securing a TZS 7 million development-fund loan, are what let mining organisations manage capital, access finance and grow.',
+    'Policy influencing multiplies every other gain: Solidaridad\'s Reclaim Sustainability! Gold Uganda programme saw 60% of UGAASM\'s recommendations adopted into the Mining and Minerals Act 2022 and secured Uganda\'s first-ever Small-Scale Mining Licence for MUMA, showing that helping ASMOs build documentation and engage credibly in policy dialogue is as important as technical or safety support.',
+  ],
   lessons: [
     {
       id: 'gold-overview',
@@ -4330,6 +4472,14 @@ COURSES.push({
   icon: commodityIcon(oilPalmIcon),
   duration: '1 hr 15 min',
   description: 'A seven-module summary of the Best Management Practices (BMP) for Oil Palm Production curriculum developed for smallholder farmers in East and Central Africa under the National Oil Palm Project. Built for Solidaridad ECA staff who support field teams, partner cooperatives, and farmer training in smallholder oil palm. Covers varieties and establishment, agronomy and the BMP field calendar, harvesting and fresh fruit bunch (FFB) quality, integrated pest and disease management, safe agrochemical use, and sustainability, agroforestry and carbon.',
+  keyTakeaways: [
+    'Oil palm is a strategic smallholder crop across East and Central Africa, but the average smallholder yield of 4 t/ha/yr sits well below the well-managed potential of 10 t/ha/yr, and closing that gap is a matter of practice — Best Management Practices, or BMP = Yield-Making plus Yield-Taking — not soil or climate limits.',
+    'Variety choice is a once-per-25-year decision: only certified Tenera seedlings should be planted commercially (never Dura, Pisifera, or volunteer oil palms), and site selection and lining must avoid deforestation and High Conservation Value areas to stay compliant with RSPO and the EU deforestation-free regulation.',
+    'Once established, yield is built through a disciplined annual field calendar — leguminous cover cropping, pruning, empty fruit bunch recycling, and fertiliser applied under the 4R principle (right source, rate, time, place) — rather than by any single intervention.',
+    'Harvest quality, and therefore the Oil Extraction Rate, depends entirely on cutting bunches at the correct ripeness, judged by loose fruit count (more than 5 loose fruits means ripe and acceptable), not by bunch colour.',
+    'Pest and disease losses are best prevented through early detection and integrated management; Ganoderma basal stem rot and Fusarium wilt have no effective chemical cure, so an infected palm should never be poisoned, and control instead relies on monitoring, sanitised tools, and resistant planting material.',
+    'Sustainability — safe agrochemical handling, sound land and water management, agroforestry, and carbon opportunities such as biochar — is not a side issue but a condition of market access, since RSPO compliance and deforestation-free sourcing increasingly determine which buyers and financiers a co-operative can work with.',
+  ],
   lessons: [
     {
       id: 'oil-palm-overview',
@@ -4647,6 +4797,14 @@ COURSES.push({
   icon: commodityIcon(cocoaIcon),
   duration: '1 hr 15 min',
   description: 'A seven-module working summary of Solidaridad Eastern and Central Africa\'s cocoa programme, built on the ICAM-funded "Sustainable Farming for a Climate-Resilient Livelihood of Cocoa Farmers in Bundibugyo District, Uganda" project. Covers the cocoa value chain, agroforestry and good agricultural practice, the farm-level greenhouse-gas footprint, and the farmer-empowerment pillars Solidaridad pairs with agronomy: VSLA, the Gender Action Learning System (GALS), and EA$E business and financial skills. Designed for staff who support field teams, gender champions, and partner cooperatives.',
+  keyTakeaways: [
+    'Solidaridad ECA\'s cocoa work centres on the ICAM-funded Bundibugyo project (2024-2026), targeting 600 farmers, a yield rise from 672.94 to 841.18 kg/ha, and an income rise from EUR 540.54 to EUR 648.65 across 310 hectares, alongside deep ESG risks such as a roughly 52% living-income gap, deforestation, land degradation and gender inequality.',
+    'Agronomy alone does not close the living-income gap, so Good Agricultural Practice and agroforestry (renewal, pruning, clonal planting material, shade and fruit trees) are deliberately paired with GALS, VSLA and EA$E business-skills work, and the 2025 survey recorded household cocoa income rising from UGX 3,044,057 in 2023 to UGX 13,014,896 in 2025, above the local living-income benchmark.',
+    'Post-harvest handling decides price: up to 30% of the harvest can be lost to poor home fermentation and drying, so channelling beans through ICAM\'s central fermentation and drying centres in Bundibugyo, Hoima and Mukono standardises quality and unlocks organic, Rainforest Alliance and Fairtrade premiums.',
+    'The 2025 Scope 3 GHG baseline found Bundibugyo cocoa has a low footprint (0.71 tCO2e/ha, 1.01 kg CO2e/kg) and may be a net carbon sink (-0.82 tCO2e), with crop-residue burning and decomposition driving about 98.7% of emissions, so biochar, composting and mulching of prunings and husks are the highest-leverage climate intervention, far ahead of fertiliser or transport.',
+    'GALS uses participant-led tools (Vision Journey, Gender Balance Tree, Empowerment Leadership Map, Multilane Highway) to shift household decision-making and resource control to women, who operated 63% of cocoa land in Project A with little power over it, and this shared decision-making is linked to the project\'s income gains; women\'s safety must always come first, including the right to opt out of partner involvement.',
+    'EA$E builds financial resilience in three steps, VSLA savings groups, the Gender Discussion Series, and CEFE business-skills training, with VSLA groups of 15-25 members, at least 3 of 5 committee seats held by women, and 9-12 month cycles, turning savings into viable, diversified businesses and joint household financial decisions rather than dependence on cocoa income alone.',
+  ],
   lessons: [
     {
       id: 'cocoa-overview',
@@ -4980,6 +5138,14 @@ COURSES.push({
   icon: commodityIcon(cottonIcon),
   duration: '1 hr 15 min',
   description: 'A six-module course on cotton and the fashion value chain for Solidaridad ECA staff who support field teams, ginners, cooperatives, and textile-sector partners. It frames cotton within ECA\'s Fashion sector (cotton, leather, textiles) in Ethiopia and Uganda, and grounds practice in the Better Cotton Standard, cotton good agricultural practice (GAP), integrated pest management, responsible ginning, fibre quality, decent work, and the cotton-to-garment chain that links farms to EUDR- and CSDDD-facing markets.',
+  keyTakeaways: [
+    'Cotton sits within Solidaridad ECA\'s Fashion sector alongside leather and textiles, with Ethiopia and Uganda as the regional focus and Solidaridad working the whole chain from seed cotton through ginning, spinning, fabric and garments.',
+    'Because cotton is one of the most pesticide-intensive and water-thirsty crops, Integrated Pest Management (scout first, use cultural and biological controls, and treat chemically only when an economic threshold is crossed) is the core sustainable practice, alongside good agricultural practice on variety, establishment, soil health and water-use efficiency.',
+    'The Better Cotton Standard trains and licenses farmer groups against principles covering crop protection, water, soil, biodiversity, fibre quality, decent work and effective management, and staff should explain its mass-balance chain of custody honestly: it matches sourced volume to grown volume by accounting and rewards growers, but does not guarantee a specific garment contains their physical fibre.',
+    'Fibre quality and value are made at picking and protected at the gin, so clean, staged harvesting, keeping varieties separate, and rigorous contamination control (especially avoiding polypropylene sacks and plastic twine) are essential, as is correctly set, well-maintained, safe ginning.',
+    'Decent work is a non-negotiable principle across the whole chain, from preventing child and forced labour in seed-cotton picking to addressing wage, safety and harassment concerns in Ethiopia\'s textile and garment factories where women dominate the workforce.',
+    'EU market rules such as EUDR and CSDDD are pushing fashion supply chains toward traceability and human-rights due diligence, so tools like farmer IDs, plot mapping, group records and Solichain are essential for ECA partners to meet buyer requirements, protect market access, and sustain brand relationships such as those with Decathlon and H&M.',
+  ],
   lessons: [
     {
       id: 'cotton-overview',
@@ -5271,6 +5437,14 @@ COURSES.push({
   icon: commodityIcon(leatherIcon),
   duration: '1 hr 15 min',
   description: 'A six-module working summary of Solidaridad ECA\'s approach to the leather value chain — from hides and skins at the farm and abattoir, through tanning and finishing, to environmental management, decent work, and responsible sourcing under EUDR and CSDDD. Built on Solidaridad ECA\'s Fashion (cotton, leather, textiles) programme framing and well-established sector good practice. Designed for staff who support producers, cooperatives, tanneries, and processors — primarily in Ethiopia, and in Uganda.',
+  keyTakeaways: [
+    'Most of a hide\'s potential value is lost before tanning ever begins, through preventable defects such as flank branding, ectoparasite damage, careless flaying, and poor curing, so protecting hide quality at the source is the single highest-leverage action for staff to promote.',
+    'The leather chain runs from raw hide/skin through curing, tanning (chrome or vegetable, each with its own environmental trade-offs), to crusting and finishing, and ECA\'s strategic goal is to move value addition up this chain in-country, from wet-blue exports towards finished leather, footwear, and leather goods.',
+    'Tannery effluent and waste, especially chromium, sulphides, and high organic and salt loads, must be managed through a reduce-recover-treat hierarchy, since untreated discharge is illegal, environmentally damaging, and closes off access to responsible buyers.',
+    'Tanneries and slaughter operations are hazardous workplaces, and mixing sulphide liquor with acid in or near confined spaces releases toxic hydrogen sulphide gas, a well-documented, sometimes fatal risk that demands strict separation of streams and confined-space procedures.',
+    'Decent work founded on ILO core labour standards, including the elimination of child labour risks in informal flaying and small tanneries, is inseparable from occupational health and chemical safety in ECA\'s leather work.',
+    'Responsible sourcing requirements, such as Leather Working Group ratings, hide traceability, and compliance with EUDR (which covers cattle, and therefore dairy, beef, and leather) and CSDDD, are not barriers but the entry ticket to premium buyers and the lever for ECA\'s value-chain upgrading ambition.',
+  ],
   lessons: [
     {
       id: 'leather-overview',
@@ -5562,6 +5736,14 @@ COURSES.push({
   icon: commodityIcon(dairyIcon),
   duration: '1 hr 10 min',
   description: 'A six-module working summary of Solidaridad East & Central Africa\'s smallholder dairy programme framing, combined with established good practice for dairy in East Africa. Designed for staff who support field teams, partner cooperatives, and milk-bulking hubs. Livestock (Dairy) is an active commodity in Ethiopia and Kenya, with the e-Dairy quality-based payment tool central to the digital strategy.',
+  keyTakeaways: [
+    'Dairy is a daily-income livestock commodity for Solidaridad ECA, active in Ethiopia and Kenya, and getting good outcomes depends on moving four levers together: breeding, feed, health, and clean milk hygiene.',
+    'Breed choice must match what a farmer can actually feed and manage — cross-breeds are the mainstay of smallholder dairy in ECA, since a well-managed cross-breed will outperform a starved exotic every time.',
+    'Feed is typically the single largest cost (up to around 60% of production cost) and the biggest lever on yield, so helping farmers conserve fodder (silage or hay) for the dry season and feed a balanced ration to yield is where most of the profit is won.',
+    'Prevention is central to animal health: stop mastitis through clean milking practices, control ticks and East Coast Fever through consistent dipping/spraying and immunisation, and always ensure milk from treated cows is withheld for the full withdrawal period.',
+    'Clean, cold, un-adulterated milk moved quickly through the cold chain (cooled to around 4 degrees C) is essential, and Solidaridad ECA\'s e-Dairy quality-based payment tool turns this hygiene discipline into income while cooperatives and bulking hubs give farmers collective market power.',
+    'Because women typically do the daily cow care and milking while men often control the sale and income, staff should use quality-based payment and cooperative reforms deliberately to shift income visibility and decision-making toward women.',
+  ],
   lessons: [
     {
       id: 'dairy-overview',
@@ -5837,6 +6019,14 @@ COURSES.push({
   icon: commodityIcon(riskIcon),
   duration: '30 min',
   description: 'Learn how Solidaridad ECA identifies, assesses, treats, and reports risks — from the three lines of defense to risk appetite, the likelihood-impact heat map, and your role as a first-line risk owner.',
+  keyTakeaways: [
+    'Risk management at Solidaridad ECA is not about eliminating risk but about understanding it to make better, evidence-based decisions for farmers, partners, donors, and colleagues, and it is the responsibility of every staff member, not just senior leadership.',
+    'The organisation uses a three lines of defense model: country teams, project managers, and functional leads (first line) own and manage risks day-to-day; Risk & Compliance, Finance, HR, Legal, Procurement, and Thematic Leads (second line) maintain the framework and challenge the first line; and Internal Audit (third line) provides independent assurance, with ultimate accountability resting with the Managing Director and Senior Management Team.',
+    'Risk management is a continuous cycle - establish context, identify, analyse, evaluate, treat, monitor and review, and communicate and consult - and every identified risk must be logged on the risk register with a named owner and both inherent and residual ratings.',
+    'Risks are rated on likelihood (from Rare to Almost certain) and impact across five dimensions (financial, reputational, compliance, stakeholder, and time delay) to produce a Low, Medium, or High heat map rating, with High risks demanding immediate senior management attention.',
+    'Once assessed, a risk owner treats a risk by choosing to avoid, transfer, mitigate, or accept it, and any need to exceed risk appetite limits requires a Country Risk Waiver approved by the SMT, time-bound to a maximum of 12 months, with enhanced reporting.',
+    'Key Risk Indicators and Early Warning Indicators (set at around 80-90% of the limit) are used to trigger action before a breach, material risks are reported quarterly to the SMT, and staff should always escalate early rather than wait to explain a breach later.',
+  ],
   lessons: [
     {
       id: 'risk-overview',
@@ -6006,6 +6196,14 @@ COURSES.push({
   icon: commodityIcon(financePolicyIcon),
   duration: '1 hr 35 min',
   description: 'A comprehensive, scenario-driven walk through the 2025 ECA Finance & Procurement Manual (Issue No. 5), the Travel & Expenses Policy and QSP, and ECA leadership guidance on co-financing, controls and audit readiness. Across fourteen modules you will learn how money flows through Solidaridad ECA — how we plan, approve, travel, claim, buy, pay, bank, allocate and account — so every euro and shilling is traceable, justified and trusted.',
+  keyTakeaways: [
+    'Every euro, shilling, birr or schilling ECA handles must be traceable, justified and trusted, and where a donor\'s rules are stricter than ECA\'s they win, while national law always supersedes the Manual.',
+    'Know your approval authority and never split a purchase or transaction to dodge a threshold: if a decision or spend exceeds your limit, escalate it rather than work around it.',
+    'Travel and expense claims follow a strict sequence — get advance approval before booking, use the prepaid card only for business costs, and submit your Travel Expense Report with original receipts within 7 days of returning, since you cannot hold two advances at once and unretired advances can be recovered from your salary.',
+    'Procurement method is set by the total value of the requirement, from prudent shopping with 3 quotes under EUR 500 up to open tender above EUR 100,000, and single-sourcing is only allowed with written justification, TEC consultation and MD approval.',
+    'Co-financing and shared costs must be intentional, transparent and documented, and the golden rule is that a cost or contribution may be counted only once, never claimed under more than one project or donor.',
+    'Strong controls, complete documentation and prompt reconciliation are what make ECA audit-ready, since anything not properly documented is treated as non-compliant during an audit.',
+  ],
   lessons: [
     {
       id: 'fin-why',
@@ -6380,6 +6578,14 @@ COURSES.push(
     icon: Users,
     duration: '50 min',
     description: 'A six-module working summary of the Gender Action Learning System (GALS) as applied in the Bundibugyo cocoa programme — Solidaridad ECA with ICAM Chocolate Uganda and Sano Rice under FVO funding. Anchored in the Jan 2026 GALS & VSLA Performance Report covering 891 couples trained, 27 gender champions (21 men, 6 women), 40 role-model couples, and outcomes of 88% joint income decisions, 92% joint health decisions, 53.6% reduction in GBV, and a doubling of joint land ownership (15% → 31%). Designed for staff who facilitate, coach or scale GALS in any ECA cocoa, coffee, tea or commodity context.',
+    keyTakeaways: [
+      'GALS (Gender Action Learning System) is a household-level, peer-delivered methodology using five visual tools (Vision Journey, Gender Balance Tree, Challenge Action Tree, Empowerment Leadership Map, Multi-lane Highway) to get couples jointly planning, sharing roles and reducing gender-based violence, rather than targeting women alone.',
+      'In the Bundibugyo cocoa programme (Solidaridad ECA with ICAM Chocolate Uganda and Sano Rice under FVO funding), 891 couples were trained by 40 role-model couples and 27 gender champions (21 men, 6 women), each champion covering around 31 households.',
+      'The programme delivered strong joint decision-making gains: 88% joint decisions on income and children\'s education, 92% on health, 73% on assets and 65% on budgeting/role-sharing, alongside 75% of couples reporting improved respect, trust and unity.',
+      'Reported GBV fell by 53.6% (ranging 40-87% across sub-counties), driven by joint visioning removing financial conflict, public peer norms, alcohol reduction and redistributed household labour, but women champions are essential for surfacing GBV concerns and must be deliberately recruited and protected in future cohorts.',
+      'Joint land or cocoa plantation ownership doubled from 15% to 31% in about a year and is considered the single most durable outcome, so staff should keep pushing for joint registration wherever the legal framework allows.',
+      'GALS only works if sustained: a six-month rhythm of sessions, Kobo Collect monitoring, peer scaling through champions and role-model couples, refresher training, and linkage to market institutions like SACCOs and collective marketing must be built into project design from the start rather than treated as a one-off training.',
+    ],
     lessons: [
       {
         id: 'gals-why',
@@ -6633,6 +6839,14 @@ COURSES.push(
     icon: Target,
     duration: '50 min',
     description: 'A six-module working summary of the EA$E (Economic and Social Empowerment) methodology as applied in the Bundibugyo cocoa programme — anchored in the FVO Bundibugyo GALS & VSLA Performance Report (Solidaridad ECA, ICAM Chocolate Uganda, Netherlands Enterprise Agency / FVO; Jan 2026). Covers VSLA formation and governance (26 groups, 810 members, 764 active), savings and loan discipline (UGX 162.5 million mobilised, 100% repayment in 58% of groups), 409 Income-Generating Activities, formalisation gaps (100% of groups lack bank accounts, 0% access PDM), and collective marketing.',
+    keyTakeaways: [
+      'EA$E builds VSLAs as structured community-managed financial groups — weekly saving, internal lending and annual share-out, underpinned by a member-written constitution, five elected officer roles and a social welfare fund — and pairs naturally with GALS so that joint household visioning has a joint savings vehicle to land in.',
+      'The Bundibugyo cohort (26 groups, 810 members, 764 active) shows the model works at scale, mobilising UGX 162.5 million in savings (UGX 269,203 average per active member) with 58% of groups achieving 100% loan repayment and leadership close to gender parity (52.4% male / 47.6% female across 208 roles), alongside deliberate inclusion of 30 PWD members and youth in around 15% of leadership roles.',
+      'Governance safeguards such as three-key cashboxes and two independent money counters are the structural anti-corruption mechanisms that protect group funds, and staff should treat under-funding of the social welfare fund (96% of Bundibugyo groups) as a leading indicator of trouble to be fixed before an emergency hits an empty box.',
+      'VSLA savings and loans translate into livelihood resilience mainly through Income-Generating Activities — 409 IGAs were initiated across the cohort (about 30.3% of members per group), and IGAs should be chosen for market demand, capital fit, skill fit, gender-equity fit and seasonality, with joint-household IGAs surviving better than solo-spouse ventures.',
+      'Formalisation is the biggest unlocked opportunity in Bundibugyo: 100% of groups still lack a bank account, only 23% are linked to local authorities, and 0% access Uganda\'s Parish Development Model, so moving groups toward bank/SACCO accounts, sub-county registration and PDM access is the highest-leverage intervention for the next project phase.',
+      'Sustainable impact depends on scaling from individual savings to collective economic power — cooperative-based collective cocoa marketing and bulk input purchasing to raise the 78% share of income already going through ICAM — combined with ongoing refresher training, formalisation and governance discipline so EA$E continues after project funding ends, tracked throughout via Solidaridad\'s GALS+VSLA Kobo Collect monitoring tool.',
+    ],
     lessons: [
       {
         id: 'ease-fundamentals',
@@ -6904,6 +7118,14 @@ COURSES.push(
     icon: Lightbulb,
     duration: '55 min',
     description: 'A six-module working summary of the Reclaim Sustainability! (RS!) Gender Equality and Social Inclusion Thematic Learning Group (GESI TLG) approach to turning gender-responsive research into evidence-based advocacy. Anchored in the GESI TLG Learning Agenda Case Story Workbook and its four cross-country case studies — Ghana oil palm (Trust Africa / OPDAG), Zambia cotton (Solidaridad Southern Africa), Indonesia smallholder tea (Business Watch Indonesia / Teh Ndeso), and Uganda tea (Solidaridad ECA). Covers the three power commitments (Within, With, To), the four-stage Knowledge Pathway (Research → Product → Dissemination → Uptake), the Global Standards for Knowledge Products, and the three flagship guides (Research, Learning, Knowledge Management). Designed for staff who design research, package findings, advocate for change, or feed evidence into multi-stakeholder platforms (MSPs) and policy spaces.',
+    keyTakeaways: [
+      'The GESI TLG approach is built on three power commitments — Power Within (empowering communities through learning), Power With (building solidarity through collaborative knowledge generation) and Power To (shifting power through decentralised, action-oriented research) — delivered via a full-circle cycle of Research, Validation, Knowledge Sharing and Capacity Building.',
+      'The Knowledge Pathway has four stages — Research, Product, Dissemination, Uptake — and research must be participatory, intersectional and grounded in lived realities, then validated with affected communities before findings become advocacy, since validation is the legitimacy that distinguishes this approach from extraction.',
+      'Every knowledge product should be judged against the four Global Standards (Rigour and Credibility, Accessibility and Inclusivity, Relevance and Contextualisation, Action Orientation), and a single evidence base should be repackaged into multiple audience-tailored formats (policy briefs, farmer-friendly summaries, infographics, stakeholder presentations and more) rather than one report for everyone.',
+      'Dissemination means strategically engineering evidence into the conversations where decisions are made — mapping decision-makers, matching channels to audiences, and sequencing local, MSP, national and international outreach — not simply publishing a document.',
+      'Uptake (Stage 4) is the true measure of success, evidenced by concrete outcomes such as OPDAG\'s 2023 Gender Policy with a 30% leadership quota in Ghana, MSPs referencing farmer-sourced evidence in Zambia, increased income and consumer trust via QR codes in Indonesia, and policy and conference uptake in Uganda, and it must be planned and tracked from the start rather than treated as an afterthought.',
+      'Staff should use the three flagship guides as a working playbook across the pathway — the Research Guide (Stage 1), the Learning Guide (Stages 2 and 3) and the Knowledge Management Guide (Stages 3 and 4) — treating every research project as a future portfolio of knowledge products that centres marginalised voices at every stage.',
+    ],
     lessons: [
       {
         id: 'kpath-why',
@@ -7181,6 +7403,14 @@ COURSES.push(
     icon: CloudRain,
     duration: '45 min',
     description: 'A six-module working summary of greenhouse-gas thinking for ECA field staff, anchored in three Solidaridad ECA / ECA Agribusiness Solutions GHG assessments: the ETG Uganda coffee study (502 farmers), the LDC Harvesting Carbon Project baseline (605 farmers), and the ICAM Cocoa baseline in Bundibugyo (235 households of a 600-farmer target). Covers what GHGs are, how Solidaridad measures them with the Cool Farm Platform, how to read per-kilo and per-hectare benchmarks, the two big farm-level hotspots (residues and fertiliser), and what changes on Monday morning for staff working on EUDR and carbon finance.',
+    keyTakeaways: [
+      'Three gases matter most on Solidaridad ECA farms - CO2, methane (28-34x CO2\'s warming potential) and nitrous oxide (about 298x) - and all are converted to a single CO2e figure for comparison and reporting.',
+      'Solidaridad ECA measures farm-level footprints with Kobo Collect for field data and the Cool Farm Platform (Perennials v3) for processing, favouring direct CFP export over API integration after the Harvesting Carbon Project lost data through the API path.',
+      'Three baseline studies give an internal benchmark library: ETG Uganda coffee at 2.44 kg CO2e/kg GBE (502 farmers), the LDC Harvesting Carbon Project at 1.17 kg CO2e/kg GBE (605 farmers), and the ICAM Bundibugyo cocoa baseline at 1.01 kg CO2e/kg cocoa (235 of 630 households).',
+      'Crop residues (burned prunings, pulp and pod husks) are consistently the single biggest emissions hotspot, ranging from 49% of gross emissions in the ETG coffee study to 98.7% in the Bundibugyo cocoa baseline, and should be diverted to mulching, composting or biochar instead of burning.',
+      'Fertiliser is the second major hotspot where it appears (55% of gross emissions in the ETG study), and the 4R Nutrient Stewardship framework - right source, right rate, right time, right place - is Solidaridad\'s answer, while soil carbon and trees act as a sink offsetting up to 64.2% of gross emissions.',
+      'These GHG numbers underpin practical outcomes for staff - EUDR compliance via farm geo-mapping and no-deforestation messaging, Scope 3 reporting for buyers like ETG, LDC and ICAM, and carbon finance pathways such as Harvesting Carbon impact units and ACORN credits - so field officers should stop residue burning, apply the 4Rs, map every farm and count trees on every visit.',
+    ],
     lessons: [
       {
         id: 'ghgs-basics',
@@ -7402,6 +7632,14 @@ COURSES.push(
     icon: Sparkles,
     duration: '45 min',
     description: 'A beginner-friendly primer on greenhouse gases — what they are, how they trap heat, the three that dominate every Solidaridad ECA farm-level GHG study (CO2, CH4, N2O), and why the same three turn up in every project report from coffee at ETG to cocoa in Bundibugyo. Designed for staff who need a confident on-farm conversation about climate without a chemistry degree.',
+    keyTakeaways: [
+      'The natural greenhouse effect keeps Earth liveable (around -18°C without it versus around +15°C with it), so the real problem is the extra gases human activity adds, not the effect itself.',
+      'Three gases dominate every Solidaridad ECA farm-level GHG study: carbon dioxide (CO2), methane (CH4) and nitrous oxide (N2O), and each maps to a distinct farm activity and fix.',
+      'Potency per kilo differs hugely: CO2 is the reference gas at GWP 1, methane is roughly 28-34 times more potent over 100 years, and nitrous oxide is roughly 298 times more potent, making N2O the most damaging gas per kilo despite fertiliser being the most controllable source.',
+      'Wet, anaerobic waste (coffee pulp, cocoa husks, manure, wet prunings) releases methane even when a pile looks tidy, and switching decomposition to aerobic composting or biochar shifts it to less damaging CO2 while producing a usable soil amendment.',
+      'All emissions are converted to a single CO2-equivalent (CO2e) figure by multiplying each gas by its GWP and summing, which is the standard Solidaridad, IPCC and Cool Farm Platform reporting language for buyers, auditors and donors, using a 100-year time horizon.',
+      'Reducing emissions is not just a compliance matter for buyer programmes like EUDR and carbon finance schemes such as ACORN and Harvesting Carbon; the same low-cost practice changes (mulching, composting, 4R fertiliser stewardship, agroforestry instead of burning, dumping or over-fertilising) also cut farmer costs while improving the farm\'s climate ledger.',
+    ],
     lessons: [
       {
         id: 'whatghg-greenhouse-effect',
@@ -7611,6 +7849,14 @@ COURSES.push(
     icon: TrendingUp,
     duration: '35 min',
     description: 'A working summary of where farm-level emissions come from in ECA smallholder systems, anchored in the source-by-source breakdowns published in the three Solidaridad ECA GHG studies (ETG coffee, LDC Harvesting Carbon, ICAM Bundibugyo cocoa). Covers fertiliser, crop residues, livestock, land-use change, downstream transport and processing — with exact shares from each study and the specific farm habits that drive each source.',
+    keyTakeaways: [
+      'Across all three Solidaridad ECA GHG studies (ETG Uganda coffee, LDC Harvesting Carbon, ICAM Bundibugyo cocoa), crop residues and fertiliser are consistently the two dominant emission sources, while transport, machinery, pesticide manufacture and land-use change are minor by comparison.',
+      'Fertiliser is the most directly reversible emission source, and 4R Nutrient Stewardship (right source, right rate, right time, right place) can deliver measurable reductions within a season at little or no extra cost to the farmer.',
+      'Crop residues are the most consistent hotspot of all, ranging from 49% (ETG coffee) to 73.6% (Harvesting Carbon) to 98.7% (Bundibugyo cocoa), and burning them is the single worst practice, while mulching, composting and biochar are the consistent fixes across coffee, tea and cocoa.',
+      'Livestock methane and manure emissions barely register in the crop-focused published studies but remain significant in mixed-farm systems many Solidaridad households also run, so better fodder, covered manure storage, biogas and grazing by-laws remain relevant interventions.',
+      'Small percentage shares for land-use change, transport and pesticide manufacture do not mean small risk, because the EU Deforestation Regulation (EUDR) can close EU market access to commodities like coffee and cocoa produced on land deforested after 2020, regardless of the gross emissions figure.',
+      'Field staff should read each farm\'s actual emissions breakdown rather than apply a one-size-fits-all fix, since the dominant source and best lever differ meaningfully between studies and value chains.',
+    ],
     lessons: [
       {
         id: 'sources-overview',
@@ -7820,6 +8066,14 @@ COURSES.push(
     icon: RotateCcw,
     duration: '40 min',
     description: 'A working primer on how carbon moves between the atmosphere, plants, soil, biochar and the ocean — and how Solidaridad ECA projects (Mabale biochar, Harvesting Carbon agroforestry, Mubuku composting) deliberately route it from the fast atmospheric pool back into the slower soil and biomass pools. Designed for staff who need to explain sequestration, sinks, and the carbon ledger to farmers, donors and partners.',
+    keyTakeaways: [
+      'Carbon constantly moves between four pools - atmosphere, biomass, soil and ocean - and climate change happens when inflows to the atmospheric pool outrun outflows, so Solidaridad NbS projects work by speeding carbon out of the atmosphere and slowing carbon into it.',
+      'Photosynthesis is the core carbon-removal engine, pulling CO2 into leaves, wood, roots and harvest (about half of any plant\'s dry weight is carbon), and agroforestry multiplies this by running multiple photosynthesis engines on the same land area.',
+      'Soil is the largest terrestrial carbon store, and in the Solidaridad GHG studies the soil-carbon sink offsets between -0.97% (Bundibugyo cocoa) and -64.2% (Harvesting Carbon coffee) of gross emissions, but this sink can be destroyed by burning residues, deep tillage, bare soil or land-use change just as easily as it can be built through mulching, composting, biochar and ground cover.',
+      'Biochar is the most permanent on-farm carbon storage option because pyrolysis (heating biomass without enough oxygen at roughly 350-700°C) creates a chemically stable form that persists in soil for centuries rather than years, and the Mabale Tea Biochar Pilot converts about 46% of tea prunings\' carbon into biochar, yielding roughly 3.4 tonnes of biochar per hectare per pruning cycle.',
+      'Each Solidaridad ECA project moves the carbon cycle in a different, complementary way: Harvesting Carbon expands the biomass pool through shade-tree agroforestry, Mabale routes biomass into the long-decay soil pool via biochar, Mubuku composting diverts coffee pulp from methane-generating dumping into soil amendment, and Bundibugyo cocoa resilience combines agroforestry with mulching to protect existing carbon pools.',
+      'Sink expansion (planting trees, adding biochar or compost) and source reduction (stopping burning, over-fertilising and pulp dumping) must happen together, since expanding the sink alone does not undo continued emissions from the source side of the carbon ledger.',
+    ],
     lessons: [
       {
         id: 'cycle-overview',
@@ -8024,6 +8278,14 @@ COURSES.push(
     icon: BarChart3,
     duration: '40 min',
     description: 'A working summary of how Solidaridad ECA measures, reports and verifies farm-level greenhouse-gas emissions, anchored in the practical workflow used across the ETG coffee, LDC Harvesting Carbon and ICAM Bundibugyo cocoa baselines. Covers what MRV is, the Cool Farm Platform Perennials v3 pathway, Kobo Collect field discipline, sampling and triangulation, and the pathway from credible baseline to ACORN, EUDR and Scope 3 buyer contracts.',
+    keyTakeaways: [
+      'Every Solidaridad ECA climate-finance pathway (Harvesting Carbon, ACORN, Scope 3 supply contracts) depends on credible MRV, since payment under the pay-for-impact model only comes after verification, not for promises.',
+      'Solidaridad ECA has standardised on the Cool Farm Platform (CFP) Perennials v3 pathway for coffee, cocoa and tree crops, using a farm-gate boundary and reporting all three farm gases (CO2, CH4, N2O) separately and summed as CO2e.',
+      'Data must flow from Kobo Collect for field capture directly into CFP for processing, not via API, after the Harvesting Carbon Project found the API path lost data inconsistently and forced full reprocessing.',
+      'Credible baselines rest on trained enumerators, verbal informed consent documented in the Kobo form, daily logical-error checks, photographic evidence, and transparent, reproducible sampling (e.g. 502 of 4,000 ETG farmers, 235 of 630 Bundibugyo households).',
+      'Data quality depends on pre-upload validation in Kobo, post-upload triangulation against reference yields (e.g. Uganda\'s 0.61 t GBE/ha) and cooperative purchase records, and a full audit trail, since buyer or registry audits always ask how the numbers were obtained, not just what they are.',
+      'A single credible baseline can feed five revenue pathways at once (Scope 3 buyer reporting, EUDR compliance, Harvesting Carbon pay-for-impact, ACORN voluntary carbon credits, and carbon pre-finance loans), so building MRV once and reusing it is far more cost-effective than building a separate system per buyer.',
+    ],
     lessons: [
       {
         id: 'mrv-why',
@@ -8239,6 +8501,14 @@ COURSES.push(
     icon: AlertTriangle,
     duration: '40 min',
     description: 'A working summary of how climate change is already showing up on the farms Solidaridad ECA works with, anchored in the Bundibugyo cocoa, Mabale tea, Mubuku coffee, and Harvesting Carbon project evidence. Covers rainfall variability and extremes, soil and erosion stress, the lean season and food insecurity, pest and disease shifts, and how field staff translate impact into adaptation that holds up.',
+    keyTakeaways: [
+      'Climate change is already reshaping ECA farms today rather than being a future risk, showing up as five compounding impacts — rainfall variability, soil degradation, lean-season stress, pest and disease shifts, and biodiversity and forest loss — that every Solidaridad ECA NbS project addresses at least two of.',
+      'Rainfall is becoming less predictable in onset, more intense per event, and longer-gapped between events, which is why tree seedlings must be distributed on confirmed rather than forecast rains, fertiliser applications must be split and timed, and buffering measures such as agroforestry shade, mulch, biochar and contour management have become essential rather than optional.',
+      'On steep, erosion-prone landscapes such as Bundibugyo\'s Rwenzori foothills, heavier rainfall accelerates soil loss and creates pressure to clear forest for new land, so agroforestry, ground cover, contour bunds, compost and biochar, and EUDR-compliant intensification of existing plots are the intervention package that protects both yields and market access.',
+      'Climate shocks cascade into household food insecurity that peaks in the June-August lean season, and resilience against this depends on a combined stack of VSLAs, EA$E off-season enterprise training, GALS joint household decision-making, GAP and agroforestry productivity gains, and direct market linkage, not on productivity gains alone.',
+      'Warmer temperatures and shifting humidity are increasing pest generations, expanding disease ranges, stressing pollinators and enabling invasive species, so the response is integrated pest management, clean planting material, early weekly detection, and actively correcting cultural misconceptions such as the false Ficus natalensis-twig borer link rather than relying on spraying.',
+      'Effective field-level adaptation means walking the plot, identifying the farmer\'s single biggest current problem, applying one specific Solidaridad NbS practice that fits it, and logging the visit in Kobo for the MRV and audit trail, turning climate impact awareness into concrete, farm-specific action.',
+    ],
     lessons: [
       {
         id: 'impacts-overview',
@@ -8471,6 +8741,14 @@ COURSES.push(
     icon: TreePalm,
     duration: '45 min',
     description: 'A six-module working summary of the Solidaridad ECA Harvesting Carbon Project — a 3-year, pay-for-impact agroforestry initiative for Uganda smallholder coffee in partnership with Louis Dreyfus Company (LDC) / LDC-Cafe Africa. Covers 4,500 households across Mityana, Kiboga, Wakiso, Sheema, Ntungamo and Rwampara, four shade-tree species, the 56.4% Year 1 survival rate and what it teaches us, and the pathway from planted tree to verified Scope 3 carbon impact unit.',
+    keyTakeaways: [
+      'The Harvesting Carbon Project is a 3-year, pay-for-impact agroforestry initiative reaching 4,500 smallholder coffee households in Uganda\'s Central (Mityana, Kiboga, Wakiso) and Southwestern (Sheema, Ntungamo, Rwampara) regions, led by Solidaridad ECA with Louis Dreyfus Company (LDC) / LDC-Cafe Africa as the lead supply-chain partner.',
+      'Unlike traditional payment-for-planting schemes, the pay-for-impact model only pays farmers and the supply chain for verified, measured GHG reductions and removals, so trees on smallholder coffee farms become marketable Scope 3 carbon-impact units that buyers purchase alongside the coffee to meet EU rules such as EUDR, CSRD and CSDDD.',
+      'Four shade-tree species were distributed for different purposes (Albizia coriaria and Ficus mucuso and Ficus natalensis for indigenous long-term shade and timber, and Calliandra calothyrsus as the fast-growing nitrogen-fixing quick win), and species mix should be matched to farm size, erosion risk, livestock-keeping and timber goals rather than distributed evenly.',
+      'Year 1 overall shade-tree survival was only 56.4% (59.4% Central, 55.7% Southwestern), with free-grazing livestock the single largest reported cause of seedling death, so field officers should treat roughly 50% mortality as the planning baseline and prioritise community by-laws on grazing, physical protection, and gap-filling every rainy season.',
+      'The pathway from tree to payment runs through an MRV cycle of baseline, intervention, monitoring, verification and payment, using Kobo Collect surveys and the Cool Farm Platform, with independent verification turning survival data into a tradeable carbon-impact unit before any payment (likely via VSLAs) is released.',
+      'Replication to other commodities should carry over the proven playbook elements (species logic, Kobo MRV, the 56.4% survival benchmark, grazing by-laws, Year 2 pollarding training) while tuning species choice and logistics to local context, and the project\'s honest acknowledgement that per-tree carbon math and the final payment model are still to be determined should be treated as a credibility strength, not a weakness.',
+    ],
     lessons: [
       {
         id: 'agcarbon-why',
@@ -8732,6 +9010,14 @@ COURSES.push(
     icon: Leaf,
     duration: '45 min',
     description: 'A six-module working summary of Solidaridad ECA biochar practice, anchored in the Reclaim Sustainability! Biochar-in-Tea pilot with Mabale Growers Tea Factory in Western Uganda (9 plots, 5,910 kg biochar across 4.75 ha, Aug 2024 - Nov 2025). Covers the climate-and-cost case, Kontiki kiln production, inoculation and soil chemistry, field application by trenching, monitoring and reading site-level variability, and replication to coffee, cocoa and banana.',
+    keyTakeaways: [
+      'The course is anchored in the Reclaim Sustainability! Biochar-in-Tea pilot with Mabale Growers Tea Factory in Western Uganda, which applied 5,910 kg of biochar across 4.75 ha over 9 tea gardens (Aug 2024 to Nov 2025, full cycle to 2027), converting tea prunings in Kontiki kilns (metal or earth) at roughly 46% conversion.',
+      'Biochar delivers a triple win for tea farmers: it cuts synthetic nitrogen cost (nitrogen is 61% of smallholder tea production cost, and biochar plots stop receiving further synthetic N after the establishment dose), raised Year 1 cumulative greenleaf yield by +14.56% versus matched controls, and locks carbon from otherwise-burned prunings into a stable soil form.',
+      'Raw, uninoculated biochar must never be applied straight to soil because it temporarily immobilises nitrogen and is alkaline; the Mabale protocol pre-loads biochar with sulphate-based fertiliser (around 150 kg N/ha) before trenching it in, which both nourishes the biochar and buffers soil pH within the 4.5-5.5 window tea requires.',
+      'Field application follows a simple, repeatable method: bury inoculated biochar in trenches between tea rows at roughly 1,244 kg/ha, always paired with a matched control plot of equal area, management and pruning cycle, since without a control a yield change cannot be attributed to the biochar.',
+      'Site-level results varied widely in Year 1 (from +62.84% at the best site to -14.58% at the worst), reflecting differences in baseline soil fertility, organic matter, drainage, rainfall and inoculation quality, so staff should quote both the average and the spread, investigate underperforming sites for inoculation or pH issues, and expect multi-year stabilisation before judging outcomes.',
+      'The Kontiki-kiln-plus-inoculation model is designed to replicate beyond tea to coffee, cocoa and banana, using each crop\'s own pruning or residue feedstock while keeping the core practice constant (Kontiki kiln, pre-load inoculation, trench application, matched control) and tuning only the inoculation chemistry and application rate to the crop\'s soil.',
+    ],
     lessons: [
       {
         id: 'biochar-why',
@@ -8983,6 +9269,14 @@ COURSES.push(
     icon: Sparkles,
     duration: '35 min',
     description: 'A five-module working summary of accelerated biocomposting for organic agro-waste, anchored in the Starbucks C.A.F.E. Practices Programme coffee-pulp pilot at Mubuku Coffee Washing Station, Kasese District, Uganda (Solidaridad ECA, UGACOF, Seed Network Programme; 2024-2026). Covers why pulp is a waste problem, the 5 Rs framework, the Superagric and Indigenous Microorganisms (IMO) accelerated-composting recipes, monitoring and quality, and replicating the model across other waste streams.',
+    keyTakeaways: [
+      'Coffee pulp makes up roughly 40-50% of fresh cherry weight and an average washing station generates around 5 tonnes of it a day, taking up to six months to break down naturally while acidifying soil (pH 3.5-4.5), eutrophying water, emitting methane and generating odour if left untreated.',
+      'Composting is only one part of a wider 5 Rs framework (Reduce, Reuse, Recycle, Recover, Dispose), so staff should look to reduce pulp at source and capture value through reuse or recovery before treating composting as the default answer.',
+      'The Mubuku pilot validated two accelerated-composting recipes that turn raw pulp into a mature, C.A.F.E. Practices-compliant soil amendment (pH 5-9) within five to six weeks instead of up to six months: Superagric (1L diluted in 20L non-chlorinated water, treating 1-1.5 tonnes of pulp, turned every 3 days, mature in about 5 weeks) and Indigenous Microorganisms/IMO (1L diluted in 10L water, treating about 1 tonne, turned weekly, mature in about 6 weeks).',
+      'Both recipes share the same core discipline regardless of accelerator choice: build piles 45-60 cm tall, keep them in partial shade, cover during heavy rain, and watch for a mild fruity smell (healthy/aerobic) versus a rotten or fishy smell (anaerobic onset requiring an immediate turn).',
+      'Superagric suits stations with reliable commercial supply, faster turnaround needs and labour for frequent turning, while IMO suits cooperatives that want a slower but locally self-sufficient, lower-cost option, and the Mubuku pilot trained 11 UGACOF staff to run the protocol.',
+      'The same accelerated-composting principles can be adapted to other waste streams such as tea prunings, banana pseudostems, cocoa pod husks and household organics, though exact dosing is validated only for coffee pulp and staff should expect longer maturation, pre-shredding needs, and small pilots before scaling, with lab-verified nutrient, GHG and cost benefits still pending further research.',
+    ],
     lessons: [
       {
         id: 'biocomp-problem',
@@ -9189,6 +9483,14 @@ COURSES.push(
     icon: DollarSign,
     duration: '50 min',
     description: 'A six-module working summary of carbon markets for ECA smallholder agriculture — anchored in Solidaridad ECA\'s practical experience (€500,000 to 9,423 farmers via PES, €397,200 carbon pre-finance to 33,100 coffee farmers in 2024, Harvesting Carbon pay-for-impact with LDC, ACORN pathway for Bundibugyo cocoa). Covers how voluntary and compliance markets work, the full carbon-project lifecycle and major standards (Verra, Gold Standard, ACORN, Plan Vivo), the integrity issues that have shaken the market (additionality, permanence, leakage, the 2023 Verra rainforest-credit credibility crisis), Article 6 of the Paris Agreement and Internationally Transferred Mitigation Outcomes (ITMOs), and the smallholder benefit-sharing principles that decide whether a project actually helps farmers.',
+    keyTakeaways: [
+      'Carbon markets split along two axes — compliance versus voluntary, and avoided emissions versus removals — and Solidaridad ECA\'s projects sit mostly in the voluntary, removal quadrant today, with Article 6 cross-border trade as the future direction.',
+      'Every credit passes through an eight-stage lifecycle (concept and design, validation, implementation, monitoring, verification, issuance, sale, retirement) under a major standard such as Verra, Gold Standard, ACORN or Plan Vivo, so a project pitch is not a real credit until it has actually reached verification and issuance.',
+      'A credit is only credible if it passes five integrity tests — additionality, permanence, leakage, baseline integrity and double-counting — and the January 2023 revelations about inflated baselines in Verra\'s REDD+ rainforest credits show what happens to market trust when these tests fail.',
+      'Article 6 of the Paris Agreement introduces Internationally Transferred Mitigation Outcomes (ITMOs), which require host-country authorisation and a corresponding adjustment so a reduction is counted only once, and this politically-gated pathway is distinct from, and typically priced higher than, ordinary voluntary credits.',
+      'Not all climate-smart practices generate credits: agroforestry, biochar, soil organic carbon and avoided-methane projects fall into creditable buckets with recognised methodologies, while practices like 4R nutrient stewardship, standard pruning or crop diversification generally do not.',
+      'Smallholder benefit-sharing is the core of a credible project, not a side issue, so staff should insist on Free Prior and Informed Consent, transparent and majority-to-community revenue splits, pay-for-impact structures, pre-finance, and payment through trusted VSLAs and cooperatives, while watching for \'carbon cowboys\' risks such as long land agreements and opaque, developer-retained revenue.',
+    ],
     lessons: [
       {
         id: 'cm-how-markets-work',
@@ -9445,6 +9747,14 @@ COURSES.push(
     icon: TreePalm,
     duration: '20 min',
     description: 'The main agroforestry systems used across ECA and where each fits — grounded in the Harvesting Carbon Coffee Project tree-survival study (Solidaridad Uganda, 200 farmers across Mityana, Wakiso, Sheema and Rwampara, June 2026). Covers shade-tree systems, why trees die, and the establishment and aftercare that actually keep them alive.',
+    keyTakeaways: [
+      'Agroforestry deliberately integrates trees with crops or livestock, and the tree should be treated as infrastructure for the farm rather than competition with it, raising productivity, restoring soil, storing carbon and buffering against climate stress.',
+      'Four main systems cover most of what Solidaridad promotes across ECA: shade-tree systems (dominant for coffee and cocoa), boundary and alley planting, silvopasture, and woodlots or riparian buffers, each matched to a different farm context.',
+      'The Harvesting Carbon Coffee Project\'s June 2026 baseline of 200 Ugandan coffee farmers (Mityana, Wakiso, Sheema, Rwampara) shows that survival, not seedlings distributed, is the real measure of agroforestry success.',
+      'Seedling mortality is driven mainly by prolonged drought and heat, plus livestock grazing and trampling, poor planting and watering, poor handling before planting, and termite or pest attacks, and about 80% of farmers reported limited gap-filling, so early losses compound into permanently thin tree cover.',
+      'Farmer perception matters as much as agronomy: many farmers under-preferred Ficus natalensis in the belief it harbours coffee pests, so species choice needs sensitisation alongside technical advice.',
+      'Reliable survival comes from a standard aftercare package: plant at the start of a reliable rainy season, mulch, water during establishment, weed and manure, protect from livestock, manage termites and pests early, prune/pollard/coppice mature trees, and gap-fill promptly with appropriately sized replacements.',
+    ],
     lessons: [
       {
         id: 'nbs-afs-systems',
@@ -9543,6 +9853,14 @@ COURSES.push(
     icon: MapPin,
     duration: '20 min',
     description: 'Soil is the foundation of every productive, climate-resilient farm — and across East Africa it is under threat. This course covers the four pillars of soil health, what degrades soil, and the practices that rebuild organic matter, structure, biology and fertility on a smallholding.',
+    keyTakeaways: [
+      'Healthy soil is a living system teeming with microorganisms, and it underpins the returns on every other farm investment such as seed, fertiliser and irrigation, so the goal is to grow soil first and let crops follow.',
+      'Over 40% of East African soils are degraded, which reduces yields and leaves farms far more vulnerable to drought and flood.',
+      'Soil health rests on four interacting pillars — organic matter, structure, biology, and fertility and pH — and managing all four together, not fertility alone, is essential since improving one reinforces the others.',
+      'Burning residues, continuous cropping without rotation, excessive tillage, leaving soil bare, and relying on inorganic fertiliser alone are the main avoidable practices that degrade soil on smallholdings.',
+      'Rebuilding soil health does not require new land or extra money, but rather changing existing practices: keeping soil covered, adding organic matter, disturbing soil less, rotating and diversifying crops, integrating trees and livestock, and managing fertility through organic inputs first with targeted mineral inputs to fill the gap.',
+      'Staff and farmers can monitor soil health without a lab by checking for dark crumbly topsoil, earthworms, water infiltration rather than run-off, and freely spreading roots, alongside a simple pH test to keep fertility decisions honest.',
+    ],
     lessons: [
       {
         id: 'nbs-sh-foundation',
@@ -9637,6 +9955,14 @@ COURSES.push(
     icon: Leaf,
     duration: '25 min',
     description: 'How biochar improves soil — water-holding capacity, nutrient retention and microbial habitat — and the one rule that decides whether it helps or hurts. Grounded in what the Mabale Growers Tea Factory biochar pilot in Western Uganda taught us about results and variability. (For making biochar, see Biochar Production & Application.)',
+    keyTakeaways: [
+      'Biochar improves soil as a permanent physical and biological structure, not as a fertiliser, boosting water-holding capacity, nutrient retention (cation-exchange capacity) and microbial habitat.',
+      'Biochar must be inoculated (charged with fertiliser, manure or compost) before it is buried, because raw biochar straight from the kiln pulls nitrogen out of the soil and depresses yields.',
+      'In the Mabale Growers Tea Factory pilot in Western Uganda, inoculated biochar produced an average Year 1 greenleaf yield gain of +14.56% versus control, ranging from +62.84% at the best site (Kyakatara) to -14.58% at the worst site (Mitoma).',
+      'This wide site-to-site variability shows that baseline fertility, soil organic matter, drainage, rainfall and inoculation quality all affect results, and that Year 1 is not the final verdict since amendments typically need several cycles to stabilise.',
+      'Biochar delivers the most value on sandy or low-organic-matter, drought-prone soils and on high-input crops where it can cut recurring fertiliser costs, rather than on soils that are already rich.',
+      'Every biochar rollout should be paired with a matched control plot of equal area and management, and staff should report both the average result and the range so that variability does not undermine farmer trust.',
+    ],
     lessons: [
       {
         id: 'nbs-bcs-how',
@@ -9740,6 +10066,14 @@ COURSES.push(
     icon: RotateCcw,
     duration: '20 min',
     description: 'Turning farm residues, manures and household organics into compost to close the nutrient loop and cut reliance on inorganic fertiliser. Grounded in Solidaridad ECA\'s accelerated coffee-pulp composting work at Mubuku (Starbucks C.A.F.E. Practices), with the Superagric and Indigenous Microorganisms (IMO) recipes.',
+    keyTakeaways: [
+      'Composting closes the nutrient loop by turning crop residues, manure and household organics back into a soil amendment, cutting reliance on inorganic fertiliser while building soil organic matter, structure and water-holding capacity.',
+      'Left in an anaerobic heap, organic waste such as coffee pulp releases methane and acidic leachate, whereas composting it aerobically turns the same waste into a free input instead of a disposal problem.',
+      'Good composting depends on getting four factors right: a roughly balanced mix of nitrogen-rich greens and carbon-rich browns, regular turning for air, sponge-like moisture, and enough heat and time for the pile to mature.',
+      'The Mubuku pilot, run under Starbucks C.A.F.E. Practices, validated two microbial accelerators that cut coffee-pulp composting from many months to weeks: Superagric (1 litre to 20 litres non-chlorinated water, treating about 1-1.5 tonnes of pulp, maturing in about 5 weeks) and IMO (Indigenous Microorganisms, slightly slower at about 6 weeks but lower-cost and better suited to cooperative-scale sites without a supply contract).',
+      'Chlorinated water kills the microbes these accelerators depend on, so non-chlorinated water and the correct dilution rate are essential to avoid pile failure.',
+      'Compost must only be applied once mature (dark, crumbly, earthy-smelling and cooled) since immature compost can scorch crops and rob the soil of nitrogen, and the same accelerated-composting approach can extend beyond coffee pulp to cocoa husk, banana residue, weeds, manure and household organics.',
+    ],
     lessons: [
       {
         id: 'nbs-comp-why',
@@ -9827,6 +10161,14 @@ COURSES.push(
     icon: Leaf,
     duration: '20 min',
     description: 'Regenerative agriculture goes beyond sustaining the farm to actively rebuilding it — soil, water cycle, biodiversity and carbon. This course covers the core principles, the practices that deliver them (cover cropping, minimum tillage, rotations, integrated livestock), and how to support a smallholder through the transition.',
+    keyTakeaways: [
+      'Regenerative agriculture goes further than sustainable farming: rather than just doing no further harm, it aims to leave the land better each season by rebuilding soil organic matter, restoring the water cycle, increasing biodiversity and drawing carbon back into the ground.',
+      'Four principles underpin the approach: minimise soil disturbance, keep the soil covered, keep living roots in the ground, and maximise diversity — the core idea is to work with natural systems rather than against them.',
+      'These principles are delivered through practices such as cover cropping, minimum or no tillage, crop rotation and diversity, integrated livestock, and organic inputs and agroforestry, and a farmer does not need to adopt all of them at once.',
+      'The benefits are tangible, not just ecological: rising soil organic matter cuts the bought-fertiliser bill, covered and structured soil buffers both drought and flood, diverse systems suppress pests, and healthier soils and integrated trees can open carbon-finance opportunities.',
+      'Transition is a journey rather than a switch, since soils take several seasons to rebuild, so staff should support farmers to start small on a trial plot, sequence practices sensibly, pair practices together, and track simple indicators like soil colour, infiltration, earthworms, input costs and yield stability.',
+      'When coaching farmers, frame regenerative agriculture in terms they feel directly — a lower fertiliser bill, fields that survive dry spells, soil that no longer washes away — since the ecology follows the economics they can feel.',
+    ],
     lessons: [
       {
         id: 'nbs-ra-what',
@@ -9920,6 +10262,14 @@ COURSES.push(
     icon: Shield,
     duration: '45 min',
     description: 'A six-module working summary of climate-resilient livelihoods practice, anchored in the FVO-funded Sustainable Farming for a Climate-Resilient Livelihood of Cocoa Farmers project in Bundibugyo District, Western Uganda (Solidaridad ECA, ICAM Chocolate Uganda, Sano Rice, Netherlands Enterprise Agency; 2024-2026). Covers Bundibugyo\'s climate risk profile, the GAP and agroforestry productivity package, VSLA and EA$E for off-season resilience, GALS as a productivity lever, market linkage and the living-income lens, and how to read the Kobo monitoring data without confusing windfall with impact.',
+    keyTakeaways: [
+      'The project (Solidaridad ECA, ICAM Chocolate Uganda and Sano Rice, funded by the Netherlands Enterprise Agency/FVO) works with cocoa farmers in Bughendera County, Bundibugyo District, where cocoa provides 60-70%+ of household income yet the area is exposed to heavy rainfall, landslides, soil erosion and a June-August lean season during which food insecurity peaks.',
+      'Good Agricultural Practices (pruning, spacing, weeding/ground cover and integrated farm management) combined with climate-smart agroforestry lifted average household cocoa productivity from 472.2 kg to 693.8 kg (a 47% rise) on the same 0.82-acre average plot, while shade trees also protect against erosion, temperature extremes and biodiversity loss.',
+      'Village Savings and Loans Associations (VSLA, with 161 of 169 farmers as members) paired with the Economic and Social Empowerment (EA$E) approach let households save during the cocoa flush and borrow or diversify into off-season enterprises (fish trade, food vending, brick-making, shop-keeping, livestock, boda-boda) to survive the June-August lean season without eating their capital.',
+      'The Gender Action Learning System (GALS) treats gender equity as a productivity lever, not a side issue: joint visioning, joint planning and role-sharing between spouses have been directly linked by farmers to increased cocoa production, which matters because women operated 63% of cocoa land in the Project A baseline despite being under-represented (30%) among endline respondents.',
+      'Average household cocoa income rose from UGX 3,044,057 at baseline to UGX 13,014,896 at endline (roughly 4.3x), taking households above the Bundibugyo living-income threshold of UGX 5,160,000 (about EUR 1,395), but staff must isolate this gain from the 2023-2025 global cocoa-price boom and should teach farmers to weigh ICAM\'s reliable off-take and premiums against traders\' apparently higher gate prices net of transport and reliability.',
+      'Robust, honestly-read Kobo Collect monitoring (income vs living wage, productivity, food-insecurity months, joint decision-making and VSLA access, triangulated with cooperative and VSLA records) is essential to distinguish genuine programme impact from market windfall and to guide adaptive management, including sustained VSLA/GALS support and tailored help for single-headed or widowed households (about 14% of the cohort).',
+    ],
     lessons: [
       {
         id: 'crl-landscape',
@@ -10199,6 +10549,14 @@ COURSES.push(
     icon: Layers,
     duration: '25 min',
     description: 'Why diverse cropping and livestock systems out-perform monocultures under climate stress, and how to support the shift on smallholder farms. Draws on the Bundibugyo cocoa work, where diversification and off-season income are central to closing the living-income gap.',
+    keyTakeaways: [
+      'A farm dependent on a single crop is exposed to climate shocks, pests and price crashes hitting 100% of household income at once, and leaves long lean seasons with no cash.',
+      'In the Resilient Livelihoods cocoa project in Bundibugyo, households reported acute food insufficiency in June, July and August, the months between cocoa flushes.',
+      'Diversification spreads risk and often raises productivity per unit area through four levers: crop diversity, integrated livestock, trees and perennials, and temporal diversity that staggers harvests across the year.',
+      'The most effective support starts with filling the lean season, adds off-season income (such as small businesses funded through VSLA loans), and integrates new crops or trees into the existing plot rather than replacing the cash crop.',
+      'In Bundibugyo, VSLA savings built up during the cocoa flush combined with diversified off-season income are what actually carry households through the lean months, neither lever works as well alone.',
+      'Diversification should surround and integrate with the cash crop rather than replace it wholesale, since wholesale replacement is high-risk and farmers will resist it.',
+    ],
     lessons: [
       {
         id: 'nbs-df-monoculture-risk',
@@ -10287,6 +10645,14 @@ COURSES.push(
     icon: CloudRain,
     duration: '20 min',
     description: 'Practical measures for the two faces of climate stress in ECA — drought-coping (rainwater harvesting, drought-tolerant varieties, soil moisture) and flood-coping (drainage, raised beds, riparian buffers). The same healthy soil that survives drought also drains a flood.',
+    keyTakeaways: [
+      'Climate change in East and Central Africa is bringing more erratic and extreme water, with the same districts increasingly swinging between damaging drought and destructive flood, sometimes within a single year.',
+      'Drought and flood are not opposite problems but share a root cause on the farm: soil that cannot absorb and hold water, so fixing the soil blunts both extremes at once.',
+      'Drought-coping relies on rainwater harvesting, soil moisture conservation (mulch, cover crops, tied ridges and contour bunds), drought-tolerant crop varieties, and agroforestry shade and windbreaks to stretch scarce moisture.',
+      'Flood-coping relies on drainage and diversion channels that discharge to a safe outlet, raised beds and mounds to protect roots from waterlogging, riparian buffers and ground cover, and slope stabilisation such as terraces on landslide-prone areas like the Rwenzori foothills.',
+      'The measure must match the landscape, since flat lowlands need drainage and raised beds while steep slopes need terraces and contour buffers, and applying the wrong fix can worsen erosion.',
+      'Healthy, covered, well-structured soil, agroforestry, contour structures, crop diversification and early warning with a pre-agreed contingency plan are the investments that pay off in both drought and flood, so staff should build farms for both extremes rather than just one.',
+    ],
     lessons: [
       {
         id: 'nbs-dfr-two-extremes',
@@ -10374,6 +10740,14 @@ COURSES.push(
     icon: Users,
     duration: '25 min',
     description: 'How communities themselves plan, prioritise and govern climate adaptation — and how programmes can back rather than supplant local strategies. Covers community-based adaptation, local institutions and by-laws, and the inclusion that makes adaptation hold.',
+    keyTakeaways: [
+      'Adaptation must be locally led because climate impacts are felt locally and unevenly, and a programme\'s role is to back the adaptation communities are already trying to do, not deliver a plan to them.',
+      'Community-based adaptation (CBA) follows a structured cycle — assess risk together, prioritise, plan and assign, then act, monitor and adjust — with the programme facilitating (bringing information, options and resources) while the community decides (priorities and decisions).',
+      'Adaptation that a community owns keeps running after the project ends, whereas top-down plans collapse when funding leaves and often miss who is most exposed, such as women, youth and the landless.',
+      'Durable adaptation is held by local institutions and rules rather than individuals or inputs alone — by-laws (e.g. grazing rules protecting young trees), VSLA savings groups (a shock buffer without selling productive assets), watershed and tree-planting committees, and cooperatives all outlast any one person or project.',
+      'When losses, damage or conflict cluster in one spot, such as the agroforestry survival study\'s finding that livestock damage clusters where no grazing by-law exists, the fix is often a missing institution rather than more inputs.',
+      'Excluding women and youth from adaptation decisions makes the plan hold for no one, so gender and youth inclusion is essential to adaptation that actually endures.',
+    ],
     lessons: [
       {
         id: 'nbs-ca-why-local',
@@ -10461,6 +10835,14 @@ COURSES.push(
     icon: ShieldAlert,
     duration: '15 min',
     description: 'How to assess climate risk, plan contingencies, and embed resilience into project design, M&E and budgeting — so resilience is built in from the start rather than bolted on after a shock. Uses the ICAM ESG risk approach from the Bundibugyo cocoa project.',
+    keyTakeaways: [
+      'Climate risk is not just a hazard on its own but a hazard meeting exposure (what and who sits in its path) and vulnerability (how badly it would be hurt and how well it can cope), so a good assessment looks at all three together.',
+      'The Bundibugyo cocoa project used an ICAM ESG risk assessment to name its top risks explicitly — deforestation, biodiversity loss, child labour, corruption, and a 52% living-income gap linked to low yields and climate stress — because naming risks is what lets you design against them.',
+      'Once risks are ranked by likelihood and impact, there are four ways to treat them: reduce (lower likelihood or impact through practices like agroforestry or drainage), transfer (shift the financial blow via insurance or savings groups), accept and buffer (hold VSLA savings, food stores or a contingency budget line), or avoid (don\'t undertake the exposed activity at all), and most farm resilience combines reduce plus buffer.',
+      'Resilience must be built into project design, M&E and budget from the start rather than bolted on after a shock: include a risk assessment and contingency plan before activities begin, track resilience indicators such as diversification, savings, soil cover and lean-season food security (not just output counts), and fund a contingency line for the buffers risks demand.',
+      'Staff should state and monitor the assumptions a plan depends on, since the Bundibugyo income gains coincided with a global cocoa-price boom and rely on funded control plots running to 2027, and the risk register should be revisited as conditions change rather than treated as a one-off form.',
+      'The core discipline of the course is: assess hazard-exposure-vulnerability, rank and treat the risks, then bake the response into design, indicators and budget — resilience built in beats resilience bolted on.',
+    ],
     lessons: [
       {
         id: 'nbs-rrp-assess',
@@ -10535,6 +10917,14 @@ COURSES.push(
     icon: Lightbulb,
     duration: '15 min',
     description: 'The three pillars of Climate-Smart Agriculture — productivity, adaptation and mitigation — and how Solidaridad applies them across ECA value chains. This course is the integrating frame for the whole Nature-Based Solutions curriculum.',
+    keyTakeaways: [
+      'Climate-Smart Agriculture (CSA) is not a single practice but a lens for choosing interventions, testing whether each one raises productivity, improves adaptation to climate stress, and delivers mitigation by reducing or removing emissions.',
+      'Practices should be judged as a triple test: more food, more resilience, less carbon, with the best practices passing on all three pillars at once.',
+      'CSA matters urgently in East and Central Africa because agriculture accounts for around 40% of regional GDP and 80% of livelihoods, while the region faces severe climate shocks such as Kenya\'s worst floods since 1950 in 2024, chronic drought in the Horn, and over 40% of East African soils already degraded.',
+      'Tightening market rules such as the EUDR mean that CSA sits at the meeting point of climate need and market opportunity, since verified, lower-carbon, deforestation-free production is increasingly what buyers demand.',
+      'Agroforestry is the clearest triple-win CSA practice, while soil health and regenerative practice, biochar and compost, and diversification and water management each contribute to the three pillars in different combinations, and together these practices form the thread running through the whole Nature-Based Solutions curriculum.',
+      'When advising farmers, staff should use the three pillars as a sorting tool, recommending clear triple-win practices readily and naming any trade-offs between pillars honestly rather than hiding them.',
+    ],
     lessons: [
       {
         id: 'nbs-csa-what',
@@ -10606,6 +10996,14 @@ COURSES.push(
     icon: TreePalm,
     duration: '25 min',
     description: 'How agroforestry delivers all three CSA pillars simultaneously — productivity, adaptation and mitigation — with field examples from coffee, cocoa and tea across ECA. Why integrating trees is the highest-leverage nature-based solution on a smallholding.',
+    keyTakeaways: [
+      'Agroforestry - integrating trees with crops or livestock - delivers all three CSA pillars from the same land: productivity (shade protects coffee and cocoa from heat stress and stabilises yields, nitrogen-fixing species like Albizia and Calliandra feed the soil), adaptation (canopy cools the microclimate and roots anchor soil against erosion) and mitigation (trees store carbon in wood and soil).',
+      'The triple-win is already proven across Solidaridad ECA\'s own pilots: the Harvesting Carbon Project distributes shade species to coffee smallholders, the Bundibugyo Resilient Livelihoods project integrates shade in cocoa to fight erosion, and shade complements biochar from prunings in tea at Mabale.',
+      'Carbon finance is paired with agroforestry across all three value chains so that pre-finance and impact units bridge the years before trees mature, turning the wait for trees into income rather than just a cost.',
+      'The triple-win is conditional, not automatic: it only holds if the right species are chosen for the site and crop, trees survive through aftercare, and shade is actively managed over time through pruning, pollarding and thinning.',
+      'Shade must be balanced - too much depresses the crop, too little loses the benefits - so getting this balance right is the core skill for making agroforestry stick.',
+      'For adoption, staff should lead with the benefit the farmer feels first, usually shade and yield stability or the carbon payment, and let the wider climate benefits follow rather than promoting agroforestry on climate grounds alone.',
+    ],
     lessons: [
       {
         id: 'nbs-atw-three-wins',
@@ -10692,6 +11090,14 @@ COURSES.push(
     icon: Sparkles,
     duration: '15 min',
     description: 'Combining biochar with composting and integrated fertilisation for healthier soils, lower input costs and a smaller carbon footprint. Why the two amendments are better together — and how co-composting solves biochar\'s biggest weakness.',
+    keyTakeaways: [
+      'Biochar and compost are complementary: biochar offers a durable, porous structure with high water-holding and cation-exchange capacity but arrives nutrient-empty and can steal nitrogen if applied raw, while compost supplies ready nutrients and living microbial biology but breaks down and needs replenishing.',
+      'Co-composting — mixing biochar (around 10-20% by volume) into the compost pile from the start so it charges with nutrients and microbes over the 5-6 week accelerated cycle — is usually the best integration route for smallholders because it solves the biochar-charging step automatically within a process they already run.',
+      'Other integration pathways include charging biochar separately with manure, compost or fertiliser before blending it into finished compost, and integrated fertilisation, where the biochar-compost blend forms the base and only a reduced, targeted dose of mineral fertiliser is added to close the remaining nutrient gap.',
+      'Combining the two amendments improves soil health, lowers input costs by reducing nutrient leaching and mineral fertiliser needs, and shrinks the carbon footprint through long-term carbon storage in biochar and reduced methane from composting instead of burning residues.',
+      'The Harvesting Carbon GHG assessment identified crop-residue management and fertiliser use as the two largest emission hotspots in smallholder coffee, and combining biochar with compost addresses both simultaneously.',
+      'Integrating biochar and compost turns two farm waste streams, such as prunings, husks and crop residues, into a single high-value soil amendment that feeds the farm rather than being discarded or burned.',
+    ],
     lessons: [
       {
         id: 'nbs-bci-why-together',
@@ -10762,6 +11168,14 @@ COURSES.push(
     icon: TrendingUp,
     duration: '25 min',
     description: 'Turning climate-smart practices into viable farm enterprises — costing, financing, market linkage and the business case for resilience. Because a practice that does not pay does not get adopted, and resilience that does not reach the market does not last.',
+    keyTakeaways: [
+      'A climate-smart practice only becomes sustainable when it makes clear business sense to the farmer, since even the best agronomy fails if it costs more than it returns or pays back too slowly for a season-to-season household.',
+      'Resilient enterprises pay off through lower input costs (such as biochar and compost cutting the fertiliser bill), more stable yields and income from diversification and agroforestry, new revenue lines like carbon impact units and tree products, and better market access under rules such as EUDR.',
+      'Most climate-smart practices carry an up-front cost with a delayed return, so real costing must include inputs, labour and income forgone during the transition, and instruments like VSLA savings and loans, carbon pre-finance and blended finance are needed to bridge gaps such as the 3-5 years it can take agroforestry trees to mature.',
+      'Finance should be matched to the farm\'s own cashflow rather than a bank\'s calendar, using seasonal repayment tied to harvest, asset finance secured by the equipment itself, and grants reserved for genuine public goods.',
+      'Production is only half an enterprise: farmers also need reliable, fair-priced buyers, which aggregation through cooperatives, pursuit of premiums for certified produce, and diversified buyers and products all help secure.',
+      'Success should be judged against a living-income benchmark rather than any income rise, and analysis must honestly separate an intervention\'s own impact from market windfalls (as with Bundibugyo\'s cocoa price boom) so that programme results are not later mis-read as failure when prices fall.',
+    ],
     lessons: [
       {
         id: 'nbs-re-business-case',
@@ -10847,6 +11261,14 @@ COURSES.push(
     icon: ClipboardCheck,
     duration: '15 min',
     description: 'Indicators, tools and routines for tracking both climate and livelihood outcomes — so programmes can show real adaptation and mitigation impact. Grounded in the Harvesting Carbon GHG assessment (Cool Farm Tool) and the discipline of credible measurement.',
+    keyTakeaways: [
+      'A nature-based programme must measure both climate outcomes and livelihood outcomes, since tracking only one makes it impossible to prove the other or to spot whether a climate gain is coming at the household\'s expense.',
+      'Climate impact should be quantified with a recognised method rather than estimated by feel; the Harvesting Carbon Project uses the Cool Farm Tool to calculate emissions and removals for smallholder coffee.',
+      'The Harvesting Carbon GHG assessment found an average gross emissions intensity of about 1.17 kg CO2e per kg Green Bean Equivalent and a gross footprint of about 797.8 kg CO2e per hectare, with crop-residue management and fertiliser as the two largest hotspots and soil-carbon sequestration and tree biomass as the main removals offsetting the gross figure.',
+      'Both net and gross emissions should be reported, and it should always be made clear whether a quoted figure is per hectare or per kilogram of crop, since a yield-raising practice can lower emissions intensity even as the field total rises.',
+      'Livelihood indicators to track include income against a living-income benchmark, yield stability, lean-season food security, savings and diversification, and practice adoption and tree survival as leading indicators of future impact.',
+      'Credible impact claims depend on MRV discipline: a baseline, consistent tools and methods, matched controls where possible, independent verification, and honest attribution of results.',
+    ],
     lessons: [
       {
         id: 'nbs-clm-why',
@@ -10936,6 +11358,14 @@ COURSES.push(
     icon: TrendingUp,
     duration: '25 min',
     description: 'The five phases every enterprise moves through — existence, survival, success, take-off, and resource maturity — the strategies to navigate each, the common mistakes to avoid, and how leaders and coaches steer growth.',
+    keyTakeaways: [
+      'Business growth is a deliberate outcome of strategy, a capable team, sufficient funding and a relentless focus on the customer, not something that happens by accident.',
+      'Most enterprises move through five recognisable phases — existence, survival, success, take-off, and resource maturity — each with its own priorities and challenges, and most businesses that fail do so at the existence phase.',
+      'Navigating growth successfully depends on seven consistent moves: a clear growth plan, focus on core competencies, a strong team, disciplined cash-flow monitoring, technology adoption, strategic partnerships, and staying customer-focused.',
+      'The same avoidable mistakes recur across enterprises — overextending too quickly, neglecting cash flow, failing to adapt, ignoring customer needs, poor leadership, lack of focus, and underinvesting in technology — so naming them early helps spot warning signs.',
+      'Leadership must evolve with each phase, from building a team and vision at start-up, to protecting culture while scaling during growth, to optimising operations at maturity, to making hard restructuring decisions in decline; leadership is the single biggest variable in how well a business navigates each phase.',
+      'The right metrics change by phase, from funding raised and customer acquisition rate at startup, to CAC/LTV and NPS during growth, to retention and margin at maturity, to burn rate and pivot success during decline, so coaches should help enterprises track one or two KPIs suited to their current stage.',
+    ],
     lessons: [
       {
         id: 'mgf-what-is-growth',
@@ -11057,6 +11487,14 @@ COURSES.push(
     icon: Target,
     duration: '20 min',
     description: 'The building blocks that take a business to the next level: clear goals and plans, a well-understood customer base, competitive advantage, the right talent, and resource mobilisation for sustainability.',
+    keyTakeaways: [
+      'Business success rests on a mix of drivers rather than on profit alone, so coaches should help owners look past outcomes like profit and market share to the underlying behaviours and capabilities that produce them.',
+      'Growth starts with a clear, specific, measurable and time-bound business goal, turned into a real plan covering market research, financial projections, marketing and operations, since a goal without a plan is just a wish.',
+      'Businesses need a deep understanding of their target customers, including a clear, differentiated value proposition that closes a gap competitors are not filling, and should prioritise retaining existing customers as it is cheaper than winning new ones.',
+      'Ongoing market analysis of competitors\' offers, prices and promises allows a business to be proactive rather than reactive and to turn its edge into a clear market position rather than being caught off-guard.',
+      'Attracting and retaining skilled talent, supported by frequent training and capacity-building, is essential growth infrastructure rather than a luxury for later.',
+      'Resilience and sustainability depend on resource mobilisation, meaning a feasible sustainability strategy with a clear implementation matrix, and active fundraising, must sit alongside the growth plan.',
+    ],
     lessons: [
       {
         id: 'msf-what-drives-success',
@@ -11158,6 +11596,14 @@ COURSES.push(
     icon: DollarSign,
     duration: '25 min',
     description: 'Where growth comes from: avenues to expand, sustainable (ESG) strategies, how to mobilise resources, the main sources of finance, and how to build a lasting competitive advantage.',
+    keyTakeaways: [
+      'Business growth typically comes through a handful of proven avenues — expanding offerings, entering new markets, building brand awareness, enhancing customer experience, investing in technology, forming strategic partnerships, or pursuing acquisitions or mergers — and the right choice depends on the business\'s resources and market.',
+      'Sustainable strategies that embed environmental, social, and governance (ESG) factors create value for owners, customers, employees, suppliers, and the community, and for agribusiness MSMEs this is increasingly a market requirement that opens access to better markets and finance rather than just a cost.',
+      'Resource mobilisation means acquiring and allocating financial, human, and material resources against business priorities, and mobilising them is only half the job — they must also be monitored and adjusted.',
+      'The right source of finance depends on the business\'s stage, capital needs, investor risk appetite, and goals, spanning equity, debt, crowdfunding, grants, angel investment, venture capital, and bootstrapping, each with different trade-offs around ownership dilution, repayment obligations, and conditions.',
+      'When coaching MSMEs, staff should match the financing source to the business\'s stage and the risk the owner can carry, for example steering a predictable, repayable seasonal need towards a loan and an early-stage, high-risk, high-upside venture towards angel investment or grants.',
+      'Competitive advantage can take the form of differentiation, cost leadership, niche focus, customer service, or branding, but a business cannot pursue all of these at once and must deliberately choose one to build around.',
+    ],
     lessons: [
       {
         id: 'mgo-avenues',
@@ -11278,6 +11724,14 @@ COURSES.push(
     icon: Users,
     duration: '25 min',
     description: 'Why keeping customers is cheaper than winning them, the six steps to building loyalty, the communication strategies that retain customers, and the metrics — CRR, churn, repeat-purchase, CLV — that tell you how you are doing.',
+    keyTakeaways: [
+      'Retention matters because it is far cheaper than acquisition and, per a Bain & Company study, a 5% increase in customer loyalty can raise profits by 25% to 95%.',
+      'Loyalty is built through a repeatable six-step cycle: find out what customers want, tell them what to expect, make it easy to give feedback, pay close attention, act on what you hear, and then repeat the cycle continuously.',
+      'Strong communication builds retention through regular contact, personalisation, clear messaging, proactive updates, prompt listening and response, useful information, and meeting customers on multiple channels.',
+      'Retention should be tracked with four core metrics: Customer Retention Rate (CRR), Churn Rate, Repeat Purchase Rate, and Customer Lifetime Value (CLV).',
+      'Turning these metrics into action means segmenting customers by value or risk, analysing feedback for improvement areas, and responding with better support, loyalty rewards, and higher product quality.',
+      'When a customer goes quiet or complains, the right response is proactive, personalised, prompt and professional engagement rather than silence, write-off, or defensiveness.',
+    ],
     lessons: [
       {
         id: 'mcr-why-retention',
@@ -11377,6 +11831,14 @@ COURSES.push(
     icon: RotateCcw,
     duration: '25 min',
     description: 'How the best businesses never settle: the benefits and key elements of continuous improvement, the barriers that block it, how to build KPIs and measure performance, and the Plan-Do-Check-Act cycle for an improvement plan that actually gets used.',
+    keyTakeaways: [
+      'Continuous Process Improvement (CPI) applies to any business, since every business has processes — orders, hiring, reporting, launching a product — that can be improved to boost productivity, speed, quality, innovation, cost, customer service and employee satisfaction.',
+      'For improvement to take hold, five elements must be present: goal alignment, employee engagement (improvement is every employee\'s job, from the bottom up as well as the top down), control, transparency, and recognition.',
+      'Common barriers include a leadership mentality that resists change, gaps in knowledge and capability, weak stakeholder alignment, "business as usual" crowding out improvement, over-engineered systems, and poor data.',
+      'A performance measure is a number plus a unit, always tied to a goal; building good KPIs means defining goals, deciding what to measure, setting specific and time-bound targets, monitoring data consistently, reviewing KPIs, and involving the team — because not every metric matters.',
+      'The Plan-Do-Check-Act (PDCA) cycle is the most-used tool for continuous improvement: plan the change, implement it on a small scale, check the data to see if it worked, then act by scaling what works or starting the cycle again if it did not.',
+      'Kula Korner Agrovet used PDCA to fix poor scheduling and communication, saving Ksh 850,000 in a year (an 85% cut in excess spend) by planning, implementing, tracking and then celebrating and recognising the people involved.',
+    ],
     lessons: [
       {
         id: 'mci-why',
@@ -11482,6 +11944,14 @@ COURSES.push(
     icon: Sparkles,
     duration: '20 min',
     description: 'How businesses create and expand what they sell: the difference between development and diversification, market research, generating and screening ideas, taking a concept to launch, the types of diversification, and managing the product portfolio.',
+    keyTakeaways: [
+      'Product development means creating new or improved products to meet customer needs, while product diversification means adding products different from the existing range to spread risk and reach new customers, and for a smallholder enterprise diversification can act as a resilience strategy that cushions a bad season for one crop or market.',
+      'Sound decisions start with market research (surveys, focus groups, observation, sales data, social media, feedback, personas and competitor analysis) to understand what customers actually need, followed by generating ideas and screening them against feasibility, market potential, competitive landscape, risk and ROI before investing.',
+      'Taking a concept to launch follows a disciplined path: concept, prototype, design and test, marketing and pricing, then launch, with pricing strategy chosen from cost-plus, value-based or penetration pricing depending on goals and customers.',
+      'Diversification can take several forms depending on how related the new offering is to the existing business: horizontal, vertical, concentric, conglomerate, or limited.',
+      'Managing a growing product portfolio means regularly assessing performance and classifying products as stars, cash cows, question marks or dogs, then building a roadmap, allocating resources to the highest-potential products and balancing risk and reward.',
+      'Coaching MSME owners to be honest about underperforming "dog" products and retire them where needed frees up scarce cash and attention to invest in higher-potential products.',
+    ],
     lessons: [
       {
         id: 'mpd-meaning',
@@ -11609,11 +12079,294 @@ COURSES.push(
 
 
 // ===== Course clusters (catalog grouping) =====
+COURSES.push({
+  id: 'fundraising',
+  title: 'Fundraising & Winning Proposals',
+  subtitle: 'From donor strategy to a funded proposal',
+  category: 'Business Development',
+  icon: TrendingUp,
+  duration: '55 min',
+  description: 'A practical, end-to-end course on how Solidaridad ECA raises money and writes proposals that win. Covers the 2026 funding landscape, strategic fundraising, knowing your donors, concept notes, building the case for support, the anatomy of a strong proposal, budgeting, linking every proposal to MASP, and writing with integrity in the age of AI.',
+  keyTakeaways: [
+    'Fundraising in 2026 is strategic, not reactive: aid budgets are shrinking and donors fund fewer organisations, so success comes from choosing the right donors, showing real impact, and applying to fewer, better-aligned opportunities rather than chasing every call.',
+    'Poor donor fit — not weak writing — is the most common reason proposals fail; research each donor, build a priority list, and only invest in opportunities where alignment with our mission and MASP is genuine.',
+    'A strong proposal is built on a clear, local, evidence-based problem statement, SMART objectives, activities that logically deliver measurable outcomes (not just outputs), and an honest sustainability and risk plan.',
+    'The budget is a statement of financial responsibility: get staff costs (charge rates vs actual), eligible vs non-eligible activity costs, and any co-funding or match funding right, and always have finance verify every figure.',
+    'Every ECA proposal should map to MASP IV (2026-2030) — its four Theory-of-Change pathways, four outcome areas and KPIs, and cross-cutting climate and GESI commitments — because that alignment is what makes us a credible, fundable partner.',
+    'Integrity beats polish: never exaggerate impact or capacity, use community stories only with consent and dignity, treat AI as a drafting assistant whose every fact you verify, and keep your own voice — the organisation, not the technology, owns the proposal.',
+  ],
+  lessons: [
+    {
+      id: 'fr-landscape',
+      title: 'The 2026 Funding Landscape',
+      content: [
+        { type: 'p', text: 'For years, securing funding followed familiar rules: donors published predictable calls, funding cycles were relatively stable, and with experience and persistence organisations could gradually build support. That world is changing fast — and 2026 marks a clear turning point, not just another difficult year.' },
+        { type: 'h', text: 'What is changing' },
+        { type: 'list', items: [
+          'The overall pool of funding is shrinking — many governments are cutting international aid budgets and prioritising domestic needs',
+          'Bilateral donors are narrowing their focus, restructuring programmes, and delaying or pausing decisions mid-cycle',
+          'More organisations are competing for less money, so donors have become far more selective — funding fewer partners',
+          'Many proposals are now screened by digital systems before a human ever reads them, so clarity and structure matter more than ever',
+          'Donors increasingly turn to private foundations, corporate CSR, and individual giving, which reward clear impact and value-alignment over long technical text',
+        ]},
+        { type: 'callout', text: 'A well-written proposal can no longer overcome poor alignment. Choosing the right funders and explaining your impact clearly is now as important as writing well.' },
+        { type: 'h', text: 'From crisis-driven to strategic' },
+        { type: 'p', text: 'Fundraising has shifted from a reactive, last-minute scramble into a strategic function — one that involves choosing the right donors, explaining problems clearly, demonstrating impact, managing risk, and building trust. Organisations that treat proposal writing as a leadership function, not just a technical task, will be better positioned not only to survive but to build stronger foundations for the future.' },
+        { type: 'highlight', text: '2026 does not mean the end of funding — it means the end of business as usual.' },
+        { type: 'p', text: 'Solidaridad ECA is responding with a deliberately diversified funding model under MASP IV: a mix of secured income and an active pipeline across institutional donors, foundations, corporate partners, and blended and carbon finance. Every staff member who understands this shift becomes part of how we resource the mission.' },
+      ],
+    },
+    {
+      id: 'fr-strategy',
+      title: 'Fundraising as Strategy',
+      content: [
+        { type: 'p', text: 'Strategic fundraising means deliberately and systematically securing the resources needed for our mission — planning and sequencing effort rather than reacting to whatever call appears next. It turns fundraising from an emergency response into a planned process.' },
+        { type: 'h', text: 'Set clear fundraising objectives' },
+        { type: 'list', items: [
+          'Clarity of purpose — every target ties back to organisational goals and values',
+          'Quantifiable targets — amounts to raise, timelines, and milestones you can measure',
+          'Diversification of funding streams — institutional grants, foundations, corporate partnerships, blended and carbon finance, and earned income',
+          'Donor engagement and stewardship — building relationships is part of the objective, not an afterthought',
+        ]},
+        { type: 'h', text: 'Why diversification matters' },
+        { type: 'p', text: 'Relying on one or two major donors is the single biggest financial risk an organisation can carry. When a donor narrows its focus or delays a decision, an over-dependent organisation is exposed. Spreading income across several sources protects programmes and buys the freedom to say no to poorly-aligned money.' },
+        { type: 'pathway', title: 'INSTITUTIONAL & BILATERAL', text: 'Government and multilateral grants and contracts — larger, slower, and increasingly competitive; expect strong scrutiny of financial resilience and results.' },
+        { type: 'pathway', title: 'FOUNDATIONS & PHILANTHROPY', text: 'Private and family foundations and CSR programmes — often faster, wanting clear impact and value alignment more than long technical detail.' },
+        { type: 'pathway', title: 'BLENDED, CARBON & EARNED', text: 'Impact investment, carbon finance, and revenue-generating services that reduce dependence on grants and support long-term sustainability.' },
+        { type: 'callout', title: 'Sustainability', text: 'Long-term sustainability comes from strong donor relationships, diversified revenue, transparent stewardship, and the willingness to adapt the plan as donor preferences and trends change.' },
+        { type: 'highlight', text: 'Successful organisations now apply to fewer grants — but with much stronger focus and confidence.' },
+      ],
+    },
+    {
+      id: 'fr-donors',
+      title: 'Know Your Donor: Fit, Research & Alignment',
+      content: [
+        { type: 'p', text: 'Many people believe writing is the hardest part of fundraising. In reality, one of the most common reasons proposals fail is poor donor fit — organisations spend weeks preparing strong proposals for donors who were never likely to fund them. When time is limited, choosing the right opportunity is as important as writing well.' },
+        { type: 'h', text: 'Know the main donor types' },
+        { type: 'list', items: [
+          'Bilateral and multilateral donors — government agencies and institutions funding against national and global priorities',
+          'Foundations and philanthropies — funding aligned projects, often seeking innovative, scalable work',
+          'Corporate and CSR partners — looking for mutual benefit, visibility, and measurable impact',
+          'Impact investors and blended finance — seeking both social/environmental impact and a financial return',
+          'Individual and community donors — reached through campaigns, events, and digital giving',
+        ]},
+        { type: 'h', text: 'Build a donor profile before you write' },
+        { type: 'p', text: 'A useful donor profile captures four things: the donor’s background and mission, their thematic interests, their past funding patterns and typical grant sizes, and how they prefer to be approached. Reading only the call for proposals gives limited insight — understanding how a donor thinks lets you position honestly, or walk away when alignment is weak.' },
+        { type: 'value', title: 'RESEARCH', text: 'Study the donor’s mission, past grants, preferred partners, and typical grant size — not just the current call.' },
+        { type: 'value', title: 'RANK', text: 'Maintain a focused priority list of donors, grouped by theme and geography, instead of reacting to every opportunity.' },
+        { type: 'value', title: 'ALIGN', text: 'Adapt your terminology and framing to the donor’s language — rights, outcomes, or innovation — while keeping your mission intact.' },
+        { type: 'callout', text: 'Alignment is translation, not transformation. Never change who we are just to fit a donor. Credibility comes from truth, not from chasing money that does not match our mission.' },
+        { type: 'highlight', text: 'Deciding NOT to apply is often the smartest decision an organisation can make. Smart grant discovery is about discipline, not desperation.' },
+      ],
+    },
+    {
+      id: 'fr-concept-note',
+      title: 'From Idea to Concept Note',
+      content: [
+        { type: 'p', text: 'A concept note is a short summary of a proposed project — the same core ideas as a full proposal, but compressed. It is often your first opportunity to get noticed, and many donors issue calls for concept notes to screen out ideas that do not fit before inviting a full proposal. Getting it right opens the door; getting it wrong closes it.' },
+        { type: 'h', text: 'When you write one' },
+        { type: 'list', items: [
+          'Open calls — donors periodically invite concept notes in thematic areas',
+          'Solicited — a donor you have met or worked with invites a note to explore collaboration',
+          'Unsolicited — you proactively introduce an idea; the lowest success rate, so deep donor research is essential',
+        ]},
+        { type: 'h', text: 'What a strong concept note contains' },
+        { type: 'list', items: [
+          'A short, informative title and a one-page project summary that gives the whole idea at a glance',
+          'A brief organisation profile — who we are and why we can deliver',
+          'A background / problem statement grounded in research and local context',
+          'Beneficiaries and geography — who is affected, and where',
+          'Goal and objectives, plus expected outputs, outcomes and impact',
+          'A short strategy/activities overview and a light monitoring approach',
+          'A preliminary budget only if the donor asks — always labelled tentative',
+        ]},
+        { type: 'callout', title: 'Goal vs objective', text: 'A goal is the broad aim (e.g. "women economically empowered"). An objective is specific, measurable, time-bound and attainable (e.g. "300 women in two counties trained and linked to markets within 18 months"). Donors judge you on the objectives.' },
+        { type: 'highlight', text: 'Keep it concise — typically 3 to 5 pages, within any word limit, with a catchy title and a clearly articulated synergy between our work and the donor’s priorities.' },
+      ],
+    },
+    {
+      id: 'fr-case',
+      title: 'Building the Case: Needs, Evidence & Theory of Change',
+      content: [
+        { type: 'p', text: 'Many proposals fail not because the idea is weak, but because the problem is not explained clearly. Donors want to understand what the problem is, who is affected, and why it matters now. Vague descriptions of poverty or inequality are no longer enough — a strong needs assessment is the foundation of every successful proposal.' },
+        { type: 'h', text: 'Write a clear problem statement' },
+        { type: 'list', items: [
+          'Be specific, local, and evidence-based — replace vague language like "many" or "most" with real local detail',
+          'Connect the local problem to the wider national or regional context so donors see it is not an isolated effort',
+          'Explain urgency — what has recently changed, or what is the cost of delay — without dramatic exaggeration',
+        ]},
+        { type: 'h', text: 'Choose evidence well' },
+        { type: 'p', text: 'More data does not mean a stronger proposal. Donors value relevant, credible evidence over long lists of statistics. Simple, accurate numbers — how many people are affected, what services are missing — are often more powerful than complex figures. Combine data (the scale of the problem) with a real story (its human impact) — but only use community stories with consent and dignity. Communities are partners, never fundraising tools.' },
+        { type: 'h', text: 'Outputs, outcomes, and impact' },
+        { type: 'pathway', title: 'OUTPUTS', text: 'The direct, countable products of activities — people trained, demonstration plots established. Necessary, but not the point.' },
+        { type: 'pathway', title: 'OUTCOMES', text: 'The changes that result — increased income, improved practices, better access to services. This is what donors fund.' },
+        { type: 'pathway', title: 'IMPACT', text: 'The lasting difference in people’s lives over time. Impact thinking must be built into the design from the start, not added later at reporting.' },
+        { type: 'callout', text: 'A theory of change simply makes the logic explicit: IF we do these activities, THEN these outcomes follow, leading to this long-term impact — because of clearly stated assumptions. A strong needs assessment leads naturally to a strong project design.' },
+        { type: 'highlight', text: 'Activities alone are not impact. Impact is the difference an intervention makes in people’s lives.' },
+      ],
+    },
+    {
+      id: 'fr-anatomy',
+      title: 'Anatomy of a Strong Proposal',
+      content: [
+        { type: 'p', text: 'In 2026 donors receive far more proposals than they can read carefully, and many are screened digitally before a human reviews them. Even a strong idea can fail if the proposal is confusing or poorly organised. Clear structure is no longer optional — it is what gets you read.' },
+        { type: 'h', text: 'The core sections' },
+        { type: 'list', items: [
+          'Executive summary — often the only section some reviewers read; state the problem, solution, beneficiaries, and expected change clearly and concisely',
+          'Organisation profile — build confidence in our capacity to deliver, honestly and without exaggeration',
+          'Problem statement — specific, local, and evidence-based',
+          'Objectives — SMART: specific, measurable, achievable, realistic, and time-bound, matched to real capacity',
+          'Activities and methodology — logically sequenced, showing how activities deliver the objectives',
+          'Monitoring and evaluation — clear, realistic indicators you can actually measure and learn from',
+          'Sustainability — an honest answer to "what happens after the grant ends"',
+          'Risk — acknowledge realistic risks and practical mitigation; this strengthens a proposal, it does not weaken it',
+          'Budget and budget narrative — figures that show financial responsibility (covered next)',
+        ]},
+        { type: 'callout', title: 'Sustainability', text: 'Donors value honesty over grand promises. Community ownership, partnerships, and skills transfer are often stronger sustainability arguments than vague financial claims.' },
+        { type: 'callout', title: 'Risk', text: 'Acknowledging risk shows preparedness. Donors increasingly ask how an organisation will cope with uncertainty and keep delivering — answer it directly.' },
+        { type: 'highlight', text: 'Before submission, review the proposal as a whole for consistency and repetition — but every fact, figure, and promise remains a human responsibility to verify.' },
+      ],
+    },
+    {
+      id: 'fr-budget',
+      title: 'Budgeting for Proposals',
+      content: [
+        { type: 'p', text: 'A budget shows financial responsibility. It translates the project plan into numbers a donor can trust — and errors in a budget quickly damage that trust. Budgeting is a discipline every proposal writer should understand, even though finance colleagues verify the final figures.' },
+        { type: 'h', text: 'The main components' },
+        { type: 'pathway', title: 'STAFF COSTS', text: 'Two methods: CHARGE RATES (best when the donor has not specified a basis, or for day/hour-based assignments) and ACTUAL STAFF COST (best when the donor requires rates based on actual salary paid for each budgeted position).' },
+        { type: 'pathway', title: 'ACTIVITY COSTS', text: 'The direct costs of delivering activities. Always separate ELIGIBLE costs (allowed under the donor’s rules) from NON-ELIGIBLE costs (which the donor will not pay for) — misclassifying these is a common, avoidable error.' },
+        { type: 'pathway', title: 'STUDIES & ESTIMATES', text: 'Cost estimates for studies, assessments, and one-off inputs, built from realistic market prices rather than round guesses.' },
+        { type: 'h', text: 'Co-funding and match funding' },
+        { type: 'list', items: [
+          'Co-funding — the project is financed by more than one source, each covering agreed portions',
+          'Match funding — the organisation (or another party) contributes an amount that matches part of the donor’s grant, often as a condition of the award',
+          'Both must be clearly identified, realistic, and evidenced — donors increasingly expect a demonstrated contribution',
+        ]},
+        { type: 'callout', text: 'Align the budget with the donor’s specification. Read the guidelines for cost categories, ceilings, and eligibility rules before you build the budget — not after.' },
+        { type: 'highlight', text: 'AI or a template can help explain a budget in narrative form, but it should never invent figures. Every number is verified by finance staff before submission.' },
+      ],
+    },
+    {
+      id: 'fr-masp',
+      title: 'Linking Your Proposal to MASP',
+      content: [
+        { type: 'p', text: 'A proposal is far stronger when it clearly serves Solidaridad ECA’s own strategy. MASP IV (2026-2030) — themed "Sustainable Supply Chains, Thriving Farmers" — is our shared plan to reach over 1.1 million stakeholders by 2030. Every proposal should show a reviewer exactly where it fits within it.' },
+        { type: 'h', text: 'Anchor the proposal in the MASP Theory of Change' },
+        { type: 'p', text: 'MASP is delivered through four interconnected pathways — Production, Services, Market, and Governance — and four outcome areas with measurable 2030 KPIs: viable production systems, inclusive service delivery, an enabling policy environment, and inclusive market connection systems. A good proposal states which pathway and which outcome it advances.' },
+        { type: 'h', text: 'Use MASP ambitions as ready evidence' },
+        { type: 'list', items: [
+          'Empower 650,000 producers and connect 200,000 of them to markets',
+          'Mobilise over €1.5 million in finance for producers',
+          'Achieve 50/50 gender equity across our work',
+          'Influence 56 policies across the region',
+        ]},
+        { type: 'callout', title: 'Worked example', text: 'A proposal to train dairy cooperatives on quality and link them to formal buyers maps to the Market pathway and the "inclusive market connection systems" outcome; its results feed the 200,000-to-markets ambition, and its gender design feeds the 50/50 equity ambition. Naming these links turns a good idea into a MASP-aligned, fundable one.' },
+        { type: 'h', text: 'Build in the cross-cutting themes' },
+        { type: 'p', text: 'Climate and nature-based solutions and Gender, Equality & Social Inclusion (GESI) are embedded across MASP, using proven methodologies such as GALS, EMAP, EA$E, and Gender Smart Villages. Donors increasingly require both — so designing them in from the start strengthens both MASP alignment and donor fit at once.' },
+        { type: 'highlight', text: 'MASP alignment is a fundraising asset: it shows donors we are a coordinated, strategic partner with an active pipeline — not a collection of one-off projects.' },
+      ],
+    },
+    {
+      id: 'fr-integrity-ai',
+      title: 'Integrity, AI & Submitting with Confidence',
+      content: [
+        { type: 'p', text: 'No matter how strong a proposal looks, funding ultimately depends on trust. Donors fund organisations they believe are honest, reliable, and respectful toward the communities they serve. As AI becomes common in proposal writing, donors are paying even closer attention to credibility — good writing alone is no longer enough. Integrity matters more than polish.' },
+        { type: 'h', text: 'Write with integrity' },
+        { type: 'list', items: [
+          'Make honest, modest commitments — exaggerated impact claims or unrealistic promises destroy trust quickly',
+          'Represent our size, experience, reach, and partnerships accurately — credibility comes from truth, not scale',
+          'Use community stories only with consent and dignity — communities are partners, not fundraising tools',
+          'Protect data — remove personal identifiers and avoid sharing sensitive documents unnecessarily',
+        ]},
+        { type: 'h', text: 'Use AI as an assistant, not an author' },
+        { type: 'p', text: 'AI can help overcome the blank page, improve clarity, and organise ideas — but it does not understand local realities, ethics, or consequences, and it can produce confident, incorrect information. It may invent statistics or suggest unrealistic outcomes. Every number, claim, and promise must be verified by staff who understand the context on the ground.' },
+        { type: 'callout', text: 'Using AI is not dishonest. Misusing it is. Never use AI to exaggerate impact, invent stories, or misrepresent capacity. AI supports decisions — it does not make them. Every proposal remains the responsibility of the organisation, not the technology.' },
+        { type: 'value', title: 'KEEP YOUR VOICE', text: 'AI tends toward neutral, generic language. Review and adjust so proposals still sound like they come from real people working with real communities.' },
+        { type: 'value', title: 'HUMAN SIGN-OFF', text: 'Define roles clearly: one person prepares inputs, another reviews the output, and final approval always comes from a human.' },
+        { type: 'h', text: 'The final review' },
+        { type: 'p', text: 'Before submission, check the whole proposal for consistency, alignment with the donor’s guidelines, and that every fact and figure is verified. For consortium proposals, ensure roles are clear, language is consistent, and the document reads as one coherent plan. Then submit with confidence.' },
+        { type: 'highlight', text: 'The future of fundraising is not about writing faster — it is about thinking clearly, acting responsibly, and communicating impact with confidence.' },
+      ],
+    },
+  ],
+  interactive: {
+    type: 'scenario',
+    title: 'Fundraising & Proposal Decisions',
+    scenarios: [
+      {
+        situation: 'A large bilateral donor has opened a call worth far more than your usual grants, but its priorities only loosely touch your work and its geography is not quite yours. A smaller foundation with a call closing the same week is a strong fit for a MASP market-access project. Your team has time to write one strong proposal.',
+        options: [
+          { text: 'Focus on the well-aligned foundation call and skip the large but poorly-aligned one.', correct: true, feedback: 'Correct. Poor donor fit is the most common reason proposals fail, and a well-written proposal cannot overcome weak alignment. Applying to fewer, better-fit opportunities is the disciplined choice.' },
+          { text: 'Chase the bigger bilateral call — the larger amount is worth the stretch.', correct: false, feedback: 'Size does not overcome misalignment. Weeks of effort on a donor that was never likely to fund you is exactly the trap strategic fundraising avoids.' },
+          { text: 'Rush both to double your chances.', correct: false, feedback: 'Splitting limited capacity usually produces two weak proposals. In 2026, focus and fit beat volume.' },
+        ],
+      },
+      {
+        situation: 'A donor you met at a conference is interested and asks you to "send something short" to explore a possible partnership before any formal application.',
+        options: [
+          { text: 'Send a concise 3–5 page concept note with a catchy title, the core idea, and a clear synergy with the donor’s priorities.', correct: true, feedback: 'Correct. This is a solicited concept-note opportunity. A short, compelling note that shows fit is exactly what is needed at this stage.' },
+          { text: 'Send a full 30-page proposal with a detailed budget and annexes.', correct: false, feedback: 'Too much, too soon. A full proposal and finalised budget come later, only if the concept note succeeds.' },
+          { text: 'Wait until they publish a formal call.', correct: false, feedback: 'This misses a warm, solicited opening — the kind of opportunity strategic fundraising is built to act on.' },
+        ],
+      },
+      {
+        situation: 'A draft proposal lists "500 farmers trained" as its main result to convince the donor of impact.',
+        options: [
+          { text: 'Reframe it around the outcome — e.g. increased income or improved practices among those farmers — with training as the activity that delivers it.', correct: true, feedback: 'Correct. Donors fund outcomes, not outputs. Training is an activity; the change it produces is the impact that matters.' },
+          { text: 'Keep it as is — a big training number looks impressive.', correct: false, feedback: 'Activities alone are not impact. A large output figure without a stated outcome is exactly what donors now screen out.' },
+          { text: 'Add more output numbers to look even more active.', correct: false, feedback: 'More outputs do not equal more impact. It is the difference made in people’s lives that convinces donors.' },
+        ],
+      },
+      {
+        situation: 'While building the budget, you are unsure whether a particular cost is allowed, and the donor’s guidelines list specific eligible and non-eligible cost categories.',
+        options: [
+          { text: 'Check the cost against the donor’s eligibility rules and have finance verify it before including it.', correct: true, feedback: 'Correct. Separating eligible from non-eligible costs and aligning to the donor’s specification is essential — and finance verifies every figure.' },
+          { text: 'Include it anyway and hope it passes review.', correct: false, feedback: 'Misclassified costs are a common, avoidable error that damages trust and can disqualify a budget.' },
+          { text: 'Let an AI tool estimate a figure and drop it into the budget.', correct: false, feedback: 'AI must never invent budget figures. Every number is built from real prices and verified by finance staff.' },
+        ],
+      },
+      {
+        situation: 'An AI tool drafts a polished proposal paragraph that includes a striking statistic and a moving beneficiary story you did not provide.',
+        options: [
+          { text: 'Verify or remove the statistic, and only use a real story with the beneficiary’s consent — taking responsibility for the final text.', correct: true, feedback: 'Correct. AI can invent confident but false facts, and communities are never fundraising props. Every claim must be verified and every story used with consent and dignity.' },
+          { text: 'Keep it — it sounds compelling and saves time.', correct: false, feedback: 'Unverified AI content and invented stories destroy donor trust and misrepresent communities. The organisation, not the technology, is responsible for the proposal.' },
+          { text: 'Keep the statistic but cut the story to be safe.', correct: false, feedback: 'A fabricated or unverified statistic is just as damaging as a fabricated story. Verify every fact before it goes in.' },
+        ],
+      },
+      {
+        situation: 'A reviewer asks how your proposed cooperative market-linkage project fits Solidaridad ECA’s wider strategy.',
+        options: [
+          { text: 'Map it explicitly to a MASP pathway and outcome — the Market pathway and inclusive market-connection systems — and to the 200,000-to-markets and gender-equity ambitions.', correct: true, feedback: 'Correct. Naming the MASP pathway, outcome, and ambitions the project advances shows we are a coordinated, strategic partner — a genuine fundraising asset.' },
+          { text: 'Say it is a standalone project that does not need to link to strategy.', correct: false, feedback: 'A proposal that floats free of MASP looks like a one-off. Alignment is what signals we are a credible, strategic partner.' },
+          { text: 'Reference MASP by name but without saying which pathway or outcome it serves.', correct: false, feedback: 'A vague mention is not alignment. Reviewers want the specific pathway, outcome, and KPI the project advances.' },
+        ],
+      },
+    ],
+  },
+  quiz: [
+    { q: 'What best describes the 2026 funding environment?', options: ['Aid budgets are growing and donors fund more organisations', 'Funding is shrinking and donors are far more selective', 'Donors no longer care about impact', 'Proposal quality no longer matters'], answer: 1 },
+    { q: 'The most common reason strong proposals fail is:', options: ['Poor grammar', 'Poor donor fit / alignment', 'Too few pages', 'Not enough statistics'], answer: 1 },
+    { q: 'Strategic fundraising is best described as:', options: ['Applying to every call that appears', 'Deliberately and systematically securing resources with a plan', 'Waiting for donors to approach you', 'Relying on one major donor'], answer: 1 },
+    { q: 'Why does Solidaridad diversify its funding sources?', options: ['To make reporting harder', 'To reduce the risk of depending on one or two donors', 'Because donors require it by law', 'To avoid writing proposals'], answer: 1 },
+    { q: 'A concept note is typically:', options: ['A 30-page detailed document', 'A short 3–5 page summary of the core idea', 'Only a budget', 'The final contract'], answer: 1 },
+    { q: 'Which is a well-formed objective (rather than a goal)?', options: ['Women economically empowered', 'A better future for farmers', 'Train and link 300 women to markets in two counties within 18 months', 'End poverty in the region'], answer: 2 },
+    { q: 'Donors primarily want to fund:', options: ['Outputs (e.g. number trained)', 'Outcomes (the change that results)', 'The longest activity list', 'Administrative costs'], answer: 1 },
+    { q: 'A strong problem statement is:', options: ['Broad and general', 'Specific, local, and evidence-based', 'Based only on emotion', 'As long as possible'], answer: 1 },
+    { q: 'In a proposal budget, staff costs can be calculated using:', options: ['Only guesses', 'Charge rates or actual staff cost, per the donor’s basis', 'Whatever number looks best', 'AI-generated figures without review'], answer: 1 },
+    { q: 'Eligible vs non-eligible costs refers to:', options: ['Costs the donor will vs will not pay for under its rules', 'Cheap vs expensive items', 'Local vs international staff', 'Past vs future spending'], answer: 0 },
+    { q: 'Match funding means:', options: ['The donor pays everything', 'The organisation or another party contributes an amount matching part of the grant', 'Two proposals submitted together', 'A duplicate budget'], answer: 1 },
+    { q: 'A proposal is stronger when it:', options: ['Ignores MASP', 'Maps clearly to a MASP pathway, outcome, and ambitions', 'Only mentions MASP by name', 'Avoids mentioning strategy'], answer: 1 },
+    { q: 'The responsible way to use AI in proposal writing is to:', options: ['Copy its text directly to save time', 'Let it invent statistics if they sound good', 'Use it to draft, then verify every fact and keep your own voice', 'Use it to exaggerate impact'], answer: 2 },
+    { q: 'When using a community’s story in a proposal, you must:', options: ['Use it freely to create sympathy', 'Only use it with consent and present it with dignity', 'Change the facts to make it stronger', 'Avoid all stories'], answer: 1 },
+    { q: 'Acknowledging realistic risks in a proposal:', options: ['Weakens it', 'Strengthens it by showing preparedness', 'Should always be avoided', 'Is only for the budget'], answer: 1 },
+  ],
+});
+
 const CLUSTERS = [
   {
     name: 'Strategy & Organisational Excellence',
     blurb: 'Strategy, people, communications, and how we measure what we change.',
-    courseIds: ['masp', 'welcome', 'finance-policy', 'brand', 'pmel'],
+    courseIds: ['masp', 'welcome', 'finance-policy', 'brand', 'pmel', 'fundraising'],
   },
   {
     name: 'Governance, Ethics & Compliance',
@@ -11818,6 +12571,19 @@ async function loadOrInitUserDoc(uid, email) {
   }
 }
 
+// Course ids released to the temporary preview cohort — derived from the
+// released cluster names so it follows CLUSTERS automatically. Used only to
+// gate what preview-cohort users can open; everyone else ignores this.
+const PREVIEW_RELEASED_COURSE_IDS = (() => {
+  const ids = new Set();
+  for (const cl of CLUSTERS) {
+    if (!PREVIEW_RELEASED_CLUSTERS.has(cl.name)) continue;
+    (cl.courseIds || []).forEach(id => ids.add(id));
+    (cl.subClusters || []).forEach(sc => (sc.courseIds || []).forEach(id => ids.add(id)));
+  }
+  return ids;
+})();
+
 async function loadCertificate(uid, courseId) {
   if (!uid || !courseId) return null;
   try {
@@ -11919,6 +12685,8 @@ function checkAccess(email) {
   if (!match) return 'wrong-domain';
   if (match[1] !== ALLOWED_DOMAIN) return 'wrong-domain';
   if (!isOnEcaAllowlist(trimmed)) return 'not-on-roster';
+  // Temporary testing cohort: once the window closes, access is put on hold.
+  if (isPreviewUser(trimmed) && isPreviewOnHold()) return 'preview-on-hold';
   return 'ok';
 }
 
@@ -11952,6 +12720,17 @@ export default function App() {
   const [activeCourse, setActiveCourse] = useState(null);
   const [certificateCourse, setCertificateCourse] = useState(null);
   const [activeLessonIdx, setActiveLessonIdx] = useState(0);
+
+  // Land at the top of every newly-shown page/view. This app has no router,
+  // so a view change only swaps <main>'s children while the window keeps its
+  // old scroll position — which the browser clamps to the bottom of a shorter
+  // page. useLayoutEffect runs before paint so there's no visible jump.
+  // NOTE: must stay above the early returns below (LoadingScreen / LoginPage)
+  // so the hook runs on every render — otherwise React throws error #310.
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+  }, [page, view, activeCourse, activeLessonIdx, certificateCourse]);
+
   const [progress, setProgress] = useState({});
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
@@ -12101,10 +12880,11 @@ export default function App() {
       issueCertificateIfFirstTime(userUid, course, quizScore);
     }
 
-    // Badge awards — fire on any progress change (course-complete badges
-    // and milestones key off completion; mastery badges key off the quiz
-    // score even when the course isn't yet 100%). Best-effort: failures
-    // here must never break the course-complete UX.
+    // Badge awards — fire on any progress change. Course-complete badges,
+    // milestones AND mastery badges all key off completion (mastery also
+    // requires a ≥95% quiz score on top of finishing the course), so we run
+    // this after every write. Best-effort: failures here must never break
+    // the course-complete UX.
     const liveCoursesNow = COURSES.filter(c => !c.placeholder);
     const completedNow = liveCoursesNow.filter(c => computeCompletion(c, next[c.id]) === 100).length;
     const allCompleteNow = liveCoursesNow.length > 0 && completedNow === liveCoursesNow.length;
@@ -12147,7 +12927,14 @@ export default function App() {
     return <LoginPage />;
   }
 
+  // Temporary preview cohort: these users only get the released clusters; every
+  // other course is "under development" and can't be opened. `isCourseLocked`
+  // is false for everyone else, so the rest of the app is unaffected.
+  const previewLocked = isPreviewUser(userEmail) && !isPreviewOnHold();
+  const isCourseLocked = (courseId) => previewLocked && !PREVIEW_RELEASED_COURSE_IDS.has(courseId);
+
   const goToCourse = (course) => {
+    if (isCourseLocked(course.id)) return; // under-development for this preview user
     setActiveCourse(course);
     setView('course');
     setPage('catalog');
@@ -12278,6 +13065,7 @@ export default function App() {
               assignments={myAssignments}
               achievements={myAchievements}
               onGoToAchievements={() => navigate('achievements')}
+              isCourseLocked={isCourseLocked}
             />
           )}
 
@@ -12326,6 +13114,7 @@ export default function App() {
               searchQuery={searchQuery}
               courseCompletion={courseCompletion}
               onSelectCourse={goToCourse}
+              isCourseLocked={isCourseLocked}
             />
           )}
 
@@ -12443,7 +13232,7 @@ function SidebarItem({ icon: Icon, label, active, onClick }) {
 function LoginPage() {
   const [error, setError] = useState('');
   const [blockedAccount, setBlockedAccount] = useState(null);
-  const [blockReason, setBlockReason] = useState(null); // 'wrong-domain' | 'not-on-roster'
+  const [blockReason, setBlockReason] = useState(null); // 'wrong-domain' | 'not-on-roster' | 'preview-on-hold'
   const [ssoLoading, setSsoLoading] = useState(false);
 
   const handleGoogleSSO = async () => {
@@ -12529,21 +13318,32 @@ function LoginPage() {
               <div className="flex items-start gap-3">
                 <Shield size={20} className="flex-shrink-0 mt-0.5 text-black" />
                 <div className="flex-1">
-                  {blockReason === 'not-on-roster' ? (
+                  {blockReason === 'preview-on-hold' ? (
                     <>
-                      <p className="text-sm font-extrabold text-black tracking-tight">Access restricted to Solidaridad ECA staff</p>
-                      <p className="mt-1.5 text-xs text-gray-800 leading-relaxed">
-                        Jifunze is only available to people on the Solidaridad East &amp; Central Africa roster.
-                      </p>
-                      <p className="mt-2 text-xs text-gray-700 leading-relaxed">
-                        Your account <span className="font-mono font-bold break-all">{blockedAccount}</span> is a Solidaridad account but isn't on the ECA roster, so you've been signed out.
+                      <p className="text-sm font-extrabold text-black tracking-tight">Testing access is on hold</p>
+                      <p className="mt-2 text-xs text-gray-800 leading-relaxed">
+                        Thanks for helping us test-drive Jifunze! The testing window for{' '}
+                        <span className="font-mono font-bold break-all">{blockedAccount}</span> has now closed ahead of the full launch.
                       </p>
                       <p className="mt-3 text-xs text-gray-700 leading-relaxed">
-                        If you believe you should have access, contact{' '}
-                        <a href={`mailto:info.secaec@${ALLOWED_DOMAIN}`} className="font-bold underline hover:text-black">
-                          info.secaec@{ALLOWED_DOMAIN}
+                        Your access is simply paused — nothing you did is lost — and comes back when Jifunze launches. Questions? Email{' '}
+                        <a href={`mailto:jifunze@${ALLOWED_DOMAIN}`} className="font-bold underline hover:text-black">
+                          jifunze@{ALLOWED_DOMAIN}
+                        </a>.
+                      </p>
+                    </>
+                  ) : blockReason === 'not-on-roster' ? (
+                    <>
+                      <p className="text-sm font-extrabold text-black tracking-tight">Let's get you the right access!</p>
+                      <p className="mt-2 text-xs text-gray-800 leading-relaxed">
+                        Welcome! We see you are logging in with a valid Solidaridad account, but Jifunze is currently set up specifically for the Solidaridad East &amp; Central Africa team.
+                      </p>
+                      <p className="mt-3 text-xs text-gray-700 leading-relaxed">
+                        Think you should be on the list? Simply email{' '}
+                        <a href={`mailto:jifunze@${ALLOWED_DOMAIN}`} className="font-bold underline hover:text-black">
+                          jifunze@{ALLOWED_DOMAIN}
                         </a>{' '}
-                        to be added to the roster.
+                        to request access and we will get you sorted out.
                       </p>
                     </>
                   ) : (
@@ -12652,7 +13452,7 @@ function NamePrompt({ onSubmit }) {
 }
 
 // ===== Dashboard Page =====
-function DashboardPage({ userName, courses, courseCompletion, completedCount, inProgressCount, onSelectCourse, onGoToCatalog, assignments = [], achievements = [], onGoToAchievements }) {
+function DashboardPage({ userName, courses, courseCompletion, completedCount, inProgressCount, onSelectCourse, onGoToCatalog, assignments = [], achievements = [], onGoToAchievements, isCourseLocked = () => false }) {
   const inProgressCourses = courses.filter(c => {
     const p = courseCompletion(c.id);
     return p > 0 && p < 100;
@@ -12740,7 +13540,7 @@ function DashboardPage({ userName, courses, courseCompletion, completedCount, in
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {requiredCourses.map(course => (
-              <CourseCard key={course.id} course={course} progress={courseCompletion(course.id)} onClick={() => onSelectCourse(course)} />
+              <CourseCard key={course.id} course={course} progress={courseCompletion(course.id)} onClick={() => onSelectCourse(course)} locked={isCourseLocked(course.id)} />
             ))}
           </div>
         </div>
@@ -12776,7 +13576,7 @@ function DashboardPage({ userName, courses, courseCompletion, completedCount, in
         )}
       </div>
 
-      {courses.filter(c => !c.placeholder && courseCompletion(c.id) === 0).length > 0 && (
+      {courses.filter(c => !c.placeholder && !isCourseLocked(c.id) && courseCompletion(c.id) === 0).length > 0 && (
         <div className="mt-10">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-xl md:text-2xl font-extrabold tracking-tight">Recommended For You</h2>
@@ -12785,7 +13585,7 @@ function DashboardPage({ userName, courses, courseCompletion, completedCount, in
             </button>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {courses.filter(c => !c.placeholder && courseCompletion(c.id) === 0).slice(0, 3).map(course => (
+            {courses.filter(c => !c.placeholder && !isCourseLocked(c.id) && courseCompletion(c.id) === 0).slice(0, 3).map(course => (
               <CourseCard key={course.id} course={course} progress={0} onClick={() => onSelectCourse(course)} />
             ))}
           </div>
@@ -12915,7 +13715,7 @@ function ContinueLearningCard({ course, progress, onClick }) {
 }
 
 // ===== Catalog Page =====
-function CatalogPage({ courses, activeCategory, setActiveCategory, searchQuery, courseCompletion, onSelectCourse }) {
+function CatalogPage({ courses, activeCategory, setActiveCategory, searchQuery, courseCompletion, onSelectCourse, isCourseLocked = () => false }) {
   // `activeCategory` is reused as the active cluster name ('All' or a CLUSTERS[].name).
   const q = (searchQuery || '').toLowerCase();
   const matchesSearch = (c) =>
@@ -12976,7 +13776,7 @@ function CatalogPage({ courses, activeCategory, setActiveCategory, searchQuery, 
               <div className="flex items-baseline justify-between flex-wrap gap-x-4 gap-y-1">
                 <h2 className="text-xl md:text-2xl font-extrabold tracking-tight uppercase">{section.name}</h2>
                 <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-                  {section.allCourses.filter(c => !c.placeholder).length} live · {section.allCourses.filter(c => c.placeholder).length} coming soon
+                  {section.allCourses.filter(c => !c.placeholder && !isCourseLocked(c.id)).length} live · {section.allCourses.filter(c => c.placeholder || isCourseLocked(c.id)).length} coming soon
                 </span>
               </div>
               <Swoosh w={96} />
@@ -12991,6 +13791,7 @@ function CatalogPage({ courses, activeCategory, setActiveCategory, searchQuery, 
                       course={course}
                       progress={courseCompletion(course.id)}
                       onClick={() => onSelectCourse(course)}
+                      locked={isCourseLocked(course.id)}
                     />
                   ))}
                 </div>
@@ -13010,6 +13811,7 @@ function CatalogPage({ courses, activeCategory, setActiveCategory, searchQuery, 
                         course={course}
                         progress={courseCompletion(course.id)}
                         onClick={() => onSelectCourse(course)}
+                        locked={isCourseLocked(course.id)}
                       />
                     ))}
                   </div>
@@ -13024,11 +13826,15 @@ function CatalogPage({ courses, activeCategory, setActiveCategory, searchQuery, 
 }
 
 // ===== Course Card =====
-function CourseCard({ course, progress, onClick }) {
+function CourseCard({ course, progress, onClick, locked = false }) {
   const Icon = course.icon;
   const done = progress === 100;
 
-  if (course.placeholder) {
+  // `course.placeholder` = globally "Coming soon" (no content yet).
+  // `locked` = content exists but is gated for this user (preview cohort) —
+  // shown as "Under development" rather than opened.
+  if (course.placeholder || locked) {
+    const badge = course.placeholder ? 'Coming soon' : 'Under development';
     return (
       <div
         aria-disabled="true"
@@ -13038,7 +13844,7 @@ function CourseCard({ course, progress, onClick }) {
           <Icon size={72} strokeWidth={1.5} className="text-black opacity-60" />
           <div className="absolute top-3 left-3 px-2.5 py-1 bg-white text-xs font-extrabold uppercase tracking-wider rounded-full border border-black inline-flex items-center gap-1.5">
             <Lock size={11} strokeWidth={2.5} />
-            Coming soon
+            {badge}
           </div>
         </div>
         <div className="p-5 flex flex-col flex-1">
@@ -13570,6 +14376,13 @@ function PollsPage({ userName, userUid }) {
   const [loading, setLoading] = useState(true);
   const [selectedDebate, setSelectedDebate] = useState(null);
 
+  // Opening a debate (or returning to the list) is a page-level change; land at
+  // top. Keyed on selectedDebate only — a Polls<->Debates tab switch is an
+  // in-page toggle and should preserve scroll position, not jump to top.
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+  }, [selectedDebate]);
+
   useEffect(() => {
     const unsubP = onSnapshot(
       query(collection(db, 'polls'), orderBy('createdAt', 'desc'), limit(50)),
@@ -13763,6 +14576,27 @@ function CourseView({ course, progress, completion, onStartLesson, onStartIntera
           </p>
         </button>
       </div>
+
+      {Array.isArray(course.keyTakeaways) && course.keyTakeaways.length > 0 && (
+        <div className="mt-8 bg-white border border-gray-200 rounded-lg p-6 md:p-8">
+          <div className="flex items-center gap-2">
+            <Lightbulb size={22} style={{ color: YELLOW }} />
+            <h2 className="text-xl font-extrabold tracking-tight uppercase">Key Takeaways</h2>
+          </div>
+          <Swoosh w={80} />
+          <p className="mt-3 text-sm text-gray-500">The essentials to walk away with from this course.</p>
+          <ul className="mt-4 space-y-3">
+            {course.keyTakeaways.map((point, i) => (
+              <li key={i} className="flex items-start gap-3">
+                <span className="flex-shrink-0 w-6 h-6 mt-0.5 flex items-center justify-center rounded-full" style={{ backgroundColor: YELLOW }}>
+                  <Check size={14} strokeWidth={3} />
+                </span>
+                <span className="text-sm md:text-base text-gray-800 leading-relaxed">{point}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

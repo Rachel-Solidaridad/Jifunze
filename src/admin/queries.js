@@ -376,3 +376,104 @@ export function completionBuckets(courses, allProgress, computeCompletion) {
   // every (user, course) pair is bucketed exactly once.
   return { notStarted, inProgress, completed };
 }
+
+// --- Drill-down list builders --------------------------------------------
+// Pure helpers that turn the already-fetched dashboard data into the row
+// lists shown when an admin clicks a KPI card. Each returns the SAME set its
+// matching card counts, so `list.length` is the single source of truth for
+// the headline number — the card and its drawer can never disagree.
+
+export const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+
+// Parse an estimated hours figure out of a course `duration` string
+// (e.g. "45 min" -> 0.75, "2 hours" -> 2). Mirrors the copies in
+// PlatformOverview/UserManagement; exported here so the hours drill-down and
+// the KPI share one implementation.
+export function durationToHours(d) {
+  if (!d) return 0;
+  const m = String(d).match(/(\d+(?:\.\d+)?)/);
+  if (!m) return 0;
+  const n = parseFloat(m[1]);
+  if (/min/i.test(d)) return n / 60;
+  return n;
+}
+
+function tsMs(ts) {
+  return ts?.toDate?.()?.getTime() || 0;
+}
+
+export function indexUsersByUid(users) {
+  const map = {};
+  for (const u of users) map[u.uid] = u;
+  return map;
+}
+
+// All users, most-recently-active first — backs the "Total users" card.
+export function listUsers(users) {
+  return [...users].sort((a, b) => tsMs(b.lastActiveAt) - tsMs(a.lastActiveAt));
+}
+
+// Users active since `sinceMs`, most-recent first — backs "Active (7 days)".
+export function listActiveUsers(users, sinceMs) {
+  return users
+    .filter(u => isActiveSince(u, sinceMs))
+    .sort((a, b) => tsMs(b.lastActiveAt) - tsMs(a.lastActiveAt));
+}
+
+// One row per (user, live course) that has a progress doc, highest completion
+// first — backs the "Enrollments" and "Avg completion" cards.
+export function listEnrollments(users, allProgress, liveCourses, computeCompletion) {
+  const byUid = indexUsersByUid(users);
+  const rows = [];
+  for (const uid of Object.keys(allProgress)) {
+    for (const c of liveCourses) {
+      const p = allProgress[uid]?.[c.id];
+      if (!p) continue;
+      rows.push({
+        uid,
+        user: byUid[uid] || null,
+        course: c,
+        pct: computeCompletion(c, p),
+        completedAt: p.completedAt || null,
+      });
+    }
+  }
+  return rows.sort((a, b) => b.pct - a.pct);
+}
+
+// Estimated learning hours grouped by course (duration × completion fraction,
+// summed over enrollments), most hours first — backs the "Learning hours" card.
+export function hoursByCourse(liveCourses, allProgress, computeCompletion) {
+  const uids = Object.keys(allProgress);
+  const rows = liveCourses
+    .map(c => {
+      const dur = durationToHours(c.duration);
+      let hours = 0;
+      let enrolled = 0;
+      for (const uid of uids) {
+        const p = allProgress[uid]?.[c.id];
+        if (!p) continue;
+        enrolled++;
+        hours += dur * (computeCompletion(c, p) / 100);
+      }
+      return { course: c, hours, enrolled };
+    })
+    .filter(r => r.enrolled > 0);
+  return rows.sort((a, b) => b.hours - a.hours);
+}
+
+// Users split by whether their profile is complete — backs "Profiles complete".
+export function splitProfiles(users) {
+  const complete = [];
+  const incomplete = [];
+  for (const u of users) (u.profileCompletedAt ? complete : incomplete).push(u);
+  return { complete, incomplete };
+}
+
+// Attach the matching user object to each cert/badge/vote record (which store
+// only a `uid`) so drill-down rows can show a name — backs the Certificates,
+// Badges and Feedback cards.
+export function attachUser(records, users) {
+  const byUid = indexUsersByUid(users);
+  return records.map(r => ({ ...r, user: byUid[r.uid] || null }));
+}

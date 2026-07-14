@@ -3,6 +3,11 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './src/test/setup.js',
+  },
   server: {
     // Honor PORT env var when set (used by the Claude Code preview harness so
     // multiple dev servers can coexist). Falls back to Vite's 5173 default.

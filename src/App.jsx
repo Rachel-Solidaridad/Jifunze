@@ -12744,6 +12744,7 @@ export default function App() {
   const [userCreatedAt, setUserCreatedAt] = useState(null);
   const [userLastActiveAt, setUserLastActiveAt] = useState(null);
   const [profileCompletedAt, setProfileCompletedAt] = useState(null);
+  const [profileHydrated, setProfileHydrated] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -12780,6 +12781,7 @@ export default function App() {
           setUserCreatedAt(userDoc.createdAt || null);
           setUserLastActiveAt(userDoc.lastActiveAt || null);
           setProfileCompletedAt(userDoc.profileCompletedAt || null);
+          setProfileHydrated(true);
           if (storedName) {
             setUserName(storedName);
           } else if (derived) {
@@ -12835,6 +12837,7 @@ export default function App() {
         setUserCreatedAt(null);
         setUserLastActiveAt(null);
         setProfileCompletedAt(null);
+        setProfileHydrated(false);
         setLoaded(true);
       }
     });
@@ -12996,7 +12999,8 @@ export default function App() {
               <div className="min-w-0 flex-1">
                 <div className="font-semibold text-sm truncate">{userName}</div>
                 <div className="text-xs text-gray-400 truncate">{userEmail || 'Solidaridad Staff'}</div>
-                {!profileCompletedAt && userUid ? (
+                {profileHydrated && userUid &&
+                  !isProfileComplete({ profileCompletedAt, country: userCountry, jobTitle: userJobTitle }) ? (
                   <button
                     onClick={() => navigate('profile')}
                     className="mt-1 text-[11px] font-bold uppercase tracking-wider hover:opacity-80"

@@ -46,7 +46,7 @@ class RootErrorBoundary extends React.Component {
               whiteSpace: 'pre-wrap',
             }}>{message}</pre>
             <p style={{ marginTop: 16, fontSize: 12, color: '#666' }}>
-              Send this error message to <a href="mailto:rachel.wanyoike@solidaridadnetwork.org">rachel.wanyoike@solidaridadnetwork.org</a> if it persists.
+              Send this error message to <a href="mailto:jifunze@solidaridadnetwork.org">jifunze@solidaridadnetwork.org</a> if it persists.
             </p>
           </div>
         </div>

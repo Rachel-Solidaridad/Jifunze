@@ -12715,7 +12715,7 @@ function nameFromEmail(email) {
 
 // ===== Main App =====
 export default function App() {
-  const [page, setPage] = useState('catalog');
+  const [page, setPage] = useState('dashboard');
   const [view, setView] = useState('list');
   const [activeCourse, setActiveCourse] = useState(null);
   const [certificateCourse, setCertificateCourse] = useState(null);
@@ -12744,6 +12744,7 @@ export default function App() {
   const [userCreatedAt, setUserCreatedAt] = useState(null);
   const [userLastActiveAt, setUserLastActiveAt] = useState(null);
   const [profileCompletedAt, setProfileCompletedAt] = useState(null);
+  const [profileHydrated, setProfileHydrated] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -12780,6 +12781,7 @@ export default function App() {
           setUserCreatedAt(userDoc.createdAt || null);
           setUserLastActiveAt(userDoc.lastActiveAt || null);
           setProfileCompletedAt(userDoc.profileCompletedAt || null);
+          setProfileHydrated(true);
           if (storedName) {
             setUserName(storedName);
           } else if (derived) {
@@ -12835,6 +12837,7 @@ export default function App() {
         setUserCreatedAt(null);
         setUserLastActiveAt(null);
         setProfileCompletedAt(null);
+        setProfileHydrated(false);
         setLoaded(true);
       }
     });
@@ -12847,7 +12850,7 @@ export default function App() {
     } catch (e) {
       console.error('Sign-out failed', e);
     }
-    setPage('catalog');
+    setPage('dashboard');
     setView('list');
   };
 
@@ -12996,7 +12999,8 @@ export default function App() {
               <div className="min-w-0 flex-1">
                 <div className="font-semibold text-sm truncate">{userName}</div>
                 <div className="text-xs text-gray-400 truncate">{userEmail || 'Solidaridad Staff'}</div>
-                {!profileCompletedAt && userUid ? (
+                {profileHydrated && userUid &&
+                  !isProfileComplete({ profileCompletedAt, country: userCountry, jobTitle: userJobTitle }) ? (
                   <button
                     onClick={() => navigate('profile')}
                     className="mt-1 text-[11px] font-bold uppercase tracking-wider hover:opacity-80"
@@ -13357,8 +13361,8 @@ function LoginPage() {
                       </p>
                       <p className="mt-3 text-xs text-gray-700 leading-relaxed">
                         If you have a Solidaridad account, try again and pick it from the Google chooser. If you believe you should have access, contact{' '}
-                        <a href={`mailto:info.secaec@${ALLOWED_DOMAIN}`} className="font-bold underline hover:text-black">
-                          info.secaec@{ALLOWED_DOMAIN}
+                        <a href={`mailto:jifunze@${ALLOWED_DOMAIN}`} className="font-bold underline hover:text-black">
+                          jifunze@{ALLOWED_DOMAIN}
                         </a>.
                       </p>
                     </>
@@ -13411,7 +13415,7 @@ function LoginPage() {
             CHANGE <span style={{ color: '#9C7A00' }}>THAT MATTERS</span>
           </p>
           <p className="text-[10px] text-gray-400 mt-1">
-            © Solidaridad {new Date().getFullYear()} · Need help? <a href={`mailto:info.secaec@${ALLOWED_DOMAIN}`} className="underline hover:text-black">Contact support</a>
+            © Solidaridad {new Date().getFullYear()} · Need help? <a href={`mailto:jifunze@${ALLOWED_DOMAIN}`} className="underline hover:text-black">Contact support</a>
           </p>
         </div>
       </div>

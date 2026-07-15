@@ -13357,8 +13357,8 @@ function LoginPage() {
                       </p>
                       <p className="mt-3 text-xs text-gray-700 leading-relaxed">
                         If you have a Solidaridad account, try again and pick it from the Google chooser. If you believe you should have access, contact{' '}
-                        <a href={`mailto:info.secaec@${ALLOWED_DOMAIN}`} className="font-bold underline hover:text-black">
-                          info.secaec@{ALLOWED_DOMAIN}
+                        <a href={`mailto:jifunze@${ALLOWED_DOMAIN}`} className="font-bold underline hover:text-black">
+                          jifunze@{ALLOWED_DOMAIN}
                         </a>.
                       </p>
                     </>
@@ -13411,7 +13411,7 @@ function LoginPage() {
             CHANGE <span style={{ color: '#9C7A00' }}>THAT MATTERS</span>
           </p>
           <p className="text-[10px] text-gray-400 mt-1">
-            © Solidaridad {new Date().getFullYear()} · Need help? <a href={`mailto:info.secaec@${ALLOWED_DOMAIN}`} className="underline hover:text-black">Contact support</a>
+            © Solidaridad {new Date().getFullYear()} · Need help? <a href={`mailto:jifunze@${ALLOWED_DOMAIN}`} className="underline hover:text-black">Contact support</a>
           </p>
         </div>
       </div>

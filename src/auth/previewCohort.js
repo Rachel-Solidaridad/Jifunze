@@ -33,7 +33,7 @@
 // │  changes and no waiting for the cutoff. (You can delete this module and   │
 // │  its App.jsx wiring later for good; flipping this is the quick path.)      │
 // └───────────────────────────────────────────────────────────────────────────┘
-export const PREVIEW_COHORT_ENABLED = true;
+export const PREVIEW_COHORT_ENABLED = false;
 
 // All lowercase; the lookup helper lowercases the candidate too.
 export const PREVIEW_COHORT = new Set([

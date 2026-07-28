@@ -8,7 +8,7 @@ import {
 
 const firebaseConfig = {
   apiKey: 'AIzaSyCEkVK21-OSqE857hzbEBmVNOqpYY0Oays',
-  authDomain: 'jifunze.solidaridadnetwork.org',
+  authDomain: 'jifunze-7dbfe.firebaseapp.com',
   projectId: 'jifunze-7dbfe',
   storageBucket: 'jifunze-7dbfe.firebasestorage.app',
   messagingSenderId: '691453522651',

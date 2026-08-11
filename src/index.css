@@ -12,3 +12,69 @@ body {
 * {
   box-sizing: border-box;
 }
+
+/* ===== Certificate print-to-PDF =====
+   When the learner clicks "Download PDF" (window.print()), isolate just the
+   certificate card onto a single clean A4 landscape page. Hide the rest of the
+   app, drop the on-screen chrome (shadow/border/rounded corners), and force
+   background colors + the Africa watermark to render in the exported PDF.
+
+   Single-page fit (verified with real headless-Chrome print-to-PDF): the app
+   DOM stays full-height in print because visibility:hidden elements still
+   occupy layout space, so an absolutely-positioned card measured against that
+   tall document spilled onto a 2nd page. Fix: clamp the document itself to
+   exactly one A4 landscape sheet (html/body 297x210mm + overflow:hidden), then
+   position:fixed the card relative to that single page. The card keeps its
+   exact on-screen width (max-w-4xl = 896px) so every internal element aligns
+   identically to the screen, and a single uniform transform scale enlarges the
+   whole card as one unit — preserving all internal proportions.
+
+   Presentation: the card is centred on the sheet at scale 1.16, leaving a
+   ~11mm left/right and ~8mm top/bottom white border (its 1.414 ratio matches
+   the page, so the border stays even), with a thin keyline so the certificate
+   edge reads crisply against the white margin. Verified: 1 page, all four
+   corners present, nothing clipped. */
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 0;
+  }
+
+  html,
+  body {
+    width: 297mm !important;
+    height: 210mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: #fff !important;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  .cert-card,
+  .cert-card * {
+    visibility: visible !important;
+  }
+
+  .cert-card {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    width: 896px !important;
+    max-width: 896px !important;
+    height: auto !important;
+    aspect-ratio: 1.414 / 1 !important;
+    margin: 0 !important;
+    transform: translate(-50%, -50%) scale(1.16) !important;
+    transform-origin: center center !important;
+    overflow: hidden !important;
+    box-shadow: none !important;
+    border: 1px solid #d4d4d8 !important;
+    border-radius: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

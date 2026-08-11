@@ -15,13 +15,28 @@ body {
 
 /* ===== Certificate print-to-PDF =====
    When the learner clicks "Download PDF" (window.print()), isolate just the
-   certificate card onto a clean A4 landscape page. Hide the rest of the app,
-   drop the on-screen chrome (shadow/border/rounded corners), and force
-   background colors + the Africa watermark to render in the exported PDF. */
+   certificate card onto a single clean A4 landscape page. Hide the rest of the
+   app, drop the on-screen chrome (shadow/border/rounded corners), and force
+   background colors + the Africa watermark to render in the exported PDF.
+
+   Single-page fit: use a zero page margin so the printable area is the full
+   A4 sheet (297x210mm, whose ratio is exactly the card's 1.414:1), then pin
+   the card to the full page and clip so sub-millimetre rounding can never
+   spill onto a second page. The inline aspect-ratio is overridden because the
+   width/height are fixed to the page here. */
 @media print {
   @page {
     size: A4 landscape;
-    margin: 10mm;
+    margin: 0;
+  }
+
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: #fff !important;
   }
 
   body * {
@@ -37,8 +52,13 @@ body {
     position: absolute !important;
     left: 0 !important;
     top: 0 !important;
-    width: 100% !important;
-    max-width: none !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: 100vw !important;
+    max-height: 100vh !important;
+    margin: 0 !important;
+    aspect-ratio: auto !important;
+    overflow: hidden !important;
     box-shadow: none !important;
     border: none !important;
     border-radius: 0 !important;

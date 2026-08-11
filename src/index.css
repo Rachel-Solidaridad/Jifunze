@@ -19,11 +19,16 @@ body {
    app, drop the on-screen chrome (shadow/border/rounded corners), and force
    background colors + the Africa watermark to render in the exported PDF.
 
-   Single-page fit: use a zero page margin so the printable area is the full
-   A4 sheet (297x210mm, whose ratio is exactly the card's 1.414:1), then pin
-   the card to the full page and clip so sub-millimetre rounding can never
-   spill onto a second page. The inline aspect-ratio is overridden because the
-   width/height are fixed to the page here. */
+   Single-page fit (verified with real headless-Chrome print-to-PDF): the app
+   DOM stays full-height in print because visibility:hidden elements still
+   occupy layout space, so an absolutely-positioned card measured against that
+   tall document spilled onto a 2nd page. Fix: clamp the document itself to
+   exactly one A4 landscape sheet (html/body 297x210mm + overflow:hidden), then
+   anchor the card to the page's top-left with position:fixed. The card keeps
+   its exact on-screen width (max-w-4xl = 896px) so every internal element
+   aligns identically to the screen, and a single uniform transform scale
+   (1.24, from the top-left) enlarges the whole card as one unit to fill the
+   sheet — preserving all internal proportions. */
 @media print {
   @page {
     size: A4 landscape;
@@ -32,10 +37,11 @@ body {
 
   html,
   body {
+    width: 297mm !important;
+    height: 210mm !important;
     margin: 0 !important;
     padding: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
+    overflow: hidden !important;
     background: #fff !important;
   }
 
@@ -48,21 +54,17 @@ body {
     visibility: visible !important;
   }
 
-  /* Keep the card at its exact on-screen width (max-w-4xl = 896px) so every
-     internal element aligns identically to the screen, then scale the whole
-     card as a single unit to fill the A4 landscape sheet. Uniform transform
-     scaling preserves all internal proportions; the layout box stays 896px
-     wide, so it never paginates onto a second page. */
   .cert-card {
-    position: absolute !important;
-    top: 50% !important;
-    left: 50% !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
     width: 896px !important;
     max-width: 896px !important;
     height: auto !important;
     aspect-ratio: 1.414 / 1 !important;
     margin: 0 !important;
-    transform: translate(-50%, -50%) scale(1.24) !important;
+    transform: scale(1.24) !important;
+    transform-origin: top left !important;
     overflow: hidden !important;
     box-shadow: none !important;
     border: none !important;

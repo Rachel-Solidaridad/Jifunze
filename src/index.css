@@ -12,3 +12,37 @@ body {
 * {
   box-sizing: border-box;
 }
+
+/* ===== Certificate print-to-PDF =====
+   When the learner clicks "Download PDF" (window.print()), isolate just the
+   certificate card onto a clean A4 landscape page. Hide the rest of the app,
+   drop the on-screen chrome (shadow/border/rounded corners), and force
+   background colors + the Africa watermark to render in the exported PDF. */
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 10mm;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  .cert-card,
+  .cert-card * {
+    visibility: visible !important;
+  }
+
+  .cert-card {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

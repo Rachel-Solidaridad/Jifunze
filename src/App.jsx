@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect, Suspense, lazy } from 'react';
-import { BookOpen, Award, CheckCircle2, ChevronRight, ChevronLeft, Home, Users, User as UserIcon, Target, Lightbulb, Shield, ShieldAlert, Globe, Mail, Palette, FileText, AlertTriangle, Sparkles, Trophy, X, Check, ArrowRight, RotateCcw, MapPin, TrendingUp, Leaf, Search, BarChart3, MessageSquare, BookMarked, Clock, Layers, Menu, DollarSign, CloudRain, Database, ClipboardCheck, Coffee, Apple, Wheat, Pickaxe, Shirt, Milk, Scissors, TreePalm, Bean, Lock } from 'lucide-react';
+import { BookOpen, Award, CheckCircle2, ChevronRight, ChevronLeft, Home, Users, User as UserIcon, Target, Lightbulb, Shield, ShieldAlert, Globe, Mail, Palette, FileText, AlertTriangle, Sparkles, Trophy, X, Check, ArrowRight, RotateCcw, MapPin, TrendingUp, Leaf, Search, BarChart3, MessageSquare, BookMarked, Clock, Layers, Menu, DollarSign, CloudRain, Database, ClipboardCheck, Coffee, Apple, Wheat, Pickaxe, Shirt, Milk, Scissors, TreePalm, Bean, Lock, Download } from 'lucide-react';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc, collection, getDocs, serverTimestamp, query, orderBy, limit, onSnapshot, addDoc, writeBatch, increment } from 'firebase/firestore';
 import { auth, googleProvider, ALLOWED_DOMAIN, db } from './firebase';
@@ -15449,11 +15449,19 @@ function CertificateView({ userName, onBack, course = null, uid = '' }) {
 
   return (
     <div>
-      <button onClick={onBack} className="text-sm font-bold uppercase tracking-wider mb-4 inline-flex items-center gap-1 hover:underline">
-        <ChevronLeft size={16} /> Back to Certificates
-      </button>
+      <div className="flex items-center justify-between mb-4 max-w-4xl mx-auto print:hidden">
+        <button onClick={onBack} className="text-sm font-bold uppercase tracking-wider inline-flex items-center gap-1 hover:underline">
+          <ChevronLeft size={16} /> Back to Certificates
+        </button>
+        <button
+          onClick={() => window.print()}
+          className="text-sm font-bold uppercase tracking-wider inline-flex items-center gap-2 bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800 transition-colors"
+        >
+          <Download size={16} /> Download PDF
+        </button>
+      </div>
 
-      <div className="relative bg-white border border-gray-300 rounded-lg overflow-hidden shadow-xl max-w-4xl mx-auto" style={{ aspectRatio: '1.414 / 1' }}>
+      <div className="cert-card relative bg-white border border-gray-300 rounded-lg overflow-hidden shadow-xl max-w-4xl mx-auto" style={{ aspectRatio: '1.414 / 1' }}>
         {/* Faded Africa continent map watermark */}
         <AfricaWatermark />
 
@@ -15555,8 +15563,8 @@ function CertificateView({ userName, onBack, course = null, uid = '' }) {
         </div>
       </div>
 
-      <p className="text-center text-xs text-gray-500 mt-4">
-        Take a screenshot to save your certificate · © Solidaridad {new Date().getFullYear()}
+      <p className="text-center text-xs text-gray-500 mt-4 print:hidden">
+        Click <span className="font-bold">Download PDF</span> and choose <span className="font-bold">Save as PDF</span> in the print dialog · © Solidaridad {new Date().getFullYear()}
       </p>
     </div>
   );

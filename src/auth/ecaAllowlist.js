@@ -55,6 +55,7 @@ export const ECA_EMAIL_ALLOWLIST = [
   'innocent.owomuhangi@solidaridadnetwork.org',
   'jeniffer.kendagor@solidaridadnetwork.org',
   'joan.chepkwemboi@solidaridadnetwork.org',
+  'joan.mbyuta@solidaridadnetwork.org',
   'john.vianney@solidaridadnetwork.org',
   'joseph.maberi@solidaridadnetwork.org',
   'joshua.rukundo@solidaridadnetwork.org',

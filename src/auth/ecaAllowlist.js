@@ -24,8 +24,10 @@ export const ECA_EMAIL_ALLOWLIST = [
   'anteneh.arega@solidaridadnetwork.org',
   'anthony.khisah@solidaridadnetwork.org',
   'asiimwe.sarah@solidaridadnetwork.org',
+  'asma.awadh@solidaridadnetwork.org',
   'augustine.wanjala@solidaridadnetwork.org',
   'austine.ochieng@solidaridadnetwork.org',
+  'aychew.erade@solidaridadnetwork.org',
   'berhanu.woldu@solidaridadnetwork.org',
   'betty.musembi@solidaridadnetwork.org',
   'bifered.alemayehu@solidaridadnetwork.org',
@@ -65,6 +67,7 @@ export const ECA_EMAIL_ALLOWLIST = [
   'mark.okot@solidaridadnetwork.org',
   'marym@solidaridadnetwork.org',
   'mercy.apondi@solidaridadnetwork.org',
+  'misker.anbese@solidaridadnetwork.org',
   'modesta.kasigara@solidaridadnetwork.org',
   'moses.ndiritu@solidaridadnetwork.org',
   'mugo.kamau@solidaridadnetwork.org',
@@ -92,6 +95,7 @@ export const ECA_EMAIL_ALLOWLIST = [
   'victor.herman@solidaridadnetwork.org',
   'victoria.kalekye@solidaridadnetwork.org',
   'winifrida.kanwa@solidaridadnetwork.org',
+  'wondimu.tekalign@solidaridadnetwork.org',
 ];
 
 const ALLOWLIST_SET = new Set(ECA_EMAIL_ALLOWLIST);

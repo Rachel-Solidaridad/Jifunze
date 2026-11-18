@@ -93,6 +93,8 @@ export const ECA_EMAIL_ALLOWLIST = [
   'sylvia.munai@solidaridadnetwork.org',
   'tilahun.mekonnen@solidaridadnetwork.org',
   'victor.herman@solidaridadnetwork.org',
+  'victoria@solidaridadnetwork.org',
+  'victoria.graham@solidaridadnetwork.org',
   'victoria.kalekye@solidaridadnetwork.org',
   'winifrida.kanwa@solidaridadnetwork.org',
   'wondimu.tekalign@solidaridadnetwork.org',
